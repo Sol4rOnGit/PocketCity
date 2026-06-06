@@ -193,6 +193,7 @@ GameObject:
   - component: {fileID: 330585545}
   - component: {fileID: 330585544}
   - component: {fileID: 330585547}
+  - component: {fileID: 330585548}
   m_Layer: 0
   m_Name: Main Camera
   m_TagString: MainCamera
@@ -318,6 +319,20 @@ MonoBehaviour:
     m_VarianceClampScale: 0.9
     m_ContrastAdaptiveSharpening: 0
   m_Version: 2
+--- !u!114 &330585548
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 330585543}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: be7b9fdce6751864680e55341acbb92c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CameraMoveScript
+  moveSpeed: 5
+  InputActions: {fileID: -944628639613478452, guid: 052faaac586de48259a63d0c4782560b, type: 3}
 --- !u!1 &410087039
 GameObject:
   m_ObjectHideFlags: 0
@@ -392,7 +407,7 @@ Light:
   m_BounceIntensity: 1
   m_ColorTemperature: 5000
   m_UseColorTemperature: 1
-  m_BoundingSphereOverride: {x: NaN, y: NaN, z: 0, w: 1e-45}
+  m_BoundingSphereOverride: {x: 4.5915e-41, y: 0, z: 0, w: -9.9581855e-14}
   m_UseBoundingSphereOverride: 0
   m_UseViewFrustumForShadowCasterCull: 1
   m_ForceVisible: 0
@@ -1073,8 +1088,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 09eae2c03f8572446840d29f34c40879, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GridManager
-  StraightRoad: {fileID: 2385131893709086923, guid: aba6d4326c2987348a187b5c1aa92b89, type: 3}
+  SquareRoad: {fileID: 9163286294634809444, guid: 8b1f918e62e433241ae0e4f1b214c6bd, type: 3}
   EndRoad: {fileID: 8636057993079516775, guid: bbc601e95a694f8449e6a767b2e947c7, type: 3}
+  StraightRoad: {fileID: 2385131893709086923, guid: aba6d4326c2987348a187b5c1aa92b89, type: 3}
+  Turn: {fileID: 3611481885029494112, guid: 70ba796f6913b644db9b1fe08bda94c5, type: 3}
   ThreeWayIntersection: {fileID: 5136170648252553669, guid: 408b543c0df131345a059600e4d56593, type: 3}
   FourWayIntersection: {fileID: 231981307816557759, guid: 73a43cf795695d04abf4f381a489ae9d, type: 3}
 --- !u!1001 &1300714282
