@@ -7,6 +7,11 @@ public class GridManager : MonoBehaviour
     //Vars
     private const float GridScale = 2.0f;
 
+    public float getGridScale()
+    {
+        return GridScale;
+    }
+
     [Header("Prefabs")]
     [SerializeField] private GameObject SquareRoad;
     [SerializeField] private GameObject EndRoad;
@@ -25,15 +30,68 @@ public class GridManager : MonoBehaviour
 
     private Dictionary<Vector2Int, GridTile> mapGrid = new Dictionary<Vector2Int, GridTile> ();
 
+    public Dictionary<Vector2Int, GridTile> GetMapGrid()
+    {
+        return mapGrid;
+    }
+
     private void Start()
     {
         TestGrid();
     }
 
-    // Update is called once per frame
-    void Update()
+    //Creation/Deletion Public Methods
+    public void createGridElement(Vector2Int pos)
     {
-        
+
+        if (mapGrid.ContainsKey(pos))
+        {
+            Debug.Log($"The grid point at {pos.x}, {pos.y} already has an element!");
+            return; //Already exists, should notify the user here later
+        }
+
+        //Figure out which ones to do
+        (int rotationDegrees, GameObject prefab) = DecideOnPrefab(pos);
+
+        Vector3 WorldPos = new Vector3(pos.x * GridScale, 0f, pos.y * GridScale);
+
+        Quaternion WorldRotation = Quaternion.Euler(0f, rotationDegrees, 0f);
+
+        GameObject Tile = Instantiate(prefab, WorldPos, WorldRotation, this.transform);
+        Tile.name = $"{prefab.name} ({pos.x}, {pos.y})";
+
+        GridTile newTile = new GridTile { tileName = prefab.name, instance = Tile, rotationDegrees = rotationDegrees };
+
+        mapGrid.Add(pos, newTile);
+
+        //Update the four grids around it
+        updateGridElement(pos + Vector2Int.up);
+        updateGridElement(pos + Vector2Int.down);
+        updateGridElement(pos + Vector2Int.left);
+        updateGridElement(pos + Vector2Int.right);
+    }
+
+    public void eraseGridElement(Vector2Int pos)
+    {
+        if (!mapGrid.ContainsKey(pos))
+        {
+            Debug.Log("Nothing to destroy.");
+            return;
+        }
+
+        GridTile tileData = mapGrid[pos];
+
+        //Destroy instance
+        if (tileData.instance != null) { Destroy(tileData.instance); }
+
+        //Remove from memory
+        mapGrid.Remove(pos);
+
+        //Update the other stuff around it
+        updateGridElement(pos + Vector2Int.up);
+        updateGridElement(pos + Vector2Int.down);
+        updateGridElement(pos + Vector2Int.left);
+        updateGridElement(pos + Vector2Int.right);
     }
 
     private void TestGrid()
@@ -56,23 +114,6 @@ public class GridManager : MonoBehaviour
 
         //Test
         createGridElement(new Vector2Int(0, 0)); //Shouldn't happen
-
-        createGridElement(new Vector2Int(5, 3));
-        createGridElement(new Vector2Int(5, 4));
-        createGridElement(new Vector2Int(5, 5));
-        createGridElement(new Vector2Int(4, 3));
-        createGridElement(new Vector2Int(4, 2));
-        createGridElement(new Vector2Int(6, 3));
-        createGridElement(new Vector2Int(6, 4));
-        createGridElement(new Vector2Int(6, 5));
-        createGridElement(new Vector2Int(6, 6));
-        createGridElement(new Vector2Int(6, 7));
-        createGridElement(new Vector2Int(5, 2));
-        createGridElement(new Vector2Int(5, 1)); 
-        createGridElement(new Vector2Int(7, 8));
-        createGridElement(new Vector2Int(8, 9));
-        createGridElement(new Vector2Int(7, 9));
-        createGridElement(new Vector2Int(9, 10));
     }
 
     private (int rotationDegrees, GameObject prefab) DecideOnPrefab(Vector2Int pos)
@@ -127,36 +168,6 @@ public class GridManager : MonoBehaviour
         throw new Exception("Error!");
     }
 
-    private void createGridElement(Vector2Int pos)
-    {
-
-        if (mapGrid.ContainsKey(pos))
-        {
-            Debug.Log($"The grid point at {pos.x}, {pos.y} already has an element!");
-            return; //Already exists, should notify the user here later
-        }
-
-        //Figure out which ones to do
-        (int rotationDegrees, GameObject prefab) = DecideOnPrefab(pos);
-
-        Vector3 WorldPos = new Vector3(pos.x * GridScale, 0f, pos.y * GridScale);
-
-        Quaternion WorldRotation = Quaternion.Euler(0f, rotationDegrees, 0f);
-
-        GameObject Tile = Instantiate(prefab, WorldPos, WorldRotation, this.transform);
-        Tile.name = $"{prefab.name} ({pos.x}, {pos.y})";
-
-        GridTile newTile = new GridTile { tileName = prefab.name, instance = Tile, rotationDegrees = rotationDegrees };
-
-        mapGrid.Add(pos, newTile);
-
-        //Update the four grids around it
-        updateGridElement(pos + Vector2Int.up);
-        updateGridElement(pos + Vector2Int.down);
-        updateGridElement(pos + Vector2Int.left);
-        updateGridElement(pos + Vector2Int.right);
-    }
-
     private void updateGridElement(Vector2Int pos)
     {
         if (!mapGrid.ContainsKey(pos))
@@ -188,4 +199,6 @@ public class GridManager : MonoBehaviour
         tileData.instance = Tile;
         tileData.rotationDegrees = newRotationDegrees;
     }
+
+    
 }

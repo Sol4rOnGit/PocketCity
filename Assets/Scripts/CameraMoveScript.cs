@@ -78,22 +78,20 @@ public class CameraMoveScript : MonoBehaviour
         bool isPressed = sprintAction.IsPressed();
 
         if (isPressed == wasPressed) { return; } //Ignore redundant
-        
-        if (isPressed) {
+
+        if (isPressed)
+        {
             currentMoveSpeed = sprintMultiplier * moveSpeed;
             currentZoomMultiplier = sprintMultiplier * zoomMultiplier;
-        } else
+        }
+        else
         {
             currentMoveSpeed = moveSpeed;
             currentZoomMultiplier = zoomMultiplier;
         }
 
         wasPressed = isPressed;
-
     }
-        
-
-
 
     private void OnDisable()
     {
