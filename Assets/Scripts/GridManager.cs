@@ -20,28 +20,32 @@ public class GridManager : MonoBehaviour
     [SerializeField] private GameObject ThreeWayIntersection;
     [SerializeField] private GameObject FourWayIntersection;
 
-    //Grid?
+    //Grid
     public class GridTile
     {
         public string tileName;
         public GameObject instance;
         public int rotationDegrees;
+        public BuildingType buildingType;
+        public bool isRoad;
     }
 
     private Dictionary<Vector2Int, GridTile> mapGrid = new Dictionary<Vector2Int, GridTile> ();
+    public List<Vector2Int> RoadPositions { get; private set; } = new List<Vector2Int>();
+    public List<Vector2Int> BuildingPositions = new List<Vector2Int>();
 
     public Dictionary<Vector2Int, GridTile> GetMapGrid()
     {
         return mapGrid;
     }
 
-    private void Start()
+    private void Awake()
     {
         PlaceInitialGrid();
     }
 
     //Creation/Deletion Public Methods
-    public void createGridElement(Vector2Int pos)
+    public void createRoadOnGrid(Vector2Int pos)
     {
 
         if (mapGrid.ContainsKey(pos))
@@ -60,15 +64,26 @@ public class GridManager : MonoBehaviour
         GameObject Tile = Instantiate(prefab, WorldPos, WorldRotation, this.transform);
         Tile.name = $"{prefab.name} ({pos.x}, {pos.y})";
 
-        GridTile newTile = new GridTile { tileName = prefab.name, instance = Tile, rotationDegrees = rotationDegrees };
+        GridTile newTile = new GridTile { tileName = prefab.name, instance = Tile, rotationDegrees = rotationDegrees, isRoad = true };
 
         mapGrid.Add(pos, newTile);
+        RoadPositions.Add(pos);
 
         //Update the four grids around it
         updateGridElement(pos + Vector2Int.up);
         updateGridElement(pos + Vector2Int.down);
         updateGridElement(pos + Vector2Int.left);
         updateGridElement(pos + Vector2Int.right);
+    }
+
+    public void createBuildingOnGrid(Vector2Int pos, GameObject buildingInstance, BuildingType buildingType, string buildingName)
+    {
+        if (mapGrid.ContainsKey(pos)) {return; }
+
+        GridTile buildingTile = new GridTile { tileName = buildingName, instance = buildingInstance, rotationDegrees = 0, buildingType = buildingType, isRoad = false };
+
+        mapGrid.Add(pos, buildingTile);
+        BuildingPositions.Add(pos);
     }
 
     public void eraseGridElement(Vector2Int pos)
@@ -81,11 +96,14 @@ public class GridManager : MonoBehaviour
 
         GridTile tileData = mapGrid[pos];
 
+        if (!tileData.isRoad) { return; } //can only remove other stuff
+
         //Destroy instance
         if (tileData.instance != null) { Destroy(tileData.instance); }
 
         //Remove from memory
         mapGrid.Remove(pos);
+        RoadPositions.Remove(pos);
 
         //Update the other stuff around it
         updateGridElement(pos + Vector2Int.up);
@@ -99,31 +117,31 @@ public class GridManager : MonoBehaviour
         //Place a 3 way intersection, to 3 straight roads with 3 end roads -> start
 
         //Middle
-        createGridElement(new Vector2Int(0, 0));
+        createRoadOnGrid(new Vector2Int(0, 0));
 
         //Left
-        createGridElement(new Vector2Int(-1, 0));
-        createGridElement(new Vector2Int(-2, 0));
+        createRoadOnGrid(new Vector2Int(-1, 0));
+        createRoadOnGrid(new Vector2Int(-2, 0));
 
         //Up
-        createGridElement(new Vector2Int(0, 1));
-        createGridElement(new Vector2Int(0, 2));
+        createRoadOnGrid(new Vector2Int(0, 1));
+        createRoadOnGrid(new Vector2Int(0, 2));
 
         //Right
-        createGridElement(new Vector2Int(1, 0));
-        createGridElement(new Vector2Int(2, 0));
-        createGridElement(new Vector2Int(2, 1));
+        createRoadOnGrid(new Vector2Int(1, 0));
+        createRoadOnGrid(new Vector2Int(2, 0));
+        createRoadOnGrid(new Vector2Int(2, 1));
     }
 
     private (int rotationDegrees, GameObject prefab) DecideOnPrefab(Vector2Int pos)
     {
         //Check above, left, right, bottom.
-        bool hasUp = mapGrid.ContainsKey(pos + Vector2Int.up);
-        bool hasDown = mapGrid.ContainsKey(pos + Vector2Int.down);
-        bool hasLeft = mapGrid.ContainsKey(pos + Vector2Int.left);
-        bool hasRight = mapGrid.ContainsKey(pos + Vector2Int.right);
+        bool hasUp = mapGrid.TryGetValue(pos + Vector2Int.up, out GridTile upTile) && upTile.isRoad;
+        bool hasDown = mapGrid.TryGetValue(pos + Vector2Int.down, out GridTile downTile) && downTile.isRoad;
+        bool hasLeft = mapGrid.TryGetValue(pos + Vector2Int.left, out GridTile leftTile) && leftTile.isRoad;
+        bool hasRight = mapGrid.TryGetValue(pos + Vector2Int.right, out GridTile rightTile) && rightTile.isRoad;
 
-        int connCount = 0;
+        int connCount = 0; 
         if (hasUp) { connCount += 1; } if (hasDown) { connCount += 1; } if (hasLeft) { connCount += 1; } if (hasRight) { connCount += 1; }
 
         //Handle prefabs
@@ -175,6 +193,8 @@ public class GridManager : MonoBehaviour
 
         GridTile tileData = mapGrid[pos];
 
+        if (!tileData.isRoad) return;
+
         (int newRotationDegrees, GameObject newPrefab) = DecideOnPrefab(pos);
 
         //Update prefab & rotation
@@ -193,9 +213,6 @@ public class GridManager : MonoBehaviour
         //Update GridTile with the new data (which is referenced in mapgrid so that is updated as well)
         tileData.tileName = newPrefab.name;
         tileData.instance = Tile;
-        tileData.instance = Tile;
         tileData.rotationDegrees = newRotationDegrees;
     }
-
-    
 }

@@ -282,6 +282,28 @@
                 },
                 {
                     "name": "",
+                    "id": "0c648d7d-eb0a-4c8f-8a07-814b1f583900",
+                    "path": "",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Zoom",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "c79c60ce-d29e-4807-a1c5-d6be21468fc7",
+                    "path": "<Mouse>/scroll",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Zoom",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
                     "id": "feb2b376-6dfe-429c-b273-b67b73d987e4",
                     "path": "<Mouse>/leftButton",
                     "interactions": "",

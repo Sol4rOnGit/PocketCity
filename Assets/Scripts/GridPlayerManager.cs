@@ -77,7 +77,7 @@ public class GridPlayerManager : MonoBehaviour
     {
         if (!gridManager.GetMapGrid().ContainsKey(currentGridPosHovering))
         {
-            gridManager.createGridElement(currentGridPosHovering);
+            gridManager.createRoadOnGrid(currentGridPosHovering);
         }
     }
 
