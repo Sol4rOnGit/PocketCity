@@ -37,7 +37,7 @@ public class GridManager : MonoBehaviour
 
     private void Start()
     {
-        TestGrid();
+        PlaceInitialGrid();
     }
 
     //Creation/Deletion Public Methods
@@ -94,9 +94,11 @@ public class GridManager : MonoBehaviour
         updateGridElement(pos + Vector2Int.right);
     }
 
-    private void TestGrid()
+    private void PlaceInitialGrid()
     {
-        //Place a 3 way intersection, to 3 straight roads with 3 end roads
+        //Place a 3 way intersection, to 3 straight roads with 3 end roads -> start
+
+        //Middle
         createGridElement(new Vector2Int(0, 0));
 
         //Left
@@ -111,9 +113,6 @@ public class GridManager : MonoBehaviour
         createGridElement(new Vector2Int(1, 0));
         createGridElement(new Vector2Int(2, 0));
         createGridElement(new Vector2Int(2, 1));
-
-        //Test
-        createGridElement(new Vector2Int(0, 0)); //Shouldn't happen
     }
 
     private (int rotationDegrees, GameObject prefab) DecideOnPrefab(Vector2Int pos)
@@ -162,8 +161,6 @@ public class GridManager : MonoBehaviour
                 //Alone idk what to do
                 return (0, SquareRoad);
         }
-
-
 
         throw new Exception("Error!");
     }

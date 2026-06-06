@@ -3,13 +3,13 @@ using Unity.Mathematics.Geometry;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-public class CameraMoveScript : MonoBehaviour
+public class MovementScript : MonoBehaviour
 {
     [Header("Movement Actions")]
     [SerializeField] private float moveSpeed = 5.0f;
     [SerializeField] private float zoomMultiplier = 50.0f;
     [SerializeField] private float sprintMultiplier = 3.0f;
-    [SerializeField] private float minHeight = 3.0f;
+    [SerializeField] private float minHeight = 2.0f;
     [SerializeField] private float maxHeight = 1000.0f;
     public InputActionAsset InputActions;
     InputAction moveAction;
@@ -61,7 +61,7 @@ public class CameraMoveScript : MonoBehaviour
         {
             Vector3 moveDir = new Vector3(0f, 0f, scrollValue);
 
-            transform.Translate(moveDir * currentZoomMultiplier * Time.deltaTime);
+            transform.Translate(moveDir * currentZoomMultiplier * Time.deltaTime, Space.Self);
 
             //Clamp
             Vector3 clampedPosition = transform.position;

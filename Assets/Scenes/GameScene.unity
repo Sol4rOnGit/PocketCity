@@ -268,8 +268,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 330585543}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.40749422, y: -0, z: -0, w: 0.91320777}
-  m_LocalPosition: {x: 0, y: 8.7, z: -10}
+  m_LocalRotation: {x: 0.40749386, y: 0, z: 0, w: 0.91320795}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -330,7 +330,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: be7b9fdce6751864680e55341acbb92c, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::CameraMoveScript
+  m_EditorClassIdentifier: Assembly-CSharp::MovementScript
   moveSpeed: 5
   zoomMultiplier: 50
   sprintMultiplier: 3
@@ -411,7 +411,7 @@ Light:
   m_BounceIntensity: 1
   m_ColorTemperature: 5000
   m_UseColorTemperature: 1
-  m_BoundingSphereOverride: {x: 4.5915e-41, y: 0, z: 0, w: -9.9581855e-14}
+  m_BoundingSphereOverride: {x: 5.76e-43, y: -1.452095e-17, z: 4.5915e-41, w: -1.451915e-17}
   m_UseBoundingSphereOverride: 0
   m_UseViewFrustumForShadowCasterCull: 1
   m_ForceVisible: 0
@@ -1310,7 +1310,7 @@ Transform:
   m_GameObject: {fileID: 1882860689}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 0, y: 7, z: -8}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -1332,6 +1332,7 @@ MonoBehaviour:
   inputActions: {fileID: -944628639613478452, guid: 052faaac586de48259a63d0c4782560b, type: 3}
   playerCamera: {fileID: 330585545}
   gridManager: {fileID: 1273503028}
+  cursor: {fileID: 6217331903252028676, guid: eb77da6927c7ad849968b57b19ab6aef, type: 3}
 --- !u!4 &1952187121 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 05f8f716de15d364abe6fd8ba4c0bd8f, type: 3}

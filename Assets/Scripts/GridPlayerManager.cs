@@ -14,9 +14,13 @@ public class GridPlayerManager : MonoBehaviour
     [SerializeField] private Camera playerCamera;
     [SerializeField] private GridManager gridManager;
 
-    private Vector2Int _currentGridPosHovering;
-    private Plane _gridPlane;
-    
+    [Header("Cursor")]
+    [SerializeField] private GameObject cursor;
+    private GameObject cursorInstance;
+
+    private Vector2Int currentGridPosHovering;
+    private Plane gridPlane;
+
 
     void Start()
     {
@@ -31,7 +35,10 @@ public class GridPlayerManager : MonoBehaviour
         if (playerCamera == null) { playerCamera = Camera.main; }
 
         //Mathematical plane
-        _gridPlane = new Plane(Vector3.up, Vector3.zero); //Plane to collide with
+        gridPlane = new Plane(Vector3.up, Vector3.zero); //Plane to collide with
+
+        //Cursor instantiation
+        cursorInstance = Instantiate(cursor, this.transform);
     }
 
     void Update()
@@ -45,9 +52,11 @@ public class GridPlayerManager : MonoBehaviour
         Vector2 mousePos = Mouse.current.position.ReadValue();
         Ray raycast = playerCamera.ScreenPointToRay(mousePos);
 
-        if (_gridPlane.Raycast(raycast, out float distance)) {
+        if (gridPlane.Raycast(raycast, out float distance)) {
             Vector3 worldpoint = raycast.GetPoint(distance);
-            _currentGridPosHovering = WorldToGridPosition(worldpoint);
+            currentGridPosHovering = WorldToGridPosition(worldpoint);
+
+            DrawTemporary(currentGridPosHovering);
         }
     }
 
@@ -55,21 +64,47 @@ public class GridPlayerManager : MonoBehaviour
     {
         if (placeAction.WasPressedThisFrame())
         {
-            if (!gridManager.GetMapGrid().ContainsKey(_currentGridPosHovering))
-            {
-                gridManager.createGridElement(_currentGridPosHovering);
-            }
+            AttemptToCreateElement();
         }
 
         if (destroyAction.WasPressedThisFrame())
         {
-            if (gridManager.GetMapGrid().ContainsKey(_currentGridPosHovering))
-            {
-                gridManager.eraseGridElement(_currentGridPosHovering);
-            }
+            AttemptToEraseElement();
         }
-
     }
+
+    private void AttemptToCreateElement()
+    {
+        if (!gridManager.GetMapGrid().ContainsKey(currentGridPosHovering))
+        {
+            gridManager.createGridElement(currentGridPosHovering);
+        }
+    }
+
+    private void AttemptToEraseElement()
+    {
+        if (gridManager.GetMapGrid().ContainsKey(currentGridPosHovering))
+        {
+            gridManager.eraseGridElement(currentGridPosHovering);
+        }
+    }
+
+    Vector2Int oldPos = new Vector2Int(int.MinValue, int.MinValue);
+    private void DrawTemporary(Vector2Int gridPos)
+    {
+        if (gridPos == oldPos) { return; } //Early return to save on performance
+
+        if (cursorInstance == null) { Debug.Log("Error! Cursor not found."); return; }
+        cursorInstance.transform.position = new Vector3(currentGridPosHovering.x * gridManager.getGridScale(), 0f, currentGridPosHovering.y * gridManager.getGridScale());
+
+        //Dragging to draw roads continuously
+        if (placeAction.IsPressed()) { AttemptToCreateElement(); }
+        else if (destroyAction.IsPressed()) { AttemptToEraseElement(); }
+
+        oldPos = gridPos;
+    }
+
+    //Helper functions
 
     private Vector2Int WorldToGridPosition(Vector3 worldPos)
     {
