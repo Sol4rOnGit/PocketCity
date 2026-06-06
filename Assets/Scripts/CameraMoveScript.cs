@@ -8,11 +8,16 @@ public class CameraMoveScript : MonoBehaviour
     [Header("Movement Actions")]
     [SerializeField] private float moveSpeed = 5.0f;
     [SerializeField] private float zoomMultiplier = 50.0f;
+    [SerializeField] private float sprintMultiplier = 3.0f;
     [SerializeField] private float minHeight = 3.0f;
     [SerializeField] private float maxHeight = 1000.0f;
     public InputActionAsset InputActions;
     InputAction moveAction;
     InputAction zoomAction;
+    InputAction sprintAction;
+
+    private float currentMoveSpeed;
+    private float currentZoomMultiplier;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
@@ -20,8 +25,13 @@ public class CameraMoveScript : MonoBehaviour
         InputActionMap PlayerMap = InputActions.FindActionMap("Player");
         moveAction = PlayerMap.FindAction("Move");
         zoomAction = PlayerMap.FindAction("Zoom");
+        sprintAction = PlayerMap.FindAction("Sprint");
         moveAction.Enable();
         zoomAction.Enable();
+        sprintAction.Enable();
+
+        currentMoveSpeed = moveSpeed;
+        currentZoomMultiplier = zoomMultiplier;
     }
 
     // Update is called once per frame
@@ -29,6 +39,7 @@ public class CameraMoveScript : MonoBehaviour
     {
         HandlePlanarMovement();
         HandleVerticalMovement();
+        HandleFasterMovement();
     }
 
     private void HandlePlanarMovement()
@@ -37,7 +48,7 @@ public class CameraMoveScript : MonoBehaviour
 
         Vector3 moveDir = new Vector3(inputVector.x, 0f, inputVector.y).normalized;
 
-        transform.Translate(moveDir * moveSpeed * Time.deltaTime, Space.World);
+        transform.Translate(moveDir * currentMoveSpeed * Time.deltaTime, Space.World);
     }
 
     private void HandleVerticalMovement()
@@ -50,7 +61,7 @@ public class CameraMoveScript : MonoBehaviour
         {
             Vector3 moveDir = new Vector3(0f, 0f, scrollValue);
 
-            transform.Translate(moveDir * zoomMultiplier * Time.deltaTime);
+            transform.Translate(moveDir * currentZoomMultiplier * Time.deltaTime);
 
             //Clamp
             Vector3 clampedPosition = transform.position;
@@ -61,10 +72,33 @@ public class CameraMoveScript : MonoBehaviour
         }
     }
 
+    private bool wasPressed = false;
+    private void HandleFasterMovement()
+    {
+        bool isPressed = sprintAction.IsPressed();
+
+        if (isPressed == wasPressed) { return; } //Ignore redundant
+        
+        if (isPressed) {
+            currentMoveSpeed = sprintMultiplier * moveSpeed;
+            currentZoomMultiplier = sprintMultiplier * zoomMultiplier;
+        } else
+        {
+            currentMoveSpeed = moveSpeed;
+            currentZoomMultiplier = zoomMultiplier;
+        }
+
+        wasPressed = isPressed;
+
+    }
+        
+
+
 
     private void OnDisable()
     {
         moveAction.Disable();
         zoomAction.Disable();
+        sprintAction.Disable();
     }
 }
