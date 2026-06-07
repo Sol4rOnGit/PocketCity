@@ -76,11 +76,11 @@ public class GridManager : MonoBehaviour
         updateGridElement(pos + Vector2Int.right);
     }
 
-    public void createBuildingOnGrid(Vector2Int pos, GameObject buildingInstance, BuildingType buildingType, string buildingName)
+    public void createBuildingOnGrid(Vector2Int pos, GameObject buildingInstance, int rotationDegrees, BuildingType buildingType, string buildingName)
     {
         if (mapGrid.ContainsKey(pos)) {return; }
 
-        GridTile buildingTile = new GridTile { tileName = buildingName, instance = buildingInstance, rotationDegrees = 0, buildingType = buildingType, isRoad = false };
+        GridTile buildingTile = new GridTile { tileName = buildingName, instance = buildingInstance, rotationDegrees = rotationDegrees, buildingType = buildingType, isRoad = false };
 
         mapGrid.Add(pos, buildingTile);
         BuildingPositions.Add(pos);

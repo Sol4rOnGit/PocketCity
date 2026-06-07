@@ -142,74 +142,12 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 3152206825789445791}
-  - {fileID: 263704312404393572}
   - {fileID: 8265552566783963104}
   - {fileID: 3016811912497192833}
   - {fileID: 695087570376975295}
+  - {fileID: 4380234397660222435}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1001 &297911377193294223
-PrefabInstance:
-  m_ObjectHideFlags: 0
-  serializedVersion: 2
-  m_Modification:
-    serializedVersion: 3
-    m_TransformParent: {fileID: 8138008051477137775}
-    m_Modifications:
-    - target: {fileID: -8679921383154817045, guid: 995f4c7746560154ca0301b987bfe19a, type: 3}
-      propertyPath: m_LocalPosition.x
-      value: -0.33338204
-      objectReference: {fileID: 0}
-    - target: {fileID: -8679921383154817045, guid: 995f4c7746560154ca0301b987bfe19a, type: 3}
-      propertyPath: m_LocalPosition.y
-      value: 0.049999937
-      objectReference: {fileID: 0}
-    - target: {fileID: -8679921383154817045, guid: 995f4c7746560154ca0301b987bfe19a, type: 3}
-      propertyPath: m_LocalPosition.z
-      value: -0.33197904
-      objectReference: {fileID: 0}
-    - target: {fileID: -8679921383154817045, guid: 995f4c7746560154ca0301b987bfe19a, type: 3}
-      propertyPath: m_LocalRotation.w
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: -8679921383154817045, guid: 995f4c7746560154ca0301b987bfe19a, type: 3}
-      propertyPath: m_LocalRotation.x
-      value: -0
-      objectReference: {fileID: 0}
-    - target: {fileID: -8679921383154817045, guid: 995f4c7746560154ca0301b987bfe19a, type: 3}
-      propertyPath: m_LocalRotation.y
-      value: -0
-      objectReference: {fileID: 0}
-    - target: {fileID: -8679921383154817045, guid: 995f4c7746560154ca0301b987bfe19a, type: 3}
-      propertyPath: m_LocalRotation.z
-      value: -0
-      objectReference: {fileID: 0}
-    - target: {fileID: -8679921383154817045, guid: 995f4c7746560154ca0301b987bfe19a, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: -8679921383154817045, guid: 995f4c7746560154ca0301b987bfe19a, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: -8679921383154817045, guid: 995f4c7746560154ca0301b987bfe19a, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 919132149155446097, guid: 995f4c7746560154ca0301b987bfe19a, type: 3}
-      propertyPath: m_Name
-      value: building-skyscraper-d
-      objectReference: {fileID: 0}
-    m_RemovedComponents: []
-    m_RemovedGameObjects: []
-    m_AddedGameObjects: []
-    m_AddedComponents: []
-  m_SourcePrefab: {fileID: 100100000, guid: 995f4c7746560154ca0301b987bfe19a, type: 3}
---- !u!4 &263704312404393572 stripped
-Transform:
-  m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 995f4c7746560154ca0301b987bfe19a, type: 3}
-  m_PrefabInstance: {fileID: 297911377193294223}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &1022258888921482324
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -333,6 +271,68 @@ PrefabInstance:
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 6d146d14e78a5244b84b3c07b401ad63, type: 3}
   m_PrefabInstance: {fileID: 3339250959085910122}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1001 &4270272846133031944
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 8138008051477137775}
+    m_Modifications:
+    - target: {fileID: -8679921383154817045, guid: b9c505df7fe1726469a0ccf26ab98963, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -0.297
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: b9c505df7fe1726469a0ccf26ab98963, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: -0.05000021
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: b9c505df7fe1726469a0ccf26ab98963, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: -0.29
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: b9c505df7fe1726469a0ccf26ab98963, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: b9c505df7fe1726469a0ccf26ab98963, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: b9c505df7fe1726469a0ccf26ab98963, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: b9c505df7fe1726469a0ccf26ab98963, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: b9c505df7fe1726469a0ccf26ab98963, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: b9c505df7fe1726469a0ccf26ab98963, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: b9c505df7fe1726469a0ccf26ab98963, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: b9c505df7fe1726469a0ccf26ab98963, type: 3}
+      propertyPath: m_Name
+      value: building-skyscraper-c
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: b9c505df7fe1726469a0ccf26ab98963, type: 3}
+--- !u!4 &4380234397660222435 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: b9c505df7fe1726469a0ccf26ab98963, type: 3}
+  m_PrefabInstance: {fileID: 4270272846133031944}
   m_PrefabAsset: {fileID: 0}
 --- !u!1001 &8448644295078217739
 PrefabInstance:
