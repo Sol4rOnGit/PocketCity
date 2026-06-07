@@ -9,8 +9,8 @@ public class MovementScript : MonoBehaviour
     [SerializeField] private float moveSpeed = 5.0f;
     [SerializeField] private float zoomMultiplier = 50.0f;
     [SerializeField] private float sprintMultiplier = 3.0f;
-    [SerializeField] private float minHeight = 2.0f;
-    [SerializeField] private float maxHeight = 1000.0f;
+    [SerializeField] private float minHeight = 6.0f;
+    [SerializeField] private float maxHeight = 100.0f;
     public InputActionAsset InputActions;
     InputAction moveAction;
     InputAction zoomAction;

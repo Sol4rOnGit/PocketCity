@@ -12,13 +12,16 @@ public class GridManager : MonoBehaviour
         return GridScale;
     }
 
-    [Header("Prefabs")]
+    [Header("Road Prefabs")]
     [SerializeField] private GameObject SquareRoad;
     [SerializeField] private GameObject EndRoad;
     [SerializeField] private GameObject StraightRoad;
     [SerializeField] private GameObject Turn;
     [SerializeField] private GameObject ThreeWayIntersection;
     [SerializeField] private GameObject FourWayIntersection;
+
+    [Header("Nature Settings")]
+    [SerializeField] private GameObject[] TreePrefabs;
 
     //Grid
     public class GridTile
@@ -31,7 +34,9 @@ public class GridManager : MonoBehaviour
     }
 
     private Dictionary<Vector2Int, GridTile> mapGrid = new Dictionary<Vector2Int, GridTile> ();
+    public Dictionary<Vector2Int, GameObject> TreeGrid = new Dictionary<Vector2Int, GameObject>();
     public List<Vector2Int> RoadPositions { get; private set; } = new List<Vector2Int>();
+
     public List<Vector2Int> BuildingPositions = new List<Vector2Int>();
 
     public Dictionary<Vector2Int, GridTile> GetMapGrid()
@@ -53,6 +58,8 @@ public class GridManager : MonoBehaviour
             Debug.Log($"The grid point at {pos.x}, {pos.y} already has an element!");
             return; //Already exists, should notify the user here later
         }
+
+        ClearTreeAtPos(pos);
 
         //Figure out which ones to do
         (int rotationDegrees, GameObject prefab) = DecideOnPrefab(pos);
@@ -80,10 +87,23 @@ public class GridManager : MonoBehaviour
     {
         if (mapGrid.ContainsKey(pos)) {return; }
 
+        ClearTreeAtPos(pos);
+
         GridTile buildingTile = new GridTile { tileName = buildingName, instance = buildingInstance, rotationDegrees = rotationDegrees, buildingType = buildingType, isRoad = false };
 
         mapGrid.Add(pos, buildingTile);
         BuildingPositions.Add(pos);
+    }
+
+    public void SpawnTreeInChunk(Vector2Int gridPos, Vector3 worldPos, Quaternion randomRotation)
+    {
+        if (TreePrefabs == null || TreePrefabs.Length == 0) { return; }
+
+        GameObject treePrefab = TreePrefabs[UnityEngine.Random.Range(0, TreePrefabs.Length)];
+        GameObject treeInstance = Instantiate(treePrefab, worldPos, randomRotation, this.transform);
+        treeInstance.name = $"Tree ({gridPos.x}, {gridPos.y})";
+
+        TreeGrid.Add(new Vector2Int(gridPos.x, gridPos.y), treeInstance);
     }
 
     public void eraseGridElement(Vector2Int pos)
@@ -112,9 +132,20 @@ public class GridManager : MonoBehaviour
         updateGridElement(pos + Vector2Int.right);
     }
 
+    private void ClearTreeAtPos(Vector2Int pos)
+    {
+        if (TreeGrid.TryGetValue(pos, out GameObject treeInstance))
+        {
+            if (treeInstance != null)
+            {
+                Destroy(treeInstance);
+            }
+            TreeGrid.Remove(pos);
+        }
+    }
     private void PlaceInitialGrid()
     {
-        //Place a 3 way intersection, to 3 straight roads with 3 end roads -> start
+        //Random initial road layout
 
         //Middle
         createRoadOnGrid(new Vector2Int(0, 0));

@@ -92,6 +92,8 @@ public class CityGenerator : MonoBehaviour
             (Vector2Int spot, Vector2Int dirToRoad) = GetRandomEmptyNeighbour(randomRoad, currentGrid);
 
             if (spot != Vector2Int.left * 99999) { return (spot, dirToRoad); }
+
+            currentAttempts++;
         }
 
         return (Vector2Int.left * 99999, Vector2Int.left * 99999);
@@ -162,7 +164,7 @@ public class CityGenerator : MonoBehaviour
         Vector3 worldPos = new Vector3(spawnPos.x * scale, 0f, spawnPos.y * scale);
         Quaternion worldRot = Quaternion.Euler(0f, rotationDegrees, 0f);
 
-        GameObject BuildingInstance = Instantiate(prefab, worldPos, worldRot);
+        GameObject BuildingInstance = Instantiate(prefab, worldPos, worldRot, gridManager.transform);
         BuildingInstance.name = $"{prefab.name} ({spawnPos.x}, {spawnPos.y}";
 
         gridManager.createBuildingOnGrid(spawnPos, BuildingInstance, rotationDegrees, (BuildingType)buildingType, BuildingInstance.name); //NEED ROTATION HERE!!!
