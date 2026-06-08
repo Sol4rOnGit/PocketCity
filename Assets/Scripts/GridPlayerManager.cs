@@ -2,6 +2,18 @@ using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
+public enum PlayerMode
+{
+    RoadBuilding,
+
+    ZoneResidential,
+    ZoneCommercial,
+    ZoneIndustrial,
+    ZoneNoBuild,
+
+    DemolishBuildings
+}
+
 public class GridPlayerManager : MonoBehaviour
 {
     [Header("Input")]
@@ -9,6 +21,9 @@ public class GridPlayerManager : MonoBehaviour
     InputActionMap playerActionMap;
     InputAction placeAction;
     InputAction destroyAction;
+    InputAction changePlayerModeAction;
+    private PlayerMode currentPlayerMode = PlayerMode.RoadBuilding;
+
 
     [Header("Camera")]
     [SerializeField] private Camera playerCamera;
@@ -21,6 +36,8 @@ public class GridPlayerManager : MonoBehaviour
     private Vector2Int currentGridPosHovering;
     private Plane gridPlane;
 
+    [Header("UI")]
+    [SerializeField] private TMPro.TextMeshProUGUI PlayerModeUIText;
 
     void Start()
     {
@@ -28,8 +45,10 @@ public class GridPlayerManager : MonoBehaviour
         playerActionMap = inputActions.FindActionMap("Player");
         placeAction = playerActionMap.FindAction("Place");
         destroyAction = playerActionMap.FindAction("Destroy");
+        changePlayerModeAction = playerActionMap.FindAction("ChangePlayerMode");
         placeAction.Enable();
         destroyAction.Enable();
+        changePlayerModeAction.Enable();
 
         //Camera
         if (playerCamera == null) { playerCamera = Camera.main; }
@@ -62,6 +81,11 @@ public class GridPlayerManager : MonoBehaviour
 
     private void HandlePlayerInput()
     {
+        if (changePlayerModeAction.WasPressedThisFrame())
+        {
+            IncrementPlayerMode();
+        }
+
         if (placeAction.WasPressedThisFrame())
         {
             AttemptToCreateElement();
@@ -75,17 +99,71 @@ public class GridPlayerManager : MonoBehaviour
 
     private void AttemptToCreateElement()
     {
-        if (!gridManager.GetMapGrid().ContainsKey(currentGridPosHovering))
+        switch (currentPlayerMode)
         {
-            gridManager.createRoadOnGrid(currentGridPosHovering);
+            case PlayerMode.RoadBuilding:
+                gridManager.createRoadOnGrid(currentGridPosHovering); break;
+
+            case PlayerMode.ZoneResidential:
+                gridManager.zoneTileOnGrid(currentGridPosHovering, ZoneType.Residential); break;
+            case PlayerMode.ZoneCommercial:
+                gridManager.zoneTileOnGrid(currentGridPosHovering, ZoneType.Commercial); break;
+            case PlayerMode.ZoneIndustrial:
+                gridManager.zoneTileOnGrid(currentGridPosHovering, ZoneType.Industrial); break;
+            case PlayerMode.ZoneNoBuild:
+                gridManager.zoneTileOnGrid(currentGridPosHovering, ZoneType.NoBuild); break;
+
+            case PlayerMode.DemolishBuildings:
+                gridManager.createRoadOnGrid(currentGridPosHovering); break;
+            default:
+                Debug.LogError("Invalid Player State!");
+                break;
         }
     }
 
     private void AttemptToEraseElement()
     {
-        if (gridManager.GetMapGrid().ContainsKey(currentGridPosHovering))
+        switch (currentPlayerMode)
         {
-            gridManager.eraseGridElement(currentGridPosHovering);
+            case PlayerMode.RoadBuilding:
+                gridManager.eraseGridElement(currentGridPosHovering); break;
+
+            case PlayerMode.ZoneResidential:
+            case PlayerMode.ZoneCommercial:
+            case PlayerMode.ZoneIndustrial:
+            case PlayerMode.ZoneNoBuild:
+                gridManager.removeZoneFromGrid(currentGridPosHovering); break;
+
+            case PlayerMode.DemolishBuildings:
+                gridManager.eraseGridElement(currentGridPosHovering); break;
+            default:
+                Debug.LogError("Invalid Player State!");
+                break;
+        }
+    }
+
+    public void IncrementPlayerMode()
+    {
+        currentPlayerMode = (PlayerMode)(((int)currentPlayerMode + 1) % System.Enum.GetValues(typeof(PlayerMode)).Length);
+
+        switch (currentPlayerMode) {
+            case PlayerMode.RoadBuilding:
+                PlayerModeUIText.text = "Road Building"; break;
+
+            case PlayerMode.ZoneResidential:
+                PlayerModeUIText.text = "Residential Zoning"; break;
+            case PlayerMode.ZoneCommercial:
+                PlayerModeUIText.text = "Commercial Zoning"; break;
+            case PlayerMode.ZoneIndustrial:
+                PlayerModeUIText.text = "Industrial Zoning"; break;
+            case PlayerMode.ZoneNoBuild:
+                PlayerModeUIText.text = "No Build Zoning"; break;
+
+            case PlayerMode.DemolishBuildings:
+                PlayerModeUIText.text = "W.I.P. Demolish Buildings"; break;
+            default:
+                Debug.LogError("Invalid Player State!");
+                break;
         }
     }
 
@@ -118,5 +196,6 @@ public class GridPlayerManager : MonoBehaviour
     {
         placeAction.Disable();
         destroyAction.Disable();
+        changePlayerModeAction.Disable();
     }
 }

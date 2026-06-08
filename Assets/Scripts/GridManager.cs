@@ -2,6 +2,14 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
+public enum ZoneType
+{
+    None,
+    NoBuild,
+    Residential,
+    Commercial,
+    Industrial
+}
 public class GridManager : MonoBehaviour
 {
     //Vars
@@ -20,16 +28,24 @@ public class GridManager : MonoBehaviour
     [SerializeField] private GameObject ThreeWayIntersection;
     [SerializeField] private GameObject FourWayIntersection;
 
+    [Header("Zoning Prefabs")]
+    [SerializeField] private GameObject noBuildZonePrefab;
+    [SerializeField] private GameObject residentialZonePrefab;
+    [SerializeField] private GameObject commercialZonePrefab;
+    [SerializeField] private GameObject industrialZonePrefab;
+
     [Header("Nature Settings")]
     [SerializeField] private GameObject[] TreePrefabs;
 
     //Grid
+
     public class GridTile
     {
         public string tileName;
         public GameObject instance;
         public int rotationDegrees;
-        public BuildingType buildingType;
+        public BuildingType? buildingType;
+        public ZoneType zoneType;
         public bool isRoad;
     }
 
@@ -37,7 +53,8 @@ public class GridManager : MonoBehaviour
     public Dictionary<Vector2Int, GameObject> TreeGrid = new Dictionary<Vector2Int, GameObject>();
     public List<Vector2Int> RoadPositions { get; private set; } = new List<Vector2Int>();
 
-    public List<Vector2Int> BuildingPositions = new List<Vector2Int>();
+    [HideInInspector] public List<Vector2Int> BuildingPositions = new List<Vector2Int>();
+    [HideInInspector] public List<Vector2Int> ZonedPositions = new List<Vector2Int>();
 
     public Dictionary<Vector2Int, GridTile> GetMapGrid()
     {
@@ -49,15 +66,29 @@ public class GridManager : MonoBehaviour
         PlaceInitialGrid();
     }
 
-    //Creation/Deletion Public Methods
+    //Creation/Deletion Methods
+
+    //Creation
     public void createRoadOnGrid(Vector2Int pos)
     {
-
-        if (mapGrid.ContainsKey(pos))
+        if (mapGrid.TryGetValue(pos, out GridTile tile))
         {
-            Debug.Log($"The grid point at {pos.x}, {pos.y} already has an element!");
-            return; //Already exists, should notify the user here later
+            if (!tile.isRoad && tile.buildingType == null)
+            {
+                if (tile.instance != null) { Destroy(tile.instance); }
+                mapGrid.Remove(pos);
+            }
+            else
+            {
+                Debug.Log($"The grid point at {pos.x}, {pos.y} already has an element!");
+                return; //Already exists, should notify the user here later
+            }
         }
+
+            /*if (mapGrid.ContainsKey(pos))
+            {
+
+            }*/
 
         ClearTreeAtPos(pos);
 
@@ -85,7 +116,27 @@ public class GridManager : MonoBehaviour
 
     public void createBuildingOnGrid(Vector2Int pos, GameObject buildingInstance, int rotationDegrees, BuildingType buildingType, string buildingName)
     {
-        if (mapGrid.ContainsKey(pos)) {return; }
+        if (mapGrid.TryGetValue(pos, out GridTile tile))
+        {
+            if (tile.isRoad || tile.buildingType != null)
+            {
+                if (buildingInstance != null) { Destroy(buildingInstance); return; } //Mem. cleanup
+            }
+
+            if (tile.instance != null) { Destroy(tile.instance); }
+
+            //if (tile.buildingType != buildingType) { return; } Enforce zoning rules?
+
+            ClearTreeAtPos(pos);
+
+            tile.tileName = buildingName;
+            tile.instance = buildingInstance;
+            tile.rotationDegrees = rotationDegrees;
+            tile.buildingType = buildingType;
+
+            BuildingPositions.Add(pos);
+            return;
+        }
 
         ClearTreeAtPos(pos);
 
@@ -93,6 +144,40 @@ public class GridManager : MonoBehaviour
 
         mapGrid.Add(pos, buildingTile);
         BuildingPositions.Add(pos);
+    }
+
+    public void zoneTileOnGrid(Vector2Int pos, ZoneType zoneType)
+    {
+        if (mapGrid.TryGetValue(pos, out GridTile tile))
+        {
+            if (tile.isRoad || tile.buildingType != null)
+            {
+                Debug.Log("Cannot zone a tile with pre-existing infrastucture.");
+                return; 
+            }
+
+            if (tile.zoneType != zoneType)
+            {
+                if (tile.instance != null) { Destroy(tile.instance); }
+                tile.zoneType = zoneType;
+                tile.tileName = $"{zoneType} Zone Slot";
+                tile.instance = InstantiateZonePrefab(pos, zoneType);
+            }
+            return;
+        }
+        
+        GameObject currentInstance = InstantiateZonePrefab(pos, zoneType);
+
+        GridTile zoneTile = new GridTile
+        {
+            tileName = $"{zoneType} Zone Slot",
+            instance = currentInstance,
+            zoneType = zoneType,
+            isRoad = false
+        };
+
+        mapGrid.Add(pos, zoneTile);
+        ZonedPositions.Add(pos);
     }
 
     public void SpawnTreeInChunk(Vector2Int gridPos, Vector3 worldPos, Quaternion randomRotation)
@@ -106,6 +191,7 @@ public class GridManager : MonoBehaviour
         TreeGrid.Add(new Vector2Int(gridPos.x, gridPos.y), treeInstance);
     }
 
+    //Deletions
     public void eraseGridElement(Vector2Int pos)
     {
         if (!mapGrid.ContainsKey(pos))
@@ -116,10 +202,19 @@ public class GridManager : MonoBehaviour
 
         GridTile tileData = mapGrid[pos];
 
-        if (!tileData.isRoad) { return; } //can only remove other stuff
+        if (!tileData.isRoad) { return; } //can only remove roads
 
         //Destroy instance
         if (tileData.instance != null) { Destroy(tileData.instance); }
+
+        if (tileData.zoneType != ZoneType.None)
+        {
+            tileData.buildingType = null;
+            tileData.tileName = $"{tileData.zoneType} Zone Slot";
+            tileData.instance = InstantiateZonePrefab(pos, tileData.zoneType);
+            BuildingPositions.Remove(pos);
+            return;
+        }
 
         //Remove from memory
         mapGrid.Remove(pos);
@@ -130,6 +225,27 @@ public class GridManager : MonoBehaviour
         updateGridElement(pos + Vector2Int.down);
         updateGridElement(pos + Vector2Int.left);
         updateGridElement(pos + Vector2Int.right);
+    }
+
+    public void removeZoneFromGrid(Vector2Int pos)
+    {
+        if (mapGrid.TryGetValue(pos, out GridTile tileData)) {
+            if(tileData.isRoad || tileData.buildingType != null)
+            {
+                Debug.Log("Cannot unzone a tile with pre-existing infrastucture.");
+                return;
+            }
+
+            if (tileData.instance != null) { Destroy(tileData.instance); }
+
+            tileData.zoneType = ZoneType.None;
+            ZonedPositions.Remove(pos);
+
+            if(!tileData.isRoad || tileData.buildingType == null)
+            {
+                mapGrid.Remove(pos);
+            }
+        }
     }
 
     private void ClearTreeAtPos(Vector2Int pos)
@@ -164,6 +280,7 @@ public class GridManager : MonoBehaviour
         createRoadOnGrid(new Vector2Int(2, 1));
     }
 
+    //Helper functions
     private (int rotationDegrees, GameObject prefab) DecideOnPrefab(Vector2Int pos)
     {
         //Check above, left, right, bottom.
@@ -245,5 +362,34 @@ public class GridManager : MonoBehaviour
         tileData.tileName = newPrefab.name;
         tileData.instance = Tile;
         tileData.rotationDegrees = newRotationDegrees;
+    }
+
+    private GameObject InstantiateZonePrefab(Vector2Int pos, ZoneType zoneType)
+    {
+        GameObject currentPrefab = null;
+
+        switch (zoneType)
+        {
+            case (ZoneType.NoBuild):
+                currentPrefab = noBuildZonePrefab; break;
+            case (ZoneType.Residential):
+                currentPrefab = residentialZonePrefab; break;
+            case (ZoneType.Commercial):
+                currentPrefab = commercialZonePrefab; break;
+            case (ZoneType.Industrial):
+                currentPrefab = industrialZonePrefab; break;
+            default:
+                Debug.LogError($"Error! Invalid ZoneType {zoneType}");
+                return noBuildZonePrefab;
+        }
+
+        if (currentPrefab == null) return null;
+
+        float currentScale = getGridScale();
+        Vector3 worldPos = new Vector3(pos.x * currentScale, 0.01f, pos.y * currentScale);
+
+        GameObject zone = Instantiate(currentPrefab, worldPos, Quaternion.identity, this.transform);
+        zone.name = $"{zoneType} Overlay ({pos.x}, {pos.y})";
+        return zone;
     }
 }
