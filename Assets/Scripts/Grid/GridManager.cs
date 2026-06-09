@@ -20,6 +20,9 @@ public class GridManager : MonoBehaviour
         return GridScale;
     }
 
+    [Header("Dependencies")]
+    [SerializeField] private FinanceManager financeManager;
+
     [Header("Road Prefabs")]
     [SerializeField] private GameObject SquareRoad;
     [SerializeField] private GameObject EndRoad;
@@ -49,7 +52,7 @@ public class GridManager : MonoBehaviour
         public bool isRoad;
     }
 
-    private Dictionary<Vector2Int, GridTile> mapGrid = new Dictionary<Vector2Int, GridTile> ();
+    private Dictionary<Vector2Int, GridTile> mapGrid = new Dictionary<Vector2Int, GridTile>();
     public Dictionary<Vector2Int, GameObject> TreeGrid = new Dictionary<Vector2Int, GameObject>();
     public List<Vector2Int> RoadPositions { get; private set; } = new List<Vector2Int>();
 
@@ -69,7 +72,7 @@ public class GridManager : MonoBehaviour
     //Creation/Deletion Methods
 
     //Creation
-    public void createRoadOnGrid(Vector2Int pos)
+    public void createRoadOnGrid(Vector2Int pos, bool isFree = false)
     {
         if (mapGrid.TryGetValue(pos, out GridTile tile))
         {
@@ -85,10 +88,12 @@ public class GridManager : MonoBehaviour
             }
         }
 
-            /*if (mapGrid.ContainsKey(pos))
-            {
-
-            }*/
+        //Cost
+        if (!isFree)
+        {
+            bool success = financeManager.Purchase(financeManager.costRoad);
+            if (!success) return;
+        }
 
         ClearTreeAtPos(pos);
 
@@ -148,6 +153,8 @@ public class GridManager : MonoBehaviour
 
     public void zoneTileOnGrid(Vector2Int pos, ZoneType zoneType)
     {
+        bool success = false;
+
         if (mapGrid.TryGetValue(pos, out GridTile tile))
         {
             if (tile.isRoad || tile.buildingType != null)
@@ -158,6 +165,9 @@ public class GridManager : MonoBehaviour
 
             if (tile.zoneType != zoneType)
             {
+                success = financeManager.Purchase(financeManager.costZoning);
+                if (!success) return;
+
                 if (tile.instance != null) { Destroy(tile.instance); }
                 tile.zoneType = zoneType;
                 tile.tileName = $"{zoneType} Zone Slot";
@@ -165,7 +175,10 @@ public class GridManager : MonoBehaviour
             }
             return;
         }
-        
+
+        success = financeManager.Purchase(financeManager.costZoning);
+        if (!success) return;
+
         GameObject currentInstance = InstantiateZonePrefab(pos, zoneType);
 
         GridTile zoneTile = new GridTile
@@ -203,6 +216,10 @@ public class GridManager : MonoBehaviour
         GridTile tileData = mapGrid[pos];
 
         if (!tileData.isRoad) { return; } //can only remove roads
+
+        //Take money
+        bool success = financeManager.Purchase(financeManager.costRoadDemolition);
+        if (!success) { return; }
 
         //Destroy instance
         if (tileData.instance != null) { Destroy(tileData.instance); }
@@ -264,20 +281,20 @@ public class GridManager : MonoBehaviour
         //Random initial road layout
 
         //Middle
-        createRoadOnGrid(new Vector2Int(0, 0));
+        createRoadOnGrid(new Vector2Int(0, 0), true);
 
         //Left
-        createRoadOnGrid(new Vector2Int(-1, 0));
-        createRoadOnGrid(new Vector2Int(-2, 0));
+        createRoadOnGrid(new Vector2Int(-1, 0), true);
+        createRoadOnGrid(new Vector2Int(-2, 0), true);
 
         //Up
-        createRoadOnGrid(new Vector2Int(0, 1));
-        createRoadOnGrid(new Vector2Int(0, 2));
+        createRoadOnGrid(new Vector2Int(0, 1), true);
+        createRoadOnGrid(new Vector2Int(0, 2), true);
 
         //Right
-        createRoadOnGrid(new Vector2Int(1, 0));
-        createRoadOnGrid(new Vector2Int(2, 0));
-        createRoadOnGrid(new Vector2Int(2, 1));
+        createRoadOnGrid(new Vector2Int(1, 0), true);
+        createRoadOnGrid(new Vector2Int(2, 0), true);
+        createRoadOnGrid(new Vector2Int(2, 1), true);
     }
 
     //Helper functions
