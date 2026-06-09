@@ -1,26 +1,38 @@
 using UnityEngine;
 
+//Don't forget to remove this in runtime once building demolition is introduced!!
 public enum CommercialType { Office, Entertainment, Shops}
 
-public class Commerical : Building
+public class Commercial : Building
 {
-    public int employees;
-    public int maxEmployees;
-    public int profits;
-    public float companyWealth;
-    public float companyProfits;
-    public float taxRevenue;
-    public float energySupplyHealthiness; //0-1
-    public CommercialType commercialType;
+    [Header("Prefab conditions")]
+    [SerializeField] private int maxEmployees = 50;
+    [SerializeField] private CommercialType commercialType = CommercialType.Office;
+    [SerializeField] private float taxRevenue = 1500f;
 
-    public void SetupIndustrial(Vector2Int pos, int maxEmployees, string commercialType)
+    public int employees = 25;
+    public float energySupplyHealthiness = 1; //0-1
+
+    private void OnEnable()
     {
-        SetPos(pos);
-        this.maxEmployees = maxEmployees;
-        
-        if(commercialType == "Office") { this.commercialType = CommercialType.Office; }
-        if(commercialType == "Entertainment") { this.commercialType = CommercialType.Entertainment; }
-        if(commercialType == "Shops") { this.commercialType = CommercialType.Shops; }
+        if (FinanceManager.instance != null)
+        {
+            FinanceManager.instance.OnDayEnd += GenerateWealth;
+        }
+    }
 
+    public void OnDisable()
+    {
+        if(FinanceManager.instance != null)
+        {
+            FinanceManager.instance.OnDayEnd -= GenerateWealth;
+        }
+    }
+
+    public void GenerateWealth()
+    {
+        float revenue = employees * taxRevenue;
+        revenue *= energySupplyHealthiness;
+        if (revenue > 0) { FinanceManager.instance.Gain(revenue); }
     }
 }

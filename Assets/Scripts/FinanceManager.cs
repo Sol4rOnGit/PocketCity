@@ -1,11 +1,22 @@
 using System;
+using System.Collections;
 using UnityEngine;
 
 public class FinanceManager : MonoBehaviour
 {
+    public static FinanceManager instance { get; private set; }
+
+    private void Awake()
+    {
+        if(instance != null && instance != this) { Destroy(gameObject); return; }
+        instance = this;
+    }
+
     [Header("Settings")]
-    [SerializeField] private float initialMoney = 100000;
+    [SerializeField] private long initialMoney = 100000;
     [SerializeField] private long currentMoney;
+
+    public long GetCurrentCapital() { return currentMoney; }
 
     [Header("Costs")]
     public int costRoad = 145;
@@ -13,17 +24,23 @@ public class FinanceManager : MonoBehaviour
     public int costZoning = 535;
     public int costDemolitionBase = 15000;
 
-    public void Update()
+    [Header("Actions")]
+    public Action<long> OnMoneyChanged;
+    public Action OnDayEnd; //To ask everything
+
+    void Start()
     {
-        if (UnityEngine.Random.Range(0, 100) < 1)
-        {
-            Debug.Log(currentMoney);
-        }
+        currentMoney = initialMoney;
+        OnMoneyChanged?.Invoke(currentMoney);
+        StartCoroutine(completeCommercialDay());
     }
 
-    public long GetCurrentCapital()
+    public IEnumerator completeCommercialDay()
     {
-        return currentMoney;
+        while (true){
+            OnDayEnd?.Invoke();
+            yield return new WaitForSeconds(3f); //every 3 seconds
+        }
     }
 
     public bool Purchase(float amount)
@@ -36,12 +53,13 @@ public class FinanceManager : MonoBehaviour
         }
 
         currentMoney -= cost;
+        OnMoneyChanged?.Invoke(currentMoney);
         return true;
     }
 
     public bool Purchase(float amount, float multiplier)
     {
-        long cost = (long)amount * (long)multiplier;
+        long cost = (long)(amount * multiplier);
 
         if (currentMoney < cost)
         {
@@ -49,16 +67,15 @@ public class FinanceManager : MonoBehaviour
         }
 
         currentMoney -= cost;
+        OnMoneyChanged?.Invoke(currentMoney);
         return true;
     }
 
     public void Gain(float amount)
     {
         currentMoney += (long)amount;
+        OnMoneyChanged?.Invoke(currentMoney);
     }
 
-    void Start()
-    {
-        currentMoney = (long)initialMoney;
-    }
+
 }

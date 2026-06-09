@@ -203,7 +203,6 @@ public class CityGenerator : MonoBehaviour
             if (directionToRoad == Vector2Int.right) rotationDegrees = -90;
         }
         
-
         float scale = gridManager.getGridScale();
         Vector3 worldPos = new Vector3(spawnPos.x * scale, 0f, spawnPos.y * scale);
         Quaternion worldRot = Quaternion.Euler(0f, rotationDegrees, 0f);

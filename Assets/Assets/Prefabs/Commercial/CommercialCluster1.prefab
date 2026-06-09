@@ -9,6 +9,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 833608407836599133}
+  - component: {fileID: 1596660289882594836}
   m_Layer: 0
   m_Name: CommercialCluster1
   m_TagString: Untagged
@@ -37,6 +38,28 @@ Transform:
   - {fileID: 8601889722057781916}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1596660289882594836
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6617339851586591609}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2f99dbaff603e0a4a8f16212bc8a4cf6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Commercial
+  buildingName: 
+  constructionCost: 0
+  destructionCost: 0
+  type: 0
+  gridPosition: {x: 0, y: 0}
+  maxEmployees: 50
+  commercialType: 1
+  taxRevenue: 200
+  employees: 25
+  energySupplyHealthiness: 1
 --- !u!1 &8660837925135730641
 GameObject:
   m_ObjectHideFlags: 0

@@ -48,6 +48,7 @@ public class GridManager : MonoBehaviour
         public GameObject instance;
         public int rotationDegrees;
         public BuildingType? buildingType;
+        public Building buildingScript;
         public ZoneType zoneType;
         public bool isRoad;
     }
@@ -74,8 +75,17 @@ public class GridManager : MonoBehaviour
     //Creation
     public void createRoadOnGrid(Vector2Int pos, bool isFree = false)
     {
+        bool charged = false;
+
         if (mapGrid.TryGetValue(pos, out GridTile tile))
         {
+            if (!isFree)
+            {
+                bool success = financeManager.Purchase(financeManager.costRoad);
+                if (!success) return;
+                charged = true;
+            }
+
             if (!tile.isRoad && tile.buildingType == null)
             {
                 if (tile.instance != null) { Destroy(tile.instance); }
@@ -89,7 +99,7 @@ public class GridManager : MonoBehaviour
         }
 
         //Cost
-        if (!isFree)
+        if (!isFree && !charged)
         {
             bool success = financeManager.Purchase(financeManager.costRoad);
             if (!success) return;
@@ -121,6 +131,12 @@ public class GridManager : MonoBehaviour
 
     public void createBuildingOnGrid(Vector2Int pos, GameObject buildingInstance, int rotationDegrees, BuildingType buildingType, string buildingName)
     {
+        Building buildingScript = null;
+        if (buildingInstance != null)
+        {
+            buildingScript = buildingInstance.GetComponent<Building>();
+        }
+
         if (mapGrid.TryGetValue(pos, out GridTile tile))
         {
             if (tile.isRoad || tile.buildingType != null)
@@ -138,6 +154,7 @@ public class GridManager : MonoBehaviour
             tile.instance = buildingInstance;
             tile.rotationDegrees = rotationDegrees;
             tile.buildingType = buildingType;
+            tile.buildingScript = buildingScript;
 
             BuildingPositions.Add(pos);
             return;
@@ -145,7 +162,7 @@ public class GridManager : MonoBehaviour
 
         ClearTreeAtPos(pos);
 
-        GridTile buildingTile = new GridTile { tileName = buildingName, instance = buildingInstance, rotationDegrees = rotationDegrees, buildingType = buildingType, isRoad = false };
+        GridTile buildingTile = new GridTile { tileName = buildingName, instance = buildingInstance, rotationDegrees = rotationDegrees, buildingType = buildingType, isRoad = false, buildingScript = buildingScript };
 
         mapGrid.Add(pos, buildingTile);
         BuildingPositions.Add(pos);

@@ -1,19 +1,36 @@
 using UnityEngine;
 
+//Don't forget to remove this in runtime once building demolition is introduced!!
 public class Industrial : Building
 {
-    public int employees;
-    public int maxEmployees;
-    public int profits;
-    public float companyWealth;
-    public float companyProfits;
-    public float taxRevenue;
-    public float energySupplyHealthiness; //0-1
-    public float waterSupplyHealthiness; //0-1
+    [Header("Prefab conditions")]
+    [SerializeField] private int maxEmployees = 50;
+    [SerializeField] private float taxRevenue = 1500f;
 
-    public void SetupIndustrial(Vector2Int pos, int maxEmployees)
+    public int employees = 25;
+    public float energySupplyHealthiness = 1; //0-1
+    public float waterSupplyHealthiness = 1; //0-1
+
+    private void OnEnable()
     {
-        SetPos(pos);
-        this.maxEmployees = maxEmployees;
+        if (FinanceManager.instance != null)
+        {
+            FinanceManager.instance.OnDayEnd += GenerateWealth;
+        }
+    }
+
+    public void OnDisable()
+    {
+        if (FinanceManager.instance != null)
+        {
+            FinanceManager.instance.OnDayEnd -= GenerateWealth;
+        }
+    }
+
+    public void GenerateWealth()
+    {
+        float revenue = employees * taxRevenue;
+        revenue *= (energySupplyHealthiness + waterSupplyHealthiness)/2;
+        if (revenue > 0) { FinanceManager.instance.Gain(revenue); }
     }
 }
