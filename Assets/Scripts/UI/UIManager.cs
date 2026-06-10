@@ -6,6 +6,8 @@ public class UIManager : MonoBehaviour
     [Header("UI")]
     //public Boolean Enabled = true;
     [SerializeField] private TMPro.TextMeshProUGUI currentMoneyUIText;
+    [SerializeField] private TMPro.TextMeshProUGUI addedMoneyUIText;
+    //private long lastMoney;
 
     FinanceManager financeManager;
 
@@ -13,7 +15,7 @@ public class UIManager : MonoBehaviour
     {
         financeManager = GameObject.FindAnyObjectByType<FinanceManager>();
 
-        if (financeManager == null) { Debug.LogError("UIManager couldn't find the Finance Manager!?!?"); }
+        if (financeManager == null) { Debug.LogError("UIManager couldn't find the Finance Manager."); }
     }
 
     private void OnEnable()
@@ -33,30 +35,37 @@ public class UIManager : MonoBehaviour
 
     public void updateCurrentMoneyUI(long currentMoney)
     {
-        Debug.Log("Working!");
-
         if (currentMoneyUIText == null) { Debug.LogError("Missing UI reference."); return; }
 
-        string formattedMoney;
+        long delta = currentMoney - financeManager.prevMoney;
 
-        if (currentMoney >= 1_000_000_000_000)
-        {
-            float trillions = (float)currentMoney / 1_000_000_000_000;
-            formattedMoney = $"{trillions:0.00} trillion";
-        }
-        else if (currentMoney >= 1_000_000_000)
-        {
-            float billions = (float)currentMoney / 1_000_000_000;
-            formattedMoney = $"{billions:0.00} billion";
-        } else if (currentMoney >= 1_000_000)
-        {
-            float millions = (float)currentMoney / 1_000_000;
-            formattedMoney = $"{millions:0.00} million";
-        }
-        else {
-            formattedMoney = $"{currentMoney:N0}";
-        }
+        string formattedMoney = ReturnTextFromMoney(currentMoney);
+        string deltaMoney = (delta > 0) ? $"+{ReturnTextFromMoney(delta)}" : $"{ReturnTextFromMoney(delta)}";
 
         currentMoneyUIText.text = formattedMoney;
+        addedMoneyUIText.text = deltaMoney;
+    }
+
+    private string ReturnTextFromMoney(long amount)
+    {
+        if (amount >= 1_000_000_000_000)
+        {
+            float trillions = (float)amount / 1_000_000_000_000;
+            return $"£{trillions:0.00} trillion";
+        }
+        else if (amount >= 1_000_000_000)
+        {
+            float billions = (float)amount / 1_000_000_000;
+            return $"£{billions:0.00} billion";
+        }
+        else if (amount >= 1_000_000)
+        {
+            float millions = (float)amount / 1_000_000;
+            return $"£{millions:0.00} million";
+        }
+        else
+        {
+            return $"£{amount:N0}";
+        }
     }
 }

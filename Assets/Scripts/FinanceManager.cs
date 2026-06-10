@@ -15,6 +15,7 @@ public class FinanceManager : MonoBehaviour
     [Header("Settings")]
     [SerializeField] private long initialMoney = 100000;
     [SerializeField] private long currentMoney;
+    public long prevMoney;
 
     public long GetCurrentCapital() { return currentMoney; }
 
@@ -38,6 +39,7 @@ public class FinanceManager : MonoBehaviour
     public IEnumerator completeCommercialDay()
     {
         while (true){
+            prevMoney = currentMoney;
             OnDayEnd?.Invoke();
             yield return new WaitForSeconds(3f); //every 3 seconds
         }
