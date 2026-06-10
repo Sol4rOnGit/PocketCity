@@ -77,6 +77,15 @@
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": false
+                },
+                {
+                    "name": "ToggleZoningUI",
+                    "type": "Button",
+                    "id": "a375d9fe-fa3f-4681-85de-e7178b1e344f",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
                 }
             ],
             "bindings": [
@@ -352,6 +361,28 @@
                     "processors": "",
                     "groups": "",
                     "action": "ChangePlayerMode",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "39331845-6f46-4e36-a703-1edbce02adac",
+                    "path": "",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "ToggleZoningUI",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "9f6486e5-660d-4ebe-af0b-48d74c90595e",
+                    "path": "<Keyboard>/z",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "ToggleZoningUI",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

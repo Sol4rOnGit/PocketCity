@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 3845241473280939694}
   - component: {fileID: 6144424652986272828}
   - component: {fileID: 807178688749268115}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: visual
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -121,7 +121,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2626554027994071288}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: ZoneResidential
   m_TagString: Untagged
   m_Icon: {fileID: 0}
