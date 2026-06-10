@@ -126,7 +126,7 @@ public class GridPlayerManager : MonoBehaviour
         switch (currentPlayerMode)
         {
             case PlayerMode.RoadBuilding:
-                gridManager.eraseGridElement(currentGridPosHovering); break;
+                gridManager.eraseRoadElement(currentGridPosHovering); break;
 
             case PlayerMode.ZoneResidential:
             case PlayerMode.ZoneCommercial:
@@ -135,7 +135,7 @@ public class GridPlayerManager : MonoBehaviour
                 gridManager.removeZoneFromGrid(currentGridPosHovering); break;
 
             case PlayerMode.DemolishBuildings:
-                gridManager.eraseGridElement(currentGridPosHovering); break;
+                gridManager.eraseRoadElement(currentGridPosHovering); break;
             default:
                 Debug.LogError("Invalid Player State!");
                 break;

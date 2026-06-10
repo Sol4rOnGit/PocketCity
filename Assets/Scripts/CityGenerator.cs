@@ -46,44 +46,25 @@ public class CityGenerator : MonoBehaviour
         //Grid manager dictionary
         Dictionary<Vector2Int, GridManager.GridTile> currentMapGrid = gridManager.GetMapGrid();
         BuildingType? currentBuildingType = null;
-        Vector2Int? directionToRoad = null;
+        Vector2Int directionToRoad = Vector2Int.zero;
 
         if (gridManager.RoadPositions.Count == 0) return; //No infrastructure then return.
 
         Vector2Int targetSpawnPos = Vector2Int.zero;
         bool foundValidSpot = false;
-
-        int rand = Random.Range(1, 101);
-        if (rand <= 40 && gridManager.BuildingPositions.Count > 0)
-        {
-            //Opt 2 which was to cluster expand
-            
-            Vector2Int randomBuilding = gridManager.BuildingPositions[Random.Range(0, gridManager.BuildingPositions.Count)];
-
-            currentBuildingType = currentMapGrid[randomBuilding].buildingType;
-
-            (targetSpawnPos, _) = GetRandomEmptyNeighbour(randomBuilding, currentMapGrid, currentBuildingType);
-
-
-            if (targetSpawnPos != Vector2Int.left * 99999)
-            {
-                foundValidSpot = true;
-            }
-            else
-            {
-                currentBuildingType = null;
-            }
-        } 
         
         if (!foundValidSpot) //If option 2 failed, skipped or have no buildings then roadside
         {
             (targetSpawnPos, directionToRoad, currentBuildingType) = TrySpawnAlongRoad(gridManager.RoadPositions, currentMapGrid);
-            directionToRoad = -directionToRoad; //invert
-            if (targetSpawnPos != Vector2Int.left * 99999) { foundValidSpot = true; }
+
+            if (targetSpawnPos != Vector2Int.left * 99999)
+            {
+                directionToRoad = -directionToRoad; //Invert
+                foundValidSpot = true;
+            }
         }
 
         if (foundValidSpot) { ExecuteBuildingPlacement(targetSpawnPos, currentBuildingType, directionToRoad, currentMapGrid); }
-
     }
 
     private (Vector2Int spot, Vector2Int dir, BuildingType? buildingType) TrySpawnAlongRoad(List<Vector2Int> roadPositions, Dictionary<Vector2Int, GridManager.GridTile> currentGrid)
@@ -157,7 +138,7 @@ public class CityGenerator : MonoBehaviour
         return (Vector2Int.left * 99999, Vector2Int.left * 99999); //error if surrounded from all sides, this will not trigger found valid spot
     }
 
-    private void ExecuteBuildingPlacement(Vector2Int spawnPos, BuildingType? buildingType, Vector2Int? directionToRoad, Dictionary<Vector2Int, GridManager.GridTile> currentMapGrid)
+    private void ExecuteBuildingPlacement(Vector2Int spawnPos, BuildingType? buildingType, Vector2Int directionToRoad, Dictionary<Vector2Int, GridManager.GridTile> currentMapGrid)
     {
         if (currentMapGrid.TryGetValue(spawnPos, out var tile))
         {
@@ -167,42 +148,23 @@ public class CityGenerator : MonoBehaviour
             if (zoneConverted.HasValue) { buildingType = zoneConverted.Value; }
         }
 
+        //Force a building Type if it isn't already declared
         if (!buildingType.HasValue)
         {
             int randomCategory = Random.Range(0, 3);
             buildingType = (BuildingType)randomCategory;
         }
 
+        //Grab Prefab
         List<GameObject> targetList = buildingType switch { BuildingType.Residential => HousePrefabs, BuildingType.Industrial => IndustryPrefabs, BuildingType.Commercial => CommercialPrefabs, _ => HousePrefabs };
 
         if (targetList == null || targetList.Count == 0) return;
 
         GameObject prefab = targetList[Random.Range(0, targetList.Count)];
 
-        Vector2Int finalDir = Vector2Int.down; //default
+        int rotationDegrees = GetRotationDegreesFromDirection(directionToRoad);
 
-        if (!directionToRoad.HasValue)
-        {
-            foreach (Vector2Int dir in directions)
-            {
-                Vector2Int checkPos = spawnPos + dir;
-                if (currentMapGrid.TryGetValue(checkPos, out GridManager.GridTile neighbour) && neighbour.isRoad)
-                {
-                    directionToRoad = dir;
-                    break;
-                }
-            }
-        }
-
-        //Direction to angle
-        int rotationDegrees = 0; //if it's up or 
-        if (directionToRoad.HasValue) {
-            //if (directionToRoad == Vector2Int.down) rotationDegrees = 0;
-            if (directionToRoad == Vector2Int.up) rotationDegrees = 180;
-            if (directionToRoad == Vector2Int.left) rotationDegrees = 90;
-            if (directionToRoad == Vector2Int.right) rotationDegrees = -90;
-        }
-        
+        //Spawning
         float scale = gridManager.getGridScale();
         Vector3 worldPos = new Vector3(spawnPos.x * scale, 0f, spawnPos.y * scale);
         Quaternion worldRot = Quaternion.Euler(0f, rotationDegrees, 0f);
@@ -213,7 +175,7 @@ public class CityGenerator : MonoBehaviour
         gridManager.createBuildingOnGrid(spawnPos, BuildingInstance, rotationDegrees, (BuildingType)buildingType, BuildingInstance.name);
     }
 
-    //Helper
+    //Helper functions
 
     private BuildingType? ConvertZoneToBuildingType(ZoneType zoneType)
     {
@@ -224,5 +186,18 @@ public class CityGenerator : MonoBehaviour
             ZoneType.Industrial => BuildingType.Industrial,
             _ => null
         };
+    }
+
+    //Direction to angle conversion for the building placement
+    private int GetRotationDegreesFromDirection(Vector2Int direction)
+    {
+        int rotationDegrees = 0;
+
+        //if (directionToRoad == Vector2Int.down) rotationDegrees = 0; 
+        if (direction == Vector2Int.up) rotationDegrees = 180;
+        if (direction == Vector2Int.left) rotationDegrees = 90;
+        if (direction == Vector2Int.right) rotationDegrees = -90;
+
+        return rotationDegrees;
     }
 }

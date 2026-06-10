@@ -4,9 +4,6 @@ using UnityEngine.InputSystem;
 
 public class UIManager : MonoBehaviour
 {
-
-
-
     [Header("UI")]
     //public Boolean Enabled = true;
     [SerializeField] private TMPro.TextMeshProUGUI currentMoneyUIText;
@@ -34,7 +31,7 @@ public class UIManager : MonoBehaviour
         InputActionMap PlayerMap = inputActions.FindActionMap("Player");
         toggleZoningUI = PlayerMap.FindAction("ToggleZoningUI");
 
-        updateCurrentMoneyUI(financeManager.GetCurrentCapital());
+        updateCurrentMoneyUI(financeManager.currentMoney);
     }
 
     private void Update()

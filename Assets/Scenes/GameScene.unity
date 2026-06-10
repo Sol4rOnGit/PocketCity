@@ -942,6 +942,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1273503027}
+  - component: {fileID: 1273503032}
   - component: {fileID: 1273503028}
   - component: {fileID: 1273503029}
   - component: {fileID: 1273503030}
@@ -981,7 +982,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 09eae2c03f8572446840d29f34c40879, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GridManager
-  financeManager: {fileID: 1273503031}
   SquareRoad: {fileID: 9163286294634809444, guid: 8b1f918e62e433241ae0e4f1b214c6bd, type: 3}
   EndRoad: {fileID: 8636057993079516775, guid: bbc601e95a694f8449e6a767b2e947c7, type: 3}
   StraightRoad: {fileID: 2385131893709086923, guid: aba6d4326c2987348a187b5c1aa92b89, type: 3}
@@ -1064,12 +1064,24 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::FinanceManager
   initialMoney: 100000
-  currentMoney: 100000
   prevMoney: 0
   costRoad: 145
   costRoadDemolition: 245
   costZoning: 535
   costDemolitionBase: 15000
+--- !u!114 &1273503032
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1273503026}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1ab75d5a1a1177c4297fae35aa0eeb3a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::GameManager
+  currentPopulation: 0
 --- !u!1 &1690550300
 GameObject:
   m_ObjectHideFlags: 0

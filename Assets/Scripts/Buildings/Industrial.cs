@@ -13,17 +13,17 @@ public class Industrial : Building
 
     private void OnEnable()
     {
-        if (FinanceManager.instance != null)
+        if (GameManager.instance != null)
         {
-            FinanceManager.instance.OnDayEnd += GenerateWealth;
+            GameManager.instance.OnDayEnd += GenerateWealth;
         }
     }
 
     public void OnDisable()
     {
-        if (FinanceManager.instance != null)
+        if (GameManager.instance != null)
         {
-            FinanceManager.instance.OnDayEnd -= GenerateWealth;
+            GameManager.instance.OnDayEnd -= GenerateWealth;
         }
     }
 

@@ -20,9 +20,6 @@ public class GridManager : MonoBehaviour
         return GridScale;
     }
 
-    [Header("Dependencies")]
-    [SerializeField] private FinanceManager financeManager;
-
     [Header("Road Prefabs")]
     [SerializeField] private GameObject SquareRoad;
     [SerializeField] private GameObject EndRoad;
@@ -70,6 +67,12 @@ public class GridManager : MonoBehaviour
         PlaceInitialGrid();
     }
 
+    private FinanceManager financeManager;
+
+    private void Start()
+    {
+        financeManager = FinanceManager.instance;
+    }
     //Creation/Deletion Methods
 
     //Creation
@@ -131,12 +134,10 @@ public class GridManager : MonoBehaviour
 
     public void createBuildingOnGrid(Vector2Int pos, GameObject buildingInstance, int rotationDegrees, BuildingType buildingType, string buildingName)
     {
-        Building buildingScript = null;
-        if (buildingInstance != null)
-        {
-            buildingScript = buildingInstance.GetComponent<Building>();
-        }
+        //Grab the building script from the instance
+        Building buildingScript = InitialiseBuildingScript(buildingInstance);
 
+        //Attempt to spawn the building given tile is occupied
         if (mapGrid.TryGetValue(pos, out GridTile tile))
         {
             if (tile.isRoad || tile.buildingType != null)
@@ -146,8 +147,7 @@ public class GridManager : MonoBehaviour
 
             if (tile.instance != null) { Destroy(tile.instance); }
 
-            //if (tile.buildingType != buildingType) { return; } Enforce zoning rules?
-
+            //Building spawn h
             ClearTreeAtPos(pos);
 
             tile.tileName = buildingName;
@@ -156,10 +156,12 @@ public class GridManager : MonoBehaviour
             tile.buildingType = buildingType;
             tile.buildingScript = buildingScript;
 
-            BuildingPositions.Add(pos);
+            if (!BuildingPositions.Contains(pos)) { BuildingPositions.Add(pos); }
+
             return;
         }
 
+        //Spawning building if tile isn't already occupied
         ClearTreeAtPos(pos);
 
         GridTile buildingTile = new GridTile { tileName = buildingName, instance = buildingInstance, rotationDegrees = rotationDegrees, buildingType = buildingType, isRoad = false, buildingScript = buildingScript };
@@ -222,7 +224,7 @@ public class GridManager : MonoBehaviour
     }
 
     //Deletions
-    public void eraseGridElement(Vector2Int pos)
+    public void eraseRoadElement(Vector2Int pos)
     {
         if (!mapGrid.ContainsKey(pos))
         {
@@ -425,5 +427,20 @@ public class GridManager : MonoBehaviour
         GameObject zone = Instantiate(currentPrefab, worldPos, Quaternion.identity, this.transform);
         zone.name = $"{zoneType} Overlay ({pos.x}, {pos.y})";
         return zone;
+    }
+
+    private Building InitialiseBuildingScript(GameObject buildingInstance)
+    {
+        if (buildingInstance == null) return null;
+
+        Building buildingScript = buildingInstance.GetComponent<Building>();
+
+        //Set residents for house
+        if (buildingScript is House houseScript)
+        {
+            houseScript.residents = UnityEngine.Random.Range(0, houseScript.maxResidents + 1);
+        }
+
+        return buildingScript;
     }
 }

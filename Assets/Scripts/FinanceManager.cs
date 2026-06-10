@@ -14,10 +14,8 @@ public class FinanceManager : MonoBehaviour
 
     [Header("Settings")]
     [SerializeField] private long initialMoney = 100000;
-    [SerializeField] private long currentMoney;
+    public long currentMoney { get; private set; }
     public long prevMoney;
-
-    public long GetCurrentCapital() { return currentMoney; }
 
     [Header("Costs")]
     public int costRoad = 145;
@@ -27,22 +25,12 @@ public class FinanceManager : MonoBehaviour
 
     [Header("Actions")]
     public Action<long> OnMoneyChanged;
-    public Action OnDayEnd; //To ask everything
 
     void Start()
     {
         currentMoney = initialMoney;
+        prevMoney = currentMoney;
         OnMoneyChanged?.Invoke(currentMoney);
-        StartCoroutine(completeCommercialDay());
-    }
-
-    public IEnumerator completeCommercialDay()
-    {
-        while (true){
-            prevMoney = currentMoney;
-            OnDayEnd?.Invoke();
-            yield return new WaitForSeconds(3f); //every 3 seconds
-        }
     }
 
     public bool Purchase(float amount)
@@ -78,6 +66,4 @@ public class FinanceManager : MonoBehaviour
         currentMoney += (long)amount;
         OnMoneyChanged?.Invoke(currentMoney);
     }
-
-
 }
