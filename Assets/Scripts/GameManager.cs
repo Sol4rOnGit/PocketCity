@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
 public class GameManager : MonoBehaviour
@@ -14,6 +15,10 @@ public class GameManager : MonoBehaviour
 
     //[Header("Dependencies")]
     [HideInInspector] private FinanceManager financeManager;
+
+    [Header("City Statistics")]
+    public int currentPopulation;
+    public int currentUnemployed;
 
     [Header("Actions")]
     public Action OnDayEnd;

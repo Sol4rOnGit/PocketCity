@@ -55,7 +55,7 @@ MonoBehaviour:
   gridPosition: {x: 0, y: 0}
   maxEmployees: 140
   commercialType: 1
-  taxRevenue: 300
+  taxRevenue: 3864
   employees: 80
   energySupplyHealthiness: 1
 --- !u!1 &7121990847875353251

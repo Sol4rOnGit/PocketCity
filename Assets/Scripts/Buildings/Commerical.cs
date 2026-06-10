@@ -7,6 +7,7 @@ public class Commercial : Building
 {
     [Header("Prefab conditions")]
     [SerializeField] private int maxEmployees = 50;
+    public int GetMaxEmployees() { return maxEmployees; }
     [SerializeField] private CommercialType commercialType = CommercialType.Office;
     [SerializeField] private float taxRevenue = 1500f;
 
@@ -17,6 +18,7 @@ public class Commercial : Building
     {
         if (GameManager.instance != null)
         {
+            GameManager.instance.OnDayEnd += TryToHire;
             GameManager.instance.OnDayEnd += GenerateWealth;
         }
     }
@@ -25,14 +27,30 @@ public class Commercial : Building
     {
         if(GameManager.instance != null)
         {
+            GameManager.instance.OnDayEnd -= TryToHire;
             GameManager.instance.OnDayEnd -= GenerateWealth;
         }
     }
 
     public void GenerateWealth()
     {
-        float revenue = employees * taxRevenue;
+        float revenue = (employees * taxRevenue) / maxEmployees;
+
         revenue *= energySupplyHealthiness;
+
         if (revenue > 0) { FinanceManager.instance.Gain(revenue); }
+    }
+
+    private void TryToHire()
+    {
+        if (employees < maxEmployees)
+        {
+            if (GameManager.instance.currentUnemployed > 0)
+            {
+                employees += 1;
+                GameManager.instance.currentUnemployed -= 1;
+            }
+            
+        }
     }
 }

@@ -438,7 +438,23 @@ public class GridManager : MonoBehaviour
         //Set residents for house
         if (buildingScript is House houseScript)
         {
-            houseScript.residents = UnityEngine.Random.Range(0, houseScript.maxResidents + 1);
+            houseScript.residents = UnityEngine.Random.Range(2, houseScript.maxResidents + 1);
+            GameManager.instance.currentPopulation += houseScript.residents;
+            GameManager.instance.currentUnemployed += houseScript.residents;
+        }
+
+        //Set variables for commercial
+        if (buildingScript is Commercial commercialScript)
+        {
+            commercialScript.employees = Math.Min(commercialScript.GetMaxEmployees(), GameManager.instance.currentUnemployed);
+            GameManager.instance.currentUnemployed -= commercialScript.employees;
+        }
+
+        //Set variables for industrial
+        if (buildingScript is Industrial industrialBuilding)
+        {
+            industrialBuilding.employees = Math.Min(industrialBuilding.GetMaxEmployees(), GameManager.instance.currentUnemployed);
+            GameManager.instance.currentUnemployed -= industrialBuilding.employees;
         }
 
         return buildingScript;

@@ -26,6 +26,10 @@ public class CityGenerator : MonoBehaviour
 
     private void Update()
     {
+        //Wait for everything to load
+        if (GameManager.instance == null || FinanceManager.instance == null) return;
+
+        //Ticking functionality
         timeSinceStartSeconds += Time.deltaTime;
 
         float growthIntensity = Mathf.Clamp01(timeSinceStartSeconds / realTimeUntilFinalTimeSeconds);

@@ -167,8 +167,8 @@ MonoBehaviour:
   gridPosition: {x: 0, y: 0}
   maxEmployees: 200
   commercialType: 0
-  taxRevenue: 210
-  employees: 100
+  taxRevenue: 4058
+  employees: 0
   energySupplyHealthiness: 1
 --- !u!1001 &1060545866877743374
 PrefabInstance:

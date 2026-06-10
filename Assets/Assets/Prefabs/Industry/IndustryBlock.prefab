@@ -51,9 +51,9 @@ MonoBehaviour:
   destructionCost: 0
   type: 0
   gridPosition: {x: 0, y: 0}
-  maxEmployees: 100
-  taxRevenue: 50
-  employees: 200
+  maxEmployees: 350
+  taxRevenue: 10000
+  employees: 0
   energySupplyHealthiness: 1
   waterSupplyHealthiness: 0.7
 --- !u!1001 &6079713646062739292

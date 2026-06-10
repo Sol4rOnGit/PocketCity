@@ -55,10 +55,10 @@ MonoBehaviour:
   destructionCost: 0
   type: 0
   gridPosition: {x: 0, y: 0}
-  maxEmployees: 50
+  maxEmployees: 25
   commercialType: 1
-  taxRevenue: 200
-  employees: 25
+  taxRevenue: 584
+  employees: 0
   energySupplyHealthiness: 1
 --- !u!1 &8660837925135730641
 GameObject:
