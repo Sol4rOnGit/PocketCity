@@ -49,6 +49,7 @@ public class Commercial : Building
             {
                 employees += 1;
                 GameManager.instance.currentUnemployed -= 1;
+                GameManager.instance.currentVacanies -= 1;
             }
             
         }

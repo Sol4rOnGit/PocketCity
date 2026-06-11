@@ -284,6 +284,24 @@ public class GridManager : MonoBehaviour
         }
     }
 
+    public void forceRemoveElement(Vector2Int pos)
+    {
+        if(mapGrid.TryGetValue(pos, out GridTile tile))
+        {
+            if (tile.instance != null) { Destroy(tile.instance); }
+
+            mapGrid.Remove(pos);
+            if (RoadPositions.Contains(pos)) RoadPositions.Remove(pos);
+            if (BuildingPositions.Contains(pos)) BuildingPositions.Remove(pos);
+            if (ZonedPositions.Contains(pos)) ZonedPositions.Remove(pos);
+        } 
+        else
+        {
+            Debug.Log("Nothing to destroy.");
+            return;
+        }
+    }
+
     private void ClearTreeAtPos(Vector2Int pos)
     {
         if (TreeGrid.TryGetValue(pos, out GameObject treeInstance))
@@ -448,6 +466,7 @@ public class GridManager : MonoBehaviour
         {
             commercialScript.employees = Math.Min(commercialScript.GetMaxEmployees(), GameManager.instance.currentUnemployed);
             GameManager.instance.currentUnemployed -= commercialScript.employees;
+            GameManager.instance.currentVacanies = commercialScript.GetMaxEmployees() - commercialScript.employees;
         }
 
         //Set variables for industrial
@@ -455,6 +474,7 @@ public class GridManager : MonoBehaviour
         {
             industrialBuilding.employees = Math.Min(industrialBuilding.GetMaxEmployees(), GameManager.instance.currentUnemployed);
             GameManager.instance.currentUnemployed -= industrialBuilding.employees;
+            GameManager.instance.currentVacanies = industrialBuilding.GetMaxEmployees() - industrialBuilding.employees;
         }
 
         return buildingScript;

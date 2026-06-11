@@ -1,4 +1,3 @@
-using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -11,7 +10,7 @@ public enum PlayerMode
     ZoneIndustrial,
     ZoneNoBuild,
 
-    DemolishBuildings
+    BuildingPlacement
 }
 
 public class GridPlayerManager : MonoBehaviour
@@ -113,14 +112,15 @@ public class GridPlayerManager : MonoBehaviour
             case PlayerMode.ZoneNoBuild:
                 gridManager.zoneTileOnGrid(currentGridPosHovering, ZoneType.NoBuild); break;
 
-            case PlayerMode.DemolishBuildings:
-                gridManager.createRoadOnGrid(currentGridPosHovering); break;
+            case PlayerMode.BuildingPlacement:
+                HandleSpecialBuildingPlacement();
+                break;
             default:
                 Debug.LogError("Invalid Player State!");
                 break;
         }
-    }
-
+    } 
+    
     private void AttemptToEraseElement()
     {
         switch (currentPlayerMode)
@@ -134,7 +134,7 @@ public class GridPlayerManager : MonoBehaviour
             case PlayerMode.ZoneNoBuild:
                 gridManager.removeZoneFromGrid(currentGridPosHovering); break;
 
-            case PlayerMode.DemolishBuildings:
+            case PlayerMode.BuildingPlacement:
                 gridManager.eraseRoadElement(currentGridPosHovering); break;
             default:
                 Debug.LogError("Invalid Player State!");
@@ -159,7 +159,7 @@ public class GridPlayerManager : MonoBehaviour
             case PlayerMode.ZoneNoBuild:
                 PlayerModeUIText.text = "No Build Zoning"; break;
 
-            case PlayerMode.DemolishBuildings:
+            case PlayerMode.BuildingPlacement:
                 PlayerModeUIText.text = "W.I.P. Demolish Buildings"; break;
             default:
                 Debug.LogError("Invalid Player State!");
@@ -183,6 +183,11 @@ public class GridPlayerManager : MonoBehaviour
     }
 
     //Helper functions
+
+    private void HandleSpecialBuildingPlacement()
+    {
+
+    }
 
     private Vector2Int WorldToGridPosition(Vector3 worldPos)
     {

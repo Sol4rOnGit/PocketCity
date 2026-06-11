@@ -1046,7 +1046,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 425c8c480ba1896409443e8c476c6f6d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ChunkManager
-  showTrees: 1
+  showTrees: 0
   gridManager: {fileID: 1273503028}
   playerTransform: {fileID: 330585546}
   chunkSize: 16
@@ -1069,6 +1069,7 @@ MonoBehaviour:
   costRoadDemolition: 245
   costZoning: 535
   costDemolitionBase: 15000
+  roadMaintainanceCost: 20
 --- !u!114 &1273503032
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1081,7 +1082,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1ab75d5a1a1177c4297fae35aa0eeb3a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GameManager
+  gridManager: {fileID: 1273503028}
   currentPopulation: 0
+  currentUnemployed: 0
 --- !u!1 &1690550300
 GameObject:
   m_ObjectHideFlags: 0

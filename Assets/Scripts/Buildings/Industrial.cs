@@ -45,8 +45,16 @@ public class Industrial : Building
             {
                 employees += 1;
                 GameManager.instance.currentUnemployed -= 1;
+                GameManager.instance.currentVacanies -= 1;
             }
-
         }
+    }
+
+    public bool LoseEmployee()
+    {
+        if (employees < 1) { return false; }
+        employees -= 1;
+        GameManager.instance.currentVacanies += 1;
+        return true;
     }
 }

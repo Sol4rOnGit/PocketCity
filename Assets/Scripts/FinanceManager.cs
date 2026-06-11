@@ -23,6 +23,8 @@ public class FinanceManager : MonoBehaviour
     public int costZoning = 535;
     public int costDemolitionBase = 15000;
 
+    public int roadMaintainanceCost = 1;
+
     [Header("Actions")]
     public Action<long> OnMoneyChanged;
 
