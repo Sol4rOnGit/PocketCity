@@ -54,6 +54,7 @@ MonoBehaviour:
   destructionCost: 0
   type: 0
   gridPosition: {x: 0, y: 0}
+  _maxResidents: 15
   residents: 0
   happiness: 0
 --- !u!1001 &2576560578095977778

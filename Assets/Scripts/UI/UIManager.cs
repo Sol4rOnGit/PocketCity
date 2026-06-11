@@ -4,20 +4,30 @@ using UnityEngine.InputSystem;
 
 public class UIManager : MonoBehaviour
 {
-    [Header("UI")]
+    [Header("Basic UI")]
     //public Boolean Enabled = true;
     [SerializeField] private TMPro.TextMeshProUGUI currentMoneyUIText;
     [SerializeField] private TMPro.TextMeshProUGUI addedMoneyUIText;
-    //private long lastMoney;
+
+    [Header("Stats UI")]
+    [SerializeField] private GameObject CityStatsPanel;
+    private bool statsPanelActive;
+    [SerializeField] private TMPro.TextMeshProUGUI PopulationUIText;
+    [SerializeField] private TMPro.TextMeshProUGUI UnemployedUIText;
+    [SerializeField] private TMPro.TextMeshProUGUI VacanciesUIText;
+    [SerializeField] private TMPro.TextMeshProUGUI MaintenanceUIText;
+    [SerializeField] private TMPro.TextMeshProUGUI DisastersSurvivedUIText;
 
     [Header("ZoningVars")]
     [SerializeField] private Camera playerCamera;
     [SerializeField] private string zoningLayerName = "ZoningVisual";
     public InputActionAsset inputActions;
     InputAction toggleZoningUI;
+    InputAction toggleStatsPanelUI;
     
 
     FinanceManager financeManager;
+    GameManager gameManager;
 
     private void Awake()
     {
@@ -28,8 +38,11 @@ public class UIManager : MonoBehaviour
 
     private void Start()
     {
-        InputActionMap PlayerMap = inputActions.FindActionMap("Player");
-        toggleZoningUI = PlayerMap.FindAction("ToggleZoningUI");
+        InputActionMap UIMap = inputActions.FindActionMap("UI");
+        toggleZoningUI = UIMap.FindAction("ToggleZoningUI");
+        toggleStatsPanelUI = UIMap.FindAction("ToggleStatsPanel");
+
+        statsPanelActive = CityStatsPanel.activeSelf;
 
         updateCurrentMoneyUI(financeManager.currentMoney);
     }
@@ -37,6 +50,7 @@ public class UIManager : MonoBehaviour
     private void Update()
     {
         HandleUserInput();
+        HandleStatsUpdate();
     }
 
     private void OnEnable()
@@ -52,6 +66,7 @@ public class UIManager : MonoBehaviour
     private void HandleUserInput()
     {
         if (toggleZoningUI.WasPressedThisFrame()) { ToggleZoningLayer(); }
+        if (toggleStatsPanelUI.WasPressedThisFrame()) { ToggleStatsPanel(); }
     }
 
     public void updateCurrentMoneyUI(long currentMoney)
@@ -76,6 +91,32 @@ public class UIManager : MonoBehaviour
         if(layerIndex == -1) { Debug.LogError($"Zoning Layer with the layer name {zoningLayerName} doesn't exist!"); }
 
         playerCamera.cullingMask ^= 1 << layerIndex;
+    }
+
+    private void HandleStatsUpdate()
+    {
+        if (statsPanelActive)
+        {
+            PopulationUIText.text = $"Population: {GameManager.instance.currentPopulation}";
+            UnemployedUIText.text = $"Unemployed: {GameManager.instance.currentUnemployed}";
+            VacanciesUIText.text = $"Vacancies: {GameManager.instance.currentVacanies}";
+            MaintenanceUIText.text = $"Maintenance: Road:{financeManager.roadMaintainanceCost * GameManager.instance.gridManager.RoadPositions.Count}";
+            DisastersSurvivedUIText.text = $"Disasters Survived: {GameManager.instance.disastersSurvived.ToString()}";
+        }
+    }
+
+    private void ToggleStatsPanel()
+    {
+        if (statsPanelActive)
+        {
+            CityStatsPanel.SetActive(false);
+            statsPanelActive = false;
+        } 
+        else
+        {
+            CityStatsPanel.SetActive(true);
+            statsPanelActive = true;
+        }
     }
 
     private string ReturnTextFromMoney(long amount)
