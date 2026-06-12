@@ -155,14 +155,15 @@ public class GameManager : MonoBehaviour
     {
         while (true)
         {
-            int randomInt = UnityEngine.Random.Range(0, 1);
+            int randomInt = 1;//UnityEngine.Random.Range(1, 1);
             switch (randomInt)
             {
                 case 0: break;
                 case 1: Earthquake(); break;
                 default: Debug.Log("Game Manager - randomEventTimer() | Invalid random Integer number"); break;
             }
-            yield return new WaitForSeconds(UnityEngine.Random.Range((60 * 5f), (60 * 10f))); //is this reaseonable? 
+            yield return new WaitForSeconds(UnityEngine.Random.Range(10f, 30f));
+            //yield return new WaitForSeconds(UnityEngine.Random.Range((60 * 5f), (60 * 10f))); //is this reaseonable? 
         }
     }
 
@@ -179,8 +180,29 @@ public class GameManager : MonoBehaviour
     private void Earthquake()
     {
         Debug.Log("Earthquake!!");
-        int NumBuildingsToDestroy = UnityEngine.Random.Range((int)Mathf.Max(1, (gridManager.GetMapGrid().Count/20)), (int)(gridManager.GetMapGrid().Count/5));
 
+        if(gridManager.BuildingPositions == null || gridManager.BuildingPositions.Count == 0)
+        {
+            Debug.LogWarning("Failed Earthquake - building pos is null or no count");
+            return;
+        }
+
+        int numBuildingsToDestroy = UnityEngine.Random.Range(
+            (int)Mathf.Max(1, (gridManager.GetMapGrid().Count/20)), 
+            (int)(gridManager.GetMapGrid().Count/5));
+
+
+        for (int i = 0; i < numBuildingsToDestroy + 1; i++)
+        {
+            if (gridManager.BuildingPositions.Count == 0) break;
+
+            int randomInt = UnityEngine.Random.Range(0, gridManager.BuildingPositions.Count);
+            Vector2Int buildingPos = gridManager.BuildingPositions[randomInt];
+
+            gridManager.forceRemoveElement(buildingPos);
+        }
+
+        disastersSurvived++;
     }
 
     //Earthquake -> destroy random buildings & infrastructure. Set stuff on fire

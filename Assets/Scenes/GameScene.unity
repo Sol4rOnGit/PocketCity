@@ -1409,7 +1409,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 425c8c480ba1896409443e8c476c6f6d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ChunkManager
-  showTrees: 1
+  showTrees: 0
   gridManager: {fileID: 1273503028}
   playerTransform: {fileID: 330585546}
   chunkSize: 16
