@@ -1,5 +1,7 @@
+using System;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.Rendering.UI;
 
 public enum PlayerMode
 {
@@ -13,6 +15,15 @@ public enum PlayerMode
     BuildingPlacement
 }
 
+public enum SpecialBuildingTypes
+{
+    WaterTower,
+    Fire,
+    Police,
+    CoalStation,
+    NuclearStation
+}
+
 public class GridPlayerManager : MonoBehaviour
 {
     [Header("Input")]
@@ -21,8 +32,8 @@ public class GridPlayerManager : MonoBehaviour
     InputAction placeAction;
     InputAction destroyAction;
     InputAction changePlayerModeAction;
+    InputAction changeSpecialBuildingAction;
     private PlayerMode currentPlayerMode = PlayerMode.RoadBuilding;
-
 
     [Header("Camera")]
     [SerializeField] private Camera playerCamera;
@@ -31,9 +42,18 @@ public class GridPlayerManager : MonoBehaviour
     [Header("Cursor")]
     [SerializeField] private GameObject cursor;
     private GameObject cursorInstance;
+    public Action<Vector2Int> newCursorPosition;
 
     private Vector2Int currentGridPosHovering;
     private Plane gridPlane;
+
+    [Header("Special Buildings")]
+    private SpecialBuildingTypes currentSelectedBuildingType = SpecialBuildingTypes.WaterTower;
+    [SerializeField] private GameObject waterTowerPrefab;
+    [SerializeField] private GameObject fireStationPrefab;
+    [SerializeField] private GameObject policeStationPrefab;
+    [SerializeField] private GameObject coalPowerStationPrefab;
+    [SerializeField] private GameObject nuclearPowerStationPrefab;
 
     [Header("UI")]
     [SerializeField] private TMPro.TextMeshProUGUI PlayerModeUIText;
@@ -45,6 +65,7 @@ public class GridPlayerManager : MonoBehaviour
         placeAction = playerActionMap.FindAction("Place");
         destroyAction = playerActionMap.FindAction("Destroy");
         changePlayerModeAction = playerActionMap.FindAction("ChangePlayerMode");
+        changeSpecialBuildingAction = playerActionMap.FindAction("ChangeSpecialBuilding");
         placeAction.Enable();
         destroyAction.Enable();
         changePlayerModeAction.Enable();
@@ -57,6 +78,12 @@ public class GridPlayerManager : MonoBehaviour
 
         //Cursor instantiation
         cursorInstance = Instantiate(cursor, this.transform);
+    }
+    private void OnDisable()
+    {
+        placeAction.Disable();
+        destroyAction.Disable();
+        changePlayerModeAction.Disable();
     }
 
     void Update()
@@ -83,6 +110,13 @@ public class GridPlayerManager : MonoBehaviour
         if (changePlayerModeAction.WasPressedThisFrame())
         {
             IncrementPlayerMode();
+        }
+
+        if (currentPlayerMode == PlayerMode.BuildingPlacement && changeSpecialBuildingAction.WasPressedThisFrame())
+        {
+            //Increment
+            currentSelectedBuildingType = (SpecialBuildingTypes)(((int)currentSelectedBuildingType + 1) % System.Enum.GetValues(typeof(SpecialBuildingTypes)).Length);
+            PlayerModeUIText.text = $"Building Placement: {currentSelectedBuildingType.ToString()}";
         }
 
         if (placeAction.WasPressedThisFrame())
@@ -160,8 +194,8 @@ public class GridPlayerManager : MonoBehaviour
                 PlayerModeUIText.text = "No Build Zoning"; break;
 
             case PlayerMode.BuildingPlacement:
-                PlayerModeUIText.text = "W.I.P. Demolish Buildings"; break;
-            default:
+                PlayerModeUIText.text = $"Building Placement: {currentSelectedBuildingType.ToString()}"; break;
+            default:    
                 Debug.LogError("Invalid Player State!");
                 break;
         }
@@ -175,6 +209,8 @@ public class GridPlayerManager : MonoBehaviour
         if (cursorInstance == null) { Debug.Log("Error! Cursor not found."); return; }
         cursorInstance.transform.position = new Vector3(currentGridPosHovering.x * gridManager.getGridScale(), 0f, currentGridPosHovering.y * gridManager.getGridScale());
 
+        newCursorPosition?.Invoke(gridPos);
+
         //Dragging to draw roads continuously
         if (placeAction.IsPressed()) { AttemptToCreateElement(); }
         else if (destroyAction.IsPressed()) { AttemptToEraseElement(); }
@@ -186,7 +222,50 @@ public class GridPlayerManager : MonoBehaviour
 
     private void HandleSpecialBuildingPlacement()
     {
+        GameObject prefabToPlace = null;
+        int buildCost = 0;
 
+        switch (currentSelectedBuildingType)
+        {
+            case SpecialBuildingTypes.WaterTower:
+                prefabToPlace = waterTowerPrefab;
+                buildCost = 5000;
+                break;
+            case SpecialBuildingTypes.Fire:
+                prefabToPlace = fireStationPrefab;
+                buildCost = 120_000;
+                break;
+            case SpecialBuildingTypes.Police:
+                prefabToPlace = policeStationPrefab;
+                buildCost = 100_000;
+                break;
+            case SpecialBuildingTypes.CoalStation:
+                prefabToPlace = coalPowerStationPrefab;
+                buildCost = 100_000;
+                break;
+            case SpecialBuildingTypes.NuclearStation:
+                prefabToPlace = nuclearPowerStationPrefab;
+                buildCost = 1_000_000;
+                break;
+            default:
+                break;
+        }
+
+        if (prefabToPlace != null)
+        {
+            if (FinanceManager.instance.currentMoney < buildCost)
+            {
+                GameManager.instance.UserNotification?.Invoke("Not enough money!", true);
+                return;
+            }
+            bool success = gridManager.createSpecialBuildingOnGrid(currentGridPosHovering, prefabToPlace);
+            if (!success) {
+                GameManager.instance.UserNotification?.Invoke("Cannot place building here!", true);
+                return; 
+            } //Use UI notif here later
+
+            FinanceManager.instance.Purchase(buildCost);
+        }
     }
 
     private Vector2Int WorldToGridPosition(Vector3 worldPos)
@@ -195,12 +274,5 @@ public class GridPlayerManager : MonoBehaviour
         int y = Mathf.RoundToInt(worldPos.z / gridManager.getGridScale());
 
         return new Vector2Int(x, y);
-    }
-
-    private void OnDisable()
-    {
-        placeAction.Disable();
-        destroyAction.Disable();
-        changePlayerModeAction.Disable();
     }
 }

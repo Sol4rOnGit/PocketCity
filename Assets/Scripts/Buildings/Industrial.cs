@@ -12,13 +12,15 @@ public class Industrial : Building
     public float energySupplyHealthiness = 1; //0-1
     public float waterSupplyHealthiness = 1; //0-1
 
+    private int badDays = 0;
+
     private void OnEnable()
     {
         if (GameManager.instance != null)
         {
             GameManager.instance.OnDayEnd += TryToHire;
-            GameManager.instance.OnDayEnd += GenerateWealth;
         }
+        if (ChunkManager.instance != null) ChunkManager.instance.BuildingUtilitiesUpdated += OnUtilities;
     }
 
     public void OnDisable()
@@ -26,8 +28,8 @@ public class Industrial : Building
         if (GameManager.instance != null)
         {
             GameManager.instance.OnDayEnd -= TryToHire;
-            GameManager.instance.OnDayEnd -= GenerateWealth;
         }
+        if (ChunkManager.instance != null) ChunkManager.instance.BuildingUtilitiesUpdated -= OnUtilities;
     }
 
     public void GenerateWealth()
@@ -56,5 +58,39 @@ public class Industrial : Building
         employees -= 1;
         GameManager.instance.currentVacanies += 1;
         return true;
+    }
+
+    public void OnUtilities()
+    {
+        if (ChunkManager.instance == null || this.isDestroying) return;
+
+        //Get chunk through position
+        float scale = GameManager.instance.gridManager.getGridScale();
+
+        ChunkManager.ChunkData chunk = ChunkManager.instance.GetChunkFromGridTile(gridPos);
+        if (chunk == null) return;
+
+        energySupplyHealthiness = chunk.powerConsumed > 0 ?
+            Mathf.Clamp01((float)(chunk.powerGenerated + chunk.powerImported) / chunk.powerConsumed)
+            : 1;
+
+        waterSupplyHealthiness = chunk.waterConsumed > 0 ?
+            Mathf.Clamp01((float)(chunk.waterGenerated + chunk.waterImported) / chunk.waterConsumed) 
+            : 1;
+
+        GenerateWealth();
+
+        if (energySupplyHealthiness < 0.7f || waterSupplyHealthiness < 0.7f)
+        {
+            badDays++;
+            if (badDays >= 3)
+            {
+                GameManager.instance.gridManager.forceRemoveElement(gridPos);
+            }
+        }
+        else
+        {
+            badDays = 0;
+        }
     }
 }

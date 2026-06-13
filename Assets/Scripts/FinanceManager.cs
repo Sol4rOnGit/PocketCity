@@ -13,7 +13,7 @@ public class FinanceManager : MonoBehaviour
     }
 
     [Header("Settings")]
-    [SerializeField] private long initialMoney = 100000;
+    [SerializeField] private long initialMoney = 200_000;
     public long currentMoney { get; private set; }
     public long prevMoney;
 

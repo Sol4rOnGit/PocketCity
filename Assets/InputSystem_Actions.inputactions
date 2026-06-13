@@ -77,6 +77,15 @@
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": false
+                },
+                {
+                    "name": "ChangeSpecialBuilding",
+                    "type": "Button",
+                    "id": "698a5542-d964-4f09-89aa-c282029fd79c",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
                 }
             ],
             "bindings": [
@@ -352,6 +361,28 @@
                     "processors": "",
                     "groups": "",
                     "action": "ChangePlayerMode",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "310d0938-879e-410a-a2f5-c87106bbf649",
+                    "path": "",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "ChangeSpecialBuilding",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "ba387d4c-9c40-4b28-a01f-d95dfef66b27",
+                    "path": "<Keyboard>/b",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "ChangeSpecialBuilding",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

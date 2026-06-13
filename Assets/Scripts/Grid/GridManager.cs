@@ -145,6 +145,8 @@ public class GridManager : MonoBehaviour
                 if (buildingInstance != null) { Destroy(buildingInstance); return; } //Mem. cleanup
             }
 
+            //Check zoning?
+
             if (tile.instance != null) { Destroy(tile.instance); }
 
             //Building spawn h
@@ -155,8 +157,15 @@ public class GridManager : MonoBehaviour
             tile.rotationDegrees = rotationDegrees;
             tile.buildingType = buildingType;
             tile.buildingScript = buildingScript;
+            tile.buildingScript.gridPos = pos;
 
             if (!BuildingPositions.Contains(pos)) { BuildingPositions.Add(pos); }
+
+            //Add utilities to chunk
+            if (ChunkManager.instance != null && buildingScript != null)
+            {
+                ChunkManager.instance.AddBuildingToChunk(pos, buildingScript.powerGenerated, buildingScript.powerConsumed, buildingScript.waterGenerated, buildingScript.waterConsumed);
+            }
 
             return;
         }
@@ -165,11 +174,56 @@ public class GridManager : MonoBehaviour
         ClearTreeAtPos(pos);
 
         GridTile buildingTile = new GridTile { tileName = buildingName, instance = buildingInstance, rotationDegrees = rotationDegrees, buildingType = buildingType, isRoad = false, buildingScript = buildingScript };
+        buildingTile.buildingScript.gridPos = pos;
 
         mapGrid.Add(pos, buildingTile);
         BuildingPositions.Add(pos);
+
+        //Add utilities to chunk
+        if (ChunkManager.instance != null && buildingScript != null)
+        {
+            ChunkManager.instance.AddBuildingToChunk(pos, buildingScript.powerGenerated, buildingScript.powerConsumed, buildingScript.waterGenerated, buildingScript.waterConsumed);
+        }
     }
 
+    public bool createSpecialBuildingOnGrid(Vector2Int pos, GameObject prefab)
+    {
+        if (mapGrid.TryGetValue(pos, out GridTile tile))
+        {
+            if (tile.isRoad || tile.buildingScript != null || tile.zoneType != ZoneType.None) { return false; }
+        }
+
+        Building prefabScript = prefab.GetComponent<Building>();
+        if (prefabScript == null) return false;
+
+        Vector3 worldPos = new Vector3(pos.x * GridScale, 0f, pos.y * GridScale);
+        GameObject buildingInstance = Instantiate(prefab, worldPos, Quaternion.identity, transform);
+
+        Building script = buildingInstance.GetComponent<Building>();
+        if (tile != null)
+        {
+            tile.buildingScript = script;
+            script.gridPos = pos;
+            tile.instance = buildingInstance;
+        }
+
+        else
+        {
+            GridTile newTile = new GridTile { buildingScript = script };
+            script.gridPos = pos;
+            newTile.instance = buildingInstance;
+            mapGrid.Add(pos, newTile);
+        }
+
+        if (!BuildingPositions.Contains(pos)) BuildingPositions.Add(pos);
+
+        if (ChunkManager.instance != null)
+        {
+            ChunkManager.instance.AddBuildingToChunk(pos, script.powerGenerated, script.powerConsumed, script.waterGenerated, script.waterConsumed);
+        }
+
+        return true;
+    }
     public void zoneTileOnGrid(Vector2Int pos, ZoneType zoneType)
     {
         bool success = false;
@@ -290,6 +344,21 @@ public class GridManager : MonoBehaviour
 
         if(mapGrid.TryGetValue(pos, out GridTile tile))
         {
+            if(tile.buildingScript != null)
+            {
+                if (tile.buildingScript.isDestroying) return;
+                tile.buildingScript.isDestroying = true;
+            }
+
+            if (ChunkManager.instance != null)
+            {
+                ChunkManager.instance.RemoveBuildingFromChunk(pos, 
+                    tile.buildingScript.powerGenerated,
+                    tile.buildingScript.powerConsumed,
+                    tile.buildingScript.waterGenerated,
+                    tile.buildingScript.waterConsumed);
+            }
+
             if (tile.buildingType != null && tile.buildingScript != null)
             {
                 if (tile.buildingScript is House houseScript)
@@ -307,8 +376,7 @@ public class GridManager : MonoBehaviour
             if (tile.instance != null) { Destroy(tile.instance); }
 
             bool wasRoad = tile.isRoad;
-
-            mapGrid.Remove(pos);
+            
             if (RoadPositions.Contains(pos)) RoadPositions.Remove(pos);
             if (BuildingPositions.Contains(pos)) BuildingPositions.Remove(pos);
             if (ZonedPositions.Contains(pos)) ZonedPositions.Remove(pos);
@@ -319,6 +387,18 @@ public class GridManager : MonoBehaviour
                 updateGridElement(pos + Vector2Int.down);
                 updateGridElement(pos + Vector2Int.left);
                 updateGridElement(pos + Vector2Int.right);
+            }
+
+            if(tile.zoneType != ZoneType.None)
+            {
+                tile.buildingType = null;
+                tile.rotationDegrees = 0;
+                tile.buildingScript = null;
+                tile.tileName = $"Destroyed";
+                tile.instance = InstantiateZonePrefab(pos, tile.zoneType);
+            } else
+            {
+                mapGrid.Remove(pos);
             }
         } 
         else
@@ -337,8 +417,10 @@ public class GridManager : MonoBehaviour
                 Destroy(treeInstance);
             }
             TreeGrid.Remove(pos);
+            if (ChunkManager.instance != null) ChunkManager.instance.GetChunkFromGridTile(pos).treeCount--;
         }
     }
+    //Helper functions
     private void PlaceInitialGrid()
     {
         //Random initial road layout
@@ -360,7 +442,6 @@ public class GridManager : MonoBehaviour
         createRoadOnGrid(new Vector2Int(2, 1), true);
     }
 
-    //Helper functions
     private (int rotationDegrees, GameObject prefab) DecideOnPrefab(Vector2Int pos)
     {
         //Check above, left, right, bottom.

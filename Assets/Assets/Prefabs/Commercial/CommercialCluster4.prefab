@@ -49,12 +49,15 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Commercial
   buildingName: 
-  constructionCost: 0
-  destructionCost: 0
   type: 0
   gridPosition: {x: 0, y: 0}
+  powerGenerated: 0
+  powerConsumed: 3
+  waterGenerated: 0
+  waterConsumed: 2
+  isOnFire: 0
+  fireParticles: {fileID: 2938381441238916310, guid: 3081ae8bd68b5ff4fbfb4e5fd2842a42, type: 3}
   maxEmployees: 40
-  commercialType: 0
   taxRevenue: 2394
   employees: 20
   energySupplyHealthiness: 1

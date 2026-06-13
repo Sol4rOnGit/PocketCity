@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.ComponentModel;
 using UnityEngine;
 
 public class GameManager : MonoBehaviour
@@ -24,9 +25,13 @@ public class GameManager : MonoBehaviour
     public int disastersSurvived;
 
     [Header("Disasters")]
+    private float secondsToBurnBuilding = 10f;
 
     [Header("Actions")]
     public Action OnDayEnd;
+    public Action<string, bool> UserNotification;
+
+    public readonly Vector2Int[] directions = { Vector2Int.up, Vector2Int.down, Vector2Int.left, Vector2Int.right };
 
     private void Start()
     {
@@ -62,6 +67,9 @@ public class GameManager : MonoBehaviour
         currentUnemployed += employeesLost;
         int unfilledVacancies = jobsLost - employeesLost;
         currentVacanies -= unfilledVacancies;
+
+        if (currentVacanies < 0) currentVacanies = 0;
+        if (currentUnemployed < 0) currentUnemployed = 0;
     }
 
     public int RemoveWorkersFromBuildings(int amount)
@@ -153,28 +161,37 @@ public class GameManager : MonoBehaviour
 
     private IEnumerator randomEventTimer()
     {
+        yield return new WaitForSeconds(1.0f); //Grace period -> probably 2 minutes so you can get a reasonable amount of money
+
         while (true)
         {
-            int randomInt = 1;//UnityEngine.Random.Range(1, 1);
+            yield return new WaitForSeconds(UnityEngine.Random.Range(10f, 30f));
+            //yield return new WaitForSeconds(UnityEngine.Random.Range((60 * 5f), (60 * 10f))); //is this reaseonable? 
+
+            int randomInt = UnityEngine.Random.Range(0, 3);
             switch (randomInt)
             {
                 case 0: break;
-                case 1: Earthquake(); break;
+                case 1:
+                    Earthquake(); break;
+                case 2:
+                    SetBuildingOnFire(); break;
                 default: Debug.Log("Game Manager - randomEventTimer() | Invalid random Integer number"); break;
             }
-            yield return new WaitForSeconds(UnityEngine.Random.Range(10f, 30f));
-            //yield return new WaitForSeconds(UnityEngine.Random.Range((60 * 5f), (60 * 10f))); //is this reaseonable? 
         }
     }
 
     private void PreDayEndFunctions()
     {
         financeManager.prevMoney = financeManager.currentMoney;
+
+        if (ChunkManager.instance != null) { ChunkManager.instance.DistributeUtilitiesAcrossCity(); }
     }
 
     private void DayEndFunctions()
     {
         financeManager.Purchase(gridManager.RoadPositions.Count * financeManager.roadMaintainanceCost);
+        CheckForFires();
     }
 
     private void Earthquake()
@@ -187,9 +204,12 @@ public class GameManager : MonoBehaviour
             return;
         }
 
+        UserNotification?.Invoke("Earthquake!", false);
+
+        //Why is it destroyign all the buildings now!??!
         int numBuildingsToDestroy = UnityEngine.Random.Range(
-            (int)Mathf.Max(1, (gridManager.GetMapGrid().Count/20)), 
-            (int)(gridManager.GetMapGrid().Count/5));
+            (int)Mathf.Max(1, (gridManager.BuildingPositions.Count/10)), 
+            (int)(gridManager.BuildingPositions.Count/5));
 
 
         for (int i = 0; i < numBuildingsToDestroy + 1; i++)
@@ -205,7 +225,66 @@ public class GameManager : MonoBehaviour
         disastersSurvived++;
     }
 
-    //Earthquake -> destroy random buildings & infrastructure. Set stuff on fire
+    //Fire
+
+    private void SetBuildingOnFire()
+    {
+        if(gridManager.BuildingPositions.Count == 0) { return; }
+        Vector2Int randomPos = gridManager.BuildingPositions[UnityEngine.Random.Range(0, gridManager.BuildingPositions.Count)];
+        Dictionary<Vector2Int, GridManager.GridTile> mapGrid = gridManager.GetMapGrid();
+
+        if(mapGrid.TryGetValue(randomPos, out GridManager.GridTile tile) && tile.buildingScript != null)
+        {
+            if (!tile.buildingScript.isOnFire)
+            {
+                tile.buildingScript.IgniteFire();
+                StartCoroutine(BurnBuilding(randomPos, tile.buildingScript));
+            }
+        }
+    }
+
+    private void CheckForFires()
+    {
+        if (gridManager.BuildingPositions.Count == 0) { return; }
+
+        Vector2Int randomPos = gridManager.BuildingPositions[UnityEngine.Random.Range(0, gridManager.BuildingPositions.Count)];
+        Dictionary<Vector2Int, GridManager.GridTile> mapGrid = gridManager.GetMapGrid();
+
+        if(mapGrid.TryGetValue(randomPos, out GridManager.GridTile tile) && tile.buildingScript != null)
+        {
+            if (tile.buildingScript.isOnFire)
+            {
+                StartCoroutine(SpreadFire(randomPos, mapGrid));
+            }
+        }
+    }
+
+    private IEnumerator BurnBuilding(Vector2Int pos, Building buildingScript)
+    {
+        yield return new WaitForSeconds(secondsToBurnBuilding);
+
+        if(buildingScript != null && buildingScript.isOnFire)
+        {
+            UserNotification?.Invoke($"{pos.x}, {pos.y} burned down!", true);
+            gridManager.forceRemoveElement(pos);
+        }
+    }
+
+    private IEnumerator SpreadFire(Vector2Int pos, Dictionary<Vector2Int, GridManager.GridTile> mapGrid)
+    {
+        yield return new WaitForSeconds(UnityEngine.Random.Range(3f, 9f));
+
+        foreach (Vector2Int dir in directions)
+        {
+            Vector2Int checkPos = pos + dir;
+            if (mapGrid.TryGetValue(checkPos, out GridManager.GridTile tile) && tile.buildingScript != null && !tile.buildingScript.isOnFire)
+            {
+                if (UnityEngine.Random.Range(0, 2) == 0) yield break;
+
+                tile.buildingScript.IgniteFire();
+            }
+        }
+    }
 
     //Tornado
 
@@ -217,17 +296,11 @@ public class GameManager : MonoBehaviour
 
     //Police
 
-    //Fire services
-
-    //Random fires
-
     //Blackout ???
 
     //Political issues -> e.g. raise taxes but you nuke half the city
 
     //Strikes & burnout
-
-    //Water & Energy
 
     //Country declares war on you
 
@@ -236,7 +309,7 @@ public class GameManager : MonoBehaviour
     //Healthcare
 
     //Super rare
-    
+
     //asteroid attack
 
     //Alien invasion

@@ -49,13 +49,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8e2457facd4f61445a5b949d1c2f4864, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::House
-  buildingName: 
-  constructionCost: 0
-  destructionCost: 0
+  buildingName: House1
   type: 0
-  gridPosition: {x: 0, y: 0}
+  powerGenerated: 0
+  powerConsumed: 1
+  waterGenerated: 0
+  waterConsumed: 1
+  isOnFire: 0
+  fireParticles: {fileID: 2938381441238916310, guid: 3081ae8bd68b5ff4fbfb4e5fd2842a42, type: 3}
+  isDestroying: 0
+  _maxResidents: 5
   residents: 0
   happiness: 0
+  waterReq: 1
+  energyReq: 1
 --- !u!1001 &2417888127810674114
 PrefabInstance:
   m_ObjectHideFlags: 0

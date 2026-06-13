@@ -23,6 +23,13 @@ public class CityGenerator : MonoBehaviour
     private float spawnTimer = 0.0f;
     private float timeSinceStartSeconds = 0.0f;
 
+    private Vector2Int[] directions;
+
+    private void Start()
+    {
+        directions = GameManager.instance.directions;
+    }
+
     private void Update()
     {
         //Wait for everything to load
@@ -100,8 +107,6 @@ public class CityGenerator : MonoBehaviour
         return (Vector2Int.left * 99999, Vector2Int.left * 99999, null);
 
     }
-
-    private readonly Vector2Int[] directions = { Vector2Int.up, Vector2Int.down, Vector2Int.left, Vector2Int.right };
 
     private (Vector2Int spot, Vector2Int direction) GetRandomEmptyNeighbour(Vector2Int center, Dictionary<Vector2Int, GridManager.GridTile> currentGrid, BuildingType? targetBuildingType)
     {
