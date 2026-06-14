@@ -50,16 +50,17 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Commercial
   buildingName: 
   type: 0
-  gridPosition: {x: 0, y: 0}
+  gridPos: {x: 0, y: 0}
   powerGenerated: 0
   powerConsumed: 3
   waterGenerated: 0
   waterConsumed: 2
   isOnFire: 0
   fireParticles: {fileID: 2938381441238916310, guid: 3081ae8bd68b5ff4fbfb4e5fd2842a42, type: 3}
-  maxEmployees: 40
+  isDestroying: 0
+  maxEmployees: 20
   taxRevenue: 2394
-  employees: 20
+  employees: 0
   energySupplyHealthiness: 1
 --- !u!1 &872525918641779811
 GameObject:

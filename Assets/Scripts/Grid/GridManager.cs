@@ -12,6 +12,8 @@ public enum ZoneType
 }
 public class GridManager : MonoBehaviour
 {
+    public static GridManager instance { get; private set; }
+
     //Vars
     private const float GridScale = 2.0f;
 
@@ -64,6 +66,9 @@ public class GridManager : MonoBehaviour
 
     private void Awake()
     {
+        if (instance != null && instance != this) { Destroy(gameObject); }
+        instance = this;
+
         PlaceInitialGrid();
     }
 
@@ -140,9 +145,10 @@ public class GridManager : MonoBehaviour
         //Attempt to spawn the building given tile is occupied
         if (mapGrid.TryGetValue(pos, out GridTile tile))
         {
-            if (tile.isRoad || tile.buildingType != null)
+            if (tile.isRoad || tile.buildingType != null || tile.buildingScript != null)
             {
-                if (buildingInstance != null) { Destroy(buildingInstance); return; } //Mem. cleanup
+                if (buildingInstance != null) { Destroy(buildingInstance); } //Mem. cleanup
+                return;
             }
 
             //Check zoning?
@@ -190,7 +196,7 @@ public class GridManager : MonoBehaviour
     {
         if (mapGrid.TryGetValue(pos, out GridTile tile))
         {
-            if (tile.isRoad || tile.buildingScript != null || tile.zoneType != ZoneType.None) { return false; }
+            if (tile.isRoad || tile.buildingScript != null || tile.instance != null) { return false; }
         }
 
         Building prefabScript = prefab.GetComponent<Building>();
@@ -200,20 +206,35 @@ public class GridManager : MonoBehaviour
         GameObject buildingInstance = Instantiate(prefab, worldPos, Quaternion.identity, transform);
 
         Building script = buildingInstance.GetComponent<Building>();
+
+        ClearTreeAtPos(pos);
+
         if (tile != null)
         {
             tile.buildingScript = script;
             script.gridPos = pos;
             tile.instance = buildingInstance;
+            tile.buildingType = BuildingType.Special;
+            tile.tileName = prefab.name;
+            tile.isRoad = false;
         }
 
         else
         {
-            GridTile newTile = new GridTile { buildingScript = script };
+            GridTile newTile = new GridTile
+            {
+                tileName = prefab.name,
+                instance = buildingInstance,
+                buildingScript = script,
+                buildingType = BuildingType.Special,
+                isRoad = false
+            };
+
+
             script.gridPos = pos;
-            newTile.instance = buildingInstance;
             mapGrid.Add(pos, newTile);
         }
+
 
         if (!BuildingPositions.Contains(pos)) BuildingPositions.Add(pos);
 
@@ -335,6 +356,8 @@ public class GridManager : MonoBehaviour
             {
                 mapGrid.Remove(pos);
             }
+
+            FinanceManager.instance.Purchase(financeManager.costZoning);
         }
     }
 

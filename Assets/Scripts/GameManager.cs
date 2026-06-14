@@ -25,6 +25,10 @@ public class GameManager : MonoBehaviour
     public int disastersSurvived;
 
     [Header("Disasters")]
+    [SerializeField] private float gradePeriod = 60 * 2f;
+    [SerializeField] private float minInterval = 60 * 1.5f;
+    [SerializeField] private float maxInterval = 60 * 2.5f;
+
     private float secondsToBurnBuilding = 10f;
 
     [Header("Actions")]
@@ -161,13 +165,10 @@ public class GameManager : MonoBehaviour
 
     private IEnumerator randomEventTimer()
     {
-        yield return new WaitForSeconds(1.0f); //Grace period -> probably 2 minutes so you can get a reasonable amount of money
+        yield return new WaitForSeconds(gradePeriod);
 
         while (true)
         {
-            yield return new WaitForSeconds(UnityEngine.Random.Range(10f, 30f));
-            //yield return new WaitForSeconds(UnityEngine.Random.Range((60 * 5f), (60 * 10f))); //is this reaseonable? 
-
             int randomInt = UnityEngine.Random.Range(0, 3);
             switch (randomInt)
             {
@@ -178,6 +179,8 @@ public class GameManager : MonoBehaviour
                     SetBuildingOnFire(); break;
                 default: Debug.Log("Game Manager - randomEventTimer() | Invalid random Integer number"); break;
             }
+
+            yield return new WaitForSeconds(UnityEngine.Random.Range(minInterval, maxInterval));
         }
     }
 
@@ -238,7 +241,13 @@ public class GameManager : MonoBehaviour
             if (!tile.buildingScript.isOnFire)
             {
                 tile.buildingScript.IgniteFire();
+
+                //Timer
                 StartCoroutine(BurnBuilding(randomPos, tile.buildingScript));
+
+                //Call fire services
+                if (ServiceManager.instance != null) ServiceManager.instance.DispatchFiretruck(tile.buildingScript);
+                else { Debug.LogError("Service Manager not found!"); }
             }
         }
     }
@@ -274,14 +283,20 @@ public class GameManager : MonoBehaviour
     {
         yield return new WaitForSeconds(UnityEngine.Random.Range(3f, 9f));
 
+        if (!mapGrid.TryGetValue(pos, out GridManager.GridTile sourceTile) || sourceTile.buildingScript == null || !sourceTile.buildingScript.isOnFire)
+        {
+            yield break;
+        }
+
         foreach (Vector2Int dir in directions)
         {
             Vector2Int checkPos = pos + dir;
             if (mapGrid.TryGetValue(checkPos, out GridManager.GridTile tile) && tile.buildingScript != null && !tile.buildingScript.isOnFire)
             {
-                if (UnityEngine.Random.Range(0, 2) == 0) yield break;
+                if (UnityEngine.Random.Range(0, 2) == 0) continue;
 
                 tile.buildingScript.IgniteFire();
+                StartCoroutine(BurnBuilding(checkPos, tile.buildingScript));
             }
         }
     }

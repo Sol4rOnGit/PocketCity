@@ -19,7 +19,7 @@ public class ChunkManager : MonoBehaviour
     public int GlobalWaterDemand { get; private set; }
 
     [Header("Toggle")]
-    [SerializeField] private Boolean showTrees;
+    [SerializeField] private bool showTrees;
 
     [Header("Requirements")]
     [SerializeField] private GridManager gridManager;
@@ -27,7 +27,7 @@ public class ChunkManager : MonoBehaviour
 
     [Header("Chunk settings")]
     [SerializeField] private int chunkSize = 16;
-    [SerializeField] private int viewDistance = 5;
+    [SerializeField] private int viewDistance = 3;
 
     private Dictionary<Vector2Int, ChunkData> generatedChunks = new Dictionary<Vector2Int, ChunkData>();
     Vector2Int lastPlayerChunk = new Vector2Int(int.MinValue, int.MinValue);
@@ -99,8 +99,8 @@ public class ChunkManager : MonoBehaviour
                 if(!generatedChunks.ContainsKey(chunkCord))
                 {
                     ChunkData newChunk = new ChunkData(chunkCord); 
-                    GenerateChunkEnvironemnt(newChunk);
                     generatedChunks.Add(chunkCord, newChunk);
+                    GenerateChunkEnvironemnt(newChunk);
                 }
             }
         }
@@ -191,7 +191,7 @@ public class ChunkManager : MonoBehaviour
             {
                 if (totalGlobalWater >= waterDefecit)
                 {
-                    chunk.waterImported += waterDefecit;
+                    chunk.waterImported = waterDefecit;
                     totalGlobalWater -= waterDefecit;
                 } else
                 {

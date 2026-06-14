@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: 9632f5d05dc5e0a468f51d8021e488af
+guid: 3a47e447d2b2f594b8ad5f1af74a91f3
 ModelImporter:
   serializedVersion: 24200
   internalIDToNameTable: []
@@ -7,7 +7,7 @@ ModelImporter:
   - first:
       type: UnityEngine:Material
       assembly: UnityEngine.CoreModule
-      name: WaterTowerMaterial.001
+      name: Material
     second: {fileID: 2100000, guid: 99955386bf515fa4fa97b876ac1d2945, type: 2}
   materials:
     materialImportMode: 2

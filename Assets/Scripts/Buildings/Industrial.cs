@@ -8,7 +8,7 @@ public class Industrial : Building
     public int GetMaxEmployees() { return maxEmployees; }
     [SerializeField] private float taxRevenue = 1500f;
 
-    public int employees = 25;
+    public int employees = 0;
     public float energySupplyHealthiness = 1; //0-1
     public float waterSupplyHealthiness = 1; //0-1
 

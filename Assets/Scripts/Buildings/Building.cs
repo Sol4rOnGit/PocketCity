@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public enum BuildingType { Residential, Industrial, Commercial}
+public enum BuildingType { Residential, Industrial, Commercial, Special}
 
 public class Building : MonoBehaviour
 {

@@ -1318,6 +1318,7 @@ GameObject:
   - component: {fileID: 1273503029}
   - component: {fileID: 1273503030}
   - component: {fileID: 1273503031}
+  - component: {fileID: 1273503033}
   m_Layer: 0
   m_Name: City
   m_TagString: Untagged
@@ -1417,11 +1418,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 425c8c480ba1896409443e8c476c6f6d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ChunkManager
-  showTrees: 0
+  showTrees: 1
   gridManager: {fileID: 1273503028}
   playerTransform: {fileID: 330585546}
   chunkSize: 16
-  viewDistance: 5
+  viewDistance: 3
 --- !u!114 &1273503031
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1434,7 +1435,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1cfa05c30682f6243bdcf6848f38531a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::FinanceManager
-  initialMoney: 200000
+  initialMoney: 1000000
   prevMoney: 0
   costRoad: 145
   costRoadDemolition: 245
@@ -1458,6 +1459,24 @@ MonoBehaviour:
   currentUnemployed: 0
   currentVacanies: 0
   disastersSurvived: 0
+  gradePeriod: 20
+  minInterval: 10
+  maxInterval: 20
+--- !u!114 &1273503033
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1273503026}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c5465bf78b8337b42ac64dfae5409c8e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ServiceManager
+  gridManager: {fileID: 1273503028}
+  firetruckPrefab: {fileID: 756839036580273433, guid: f0edcb040d0e4c947ac88dec390a362f, type: 3}
+  policecarPrefab: {fileID: 0}
 --- !u!1 &1322513100
 GameObject:
   m_ObjectHideFlags: 0
@@ -2194,7 +2213,7 @@ MonoBehaviour:
   gridManager: {fileID: 1273503028}
   cursor: {fileID: 6217331903252028676, guid: eb77da6927c7ad849968b57b19ab6aef, type: 3}
   waterTowerPrefab: {fileID: 4287405775398340856, guid: 2d26b16dea4f14344b8353267b8bb05d, type: 3}
-  fireStationPrefab: {fileID: 3738098178782129888, guid: 7ad8887b5b572d94a95cec5a16bd5aec, type: 3}
+  fireStationPrefab: {fileID: 3738098178782129888, guid: 89a0078372063f04ba5f7562d61f8c66, type: 3}
   policeStationPrefab: {fileID: 3738098178782129888, guid: 7ad8887b5b572d94a95cec5a16bd5aec, type: 3}
   coalPowerStationPrefab: {fileID: 3738098178782129888, guid: 45a565d9e09660e45b3a9f1983d1154f, type: 3}
   nuclearPowerStationPrefab: {fileID: 3738098178782129888, guid: 45a565d9e09660e45b3a9f1983d1154f, type: 3}
