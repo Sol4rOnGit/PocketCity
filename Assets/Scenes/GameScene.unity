@@ -1459,6 +1459,7 @@ MonoBehaviour:
   currentUnemployed: 0
   currentVacanies: 0
   disastersSurvived: 0
+  isLockdownActive: 0
   gradePeriod: 20
   minInterval: 10
   maxInterval: 20
@@ -1477,6 +1478,7 @@ MonoBehaviour:
   gridManager: {fileID: 1273503028}
   firetruckPrefab: {fileID: 756839036580273433, guid: f0edcb040d0e4c947ac88dec390a362f, type: 3}
   policecarPrefab: {fileID: 0}
+  ambulancePrefab: {fileID: 4763909408681192049, guid: c278bd89ae6cd8145b9c4bf4e1822b64, type: 3}
 --- !u!1 &1322513100
 GameObject:
   m_ObjectHideFlags: 0
@@ -2217,6 +2219,7 @@ MonoBehaviour:
   policeStationPrefab: {fileID: 3738098178782129888, guid: 7ad8887b5b572d94a95cec5a16bd5aec, type: 3}
   coalPowerStationPrefab: {fileID: 3738098178782129888, guid: 45a565d9e09660e45b3a9f1983d1154f, type: 3}
   nuclearPowerStationPrefab: {fileID: 3738098178782129888, guid: 45a565d9e09660e45b3a9f1983d1154f, type: 3}
+  hospitalPrefab: {fileID: 3738098178782129888, guid: bcc9bef6ab700034d9ff7189c02eaf31, type: 3}
   PlayerModeUIText: {fileID: 1929140831}
 --- !u!1 &1929140829
 GameObject:

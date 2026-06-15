@@ -20,6 +20,7 @@ public class ServiceManager : MonoBehaviour
     [Header("Prefabs")]
     [SerializeField] private GameObject firetruckPrefab;
     [SerializeField] private GameObject policecarPrefab;
+    [SerializeField] private GameObject ambulancePrefab;
 
     private GridPathfinder gridPathfinder;
 
@@ -65,6 +66,45 @@ public class ServiceManager : MonoBehaviour
         firetruck.Init(route, burningBuilding, scale, bestStation.gridPos);
     }
 
+    public void DispatchAmbulance(Building infectedBuilding)
+    {
+        if (infectedBuilding == null) return;
+        if (gridPathfinder == null) { Debug.LogError("ERROR! NO GRID PATHFINDER!"); return; }
+
+        List<Vector2Int> route = null;
+        Building bestHospital = FindClosestReachableHospital(infectedBuilding.gridPos, out route);
+
+        if (bestHospital == null && route == null)
+        {
+            GameManager.instance.UserNotification?.Invoke("Infection but there are no Hospitals!", false);
+            return;
+        }
+
+        if (route == null || route.Count == 0)
+        {
+            GameManager.instance.UserNotification?.Invoke("Infection but no path to there from a hospital!", true);
+            return;
+        }
+
+        if (bestHospital is Hospital hospital)
+        {
+            hospital.DispatchAmbulance();
+        }
+        else
+        {
+            Debug.LogError("ServiceMananger: Hospital not a hospital.");
+        }
+
+        Vector2Int spawnGridPos = route[0];
+        float scale = gridManager.getGridScale();
+        Vector3 spawnWorldPos = new Vector3(spawnGridPos.x * scale, 0f, spawnGridPos.y * scale);
+
+        GameObject ambulanceObj = Instantiate(ambulancePrefab, spawnWorldPos, Quaternion.identity);
+
+        Ambulance ambulance = ambulanceObj.GetComponent<Ambulance>();
+        ambulance.Init(route, infectedBuilding, scale, bestHospital.gridPos);
+    }
+
     private Building FindClosestReachableFireStation(Vector2Int targetPos, out List<Vector2Int> bestRoute)
     {
         Building closestStation = null;
@@ -102,7 +142,45 @@ public class ServiceManager : MonoBehaviour
         }
 
         return closestStation;
+    }
 
+    private Building FindClosestReachableHospital(Vector2Int targetPos, out List<Vector2Int> bestRoute)
+    {
+        Building closestStation = null;
+        bestRoute = null;
+        int shortestRouteLength = int.MaxValue;
+        bool foundAStation = false;
+
+        foreach (var kvp in gridManager.GetMapGrid())
+        {
+            GridManager.GridTile tile = kvp.Value;
+
+            if (tile.buildingScript != null && tile.buildingScript is Hospital hospital)
+            {
+                foundAStation = true;
+
+                if (!hospital.HasAmbulances()) continue;
+
+                List<Vector2Int> testRoute = CalculateRoadPath(tile.buildingScript.gridPos, targetPos);
+
+                if (testRoute == null || testRoute.Count == 0) continue;
+
+                if (testRoute.Count < shortestRouteLength)
+                {
+                    shortestRouteLength = testRoute.Count;
+                    bestRoute = testRoute;
+                    closestStation = tile.buildingScript;
+                }
+            }
+        }
+
+        if (!foundAStation)
+        {
+            bestRoute = null;
+            return null;
+        }
+
+        return closestStation;
     }
 
     public void DispatchPolice()

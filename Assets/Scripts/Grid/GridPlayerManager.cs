@@ -20,8 +20,9 @@ public enum SpecialBuildingTypes
     WaterTower,
     Fire,
     Police,
+    Hospital,
     CoalStation,
-    NuclearStation
+    NuclearStation,
 }
 
 public class GridPlayerManager : MonoBehaviour
@@ -54,6 +55,7 @@ public class GridPlayerManager : MonoBehaviour
     [SerializeField] private GameObject policeStationPrefab;
     [SerializeField] private GameObject coalPowerStationPrefab;
     [SerializeField] private GameObject nuclearPowerStationPrefab;
+    [SerializeField] private GameObject hospitalPrefab;
 
     [Header("UI")]
     [SerializeField] private TMPro.TextMeshProUGUI PlayerModeUIText;
@@ -238,6 +240,10 @@ public class GridPlayerManager : MonoBehaviour
             case SpecialBuildingTypes.Police:
                 prefabToPlace = policeStationPrefab;
                 buildCost = 100_000;
+                break;
+            case SpecialBuildingTypes.Hospital:
+                prefabToPlace = hospitalPrefab;
+                buildCost = 90_000;
                 break;
             case SpecialBuildingTypes.CoalStation:
                 prefabToPlace = coalPowerStationPrefab;

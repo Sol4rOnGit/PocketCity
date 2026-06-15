@@ -24,6 +24,10 @@ public class GameManager : MonoBehaviour
     public int currentVacanies;
     public int disastersSurvived;
 
+    [Header("Health Statistics")]
+    private int infectedPopulation; 
+    public bool isLockdownActive = false; //Let user use later
+
     [Header("Disasters")]
     [SerializeField] private float gradePeriod = 60 * 2f;
     [SerializeField] private float minInterval = 60 * 1.5f;
@@ -157,8 +161,12 @@ public class GameManager : MonoBehaviour
         while (true)
         {
             PreDayEndFunctions();
-            OnDayEnd?.Invoke();
+
+            if (!isLockdownActive) { OnDayEnd?.Invoke(); }
+            else { UserNotification?.Invoke("Lockdown Active! Day passed", false); }
+
             DayEndFunctions();
+
             yield return new WaitForSeconds(3f); //every 3 seconds
         }
     }
@@ -169,7 +177,7 @@ public class GameManager : MonoBehaviour
 
         while (true)
         {
-            int randomInt = UnityEngine.Random.Range(0, 3);
+            int randomInt = UnityEngine.Random.Range(0, 4);
             switch (randomInt)
             {
                 case 0: break;
@@ -177,6 +185,8 @@ public class GameManager : MonoBehaviour
                     Earthquake(); break;
                 case 2:
                     SetBuildingOnFire(); break;
+                case 3:
+                    TriggerVirusOutbreak(); break;
                 default: Debug.Log("Game Manager - randomEventTimer() | Invalid random Integer number"); break;
             }
 
@@ -195,6 +205,7 @@ public class GameManager : MonoBehaviour
     {
         financeManager.Purchase(gridManager.RoadPositions.Count * financeManager.roadMaintainanceCost);
         CheckForFires();
+        CheckForInfections();
     }
 
     private void Earthquake()
@@ -301,29 +312,96 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    //Tornado
+    //HEALTH
 
-    //Nuclear fallout
+    private void TriggerVirusOutbreak(bool newVirus = true)
+    {
+        if (gridManager.BuildingPositions.Count == 0) { return; }
 
-    //Terrorism
+        Vector2Int randomPos = gridManager.BuildingPositions[UnityEngine.Random.Range(0, gridManager.BuildingPositions.Count)];
+        Dictionary<Vector2Int, GridManager.GridTile> mapGrid = gridManager.GetMapGrid();
+
+        if (mapGrid.TryGetValue(randomPos, out GridManager.GridTile tile) && tile.buildingScript != null)
+        {
+            if (tile.buildingScript is House houseScript && !tile.buildingScript.isInfected)
+            {
+                tile.buildingScript.Infect();
+
+                infectedPopulation += houseScript.residents;
+                if (newVirus) { UserNotification?.Invoke("A virus outbreak has occured virus!", true); }
+                else { UserNotification?.Invoke("Another house has been infected!", true); }
+
+
+                //Timer
+                StartCoroutine(KillBuilding(randomPos, houseScript));
+
+                //Call fire services
+                if (ServiceManager.instance != null) ServiceManager.instance.DispatchAmbulance(tile.buildingScript);
+                else { Debug.LogError("Service Manager not found!"); }
+            }
+        }
+    }
+
+    private IEnumerator KillBuilding(Vector2Int randomPos, House houseScript)
+    {
+        yield return new WaitForSeconds(10f);
+
+        TriggerVirusOutbreak(false);
+
+        if (houseScript != null && houseScript.isInfected)
+        {
+            gridManager.forceRemoveElement(randomPos);
+            UserNotification?.Invoke("A building has been destroyed as it has been overriden with viruses!", true);
+        }
+    }
+
+    private void CheckForInfections()
+    {
+        //////// TO ADD!!
+        //Check for infected buildings and then dispatch ambulance if it isn't already being attended to
+
+        return;
+    }
+
+
+    //-- Tornado
+
+    //-- Nuclear fallout
+
+    //CRIME
+
+    //Robberies
+
+    //-- Terrorism
 
     //Gang wars
 
     //Police
 
+
+    //POLITICS
+
     //Blackout ???
 
-    //Political issues -> e.g. raise taxes but you nuke half the city
+    //Video game choices issues -> e.g. raise taxes but you nuke half the city
 
-    //Strikes & burnout
+    //Political unrest -> people start rioting (become unemployed, set stuff on fire)
 
-    //Country declares war on you
+    //Strikes & burnout 
+
+    //-- Country declares war on you 
+
+
+    //HEALTH!!
 
     //Viruses
 
-    //Healthcare
+    //Lockdowns
 
-    //Super rare
+    //Hospitals
+
+
+    //Super rare ones:
 
     //asteroid attack
 
