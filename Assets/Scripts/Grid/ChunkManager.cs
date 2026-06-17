@@ -260,7 +260,7 @@ public class ChunkManager : MonoBehaviour
         chunk.waterGenerated += waterGen;
         chunk.waterConsumed += waterCons;
 
-        DistributeUtilitiesAcrossCity();
+        //DistributeUtilitiesAcrossCity(); infinite loop fixed?
     }
 
     public void RemoveBuildingFromChunk(Vector2Int gridPos, int powerGen, int powerCons, int waterGen, int waterCons)
@@ -273,6 +273,6 @@ public class ChunkManager : MonoBehaviour
         chunk.waterGenerated -= waterGen;
         chunk.waterConsumed -= waterCons;
 
-        DistributeUtilitiesAcrossCity();
+        //DistributeUtilitiesAcrossCity(); infinite loop fixed?
     }
 }

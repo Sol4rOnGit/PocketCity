@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.UI;
 
 public class UIManager : MonoBehaviour
 {
@@ -12,6 +13,8 @@ public class UIManager : MonoBehaviour
     //public Boolean Enabled = true;
     [SerializeField] private TMPro.TextMeshProUGUI currentMoneyUIText;
     [SerializeField] private TMPro.TextMeshProUGUI addedMoneyUIText;
+
+    [SerializeField] private Slider dayProgressBar;
 
     [SerializeField] private TMPro.TextMeshProUGUI userNotificationUIText;
     private Coroutine notifRoutine;
@@ -65,15 +68,27 @@ public class UIManager : MonoBehaviour
 
     private void OnEnable()
     {
+        if (GameManager.instance != null)
+        {
+            GameManager.instance.UserNotification += NotifyUser;
+            GameManager.instance.OnDayProgress += UpdateDayProgressBar;
+
+        } else { Debug.LogError("No game manager!"); }
         if (financeManager != null) financeManager.OnMoneyChanged += updateCurrentMoneyUI; else Debug.LogError("No finance manager!");
-        if (GameManager.instance != null) GameManager.instance.UserNotification += NotifyUser; else Debug.LogError("No game manager!");
+
         if (gridPlayerManager != null) gridPlayerManager.newCursorPosition += UpdateCursorPosition; else Debug.LogError("No grid player manager!");
     }
 
     private void OnDisable()
     {
+        if (GameManager.instance != null)
+        {
+            GameManager.instance.UserNotification -= NotifyUser;
+            GameManager.instance.OnDayProgress -= UpdateDayProgressBar;
+
+        }
+        else { Debug.LogError("No game manager!"); }
         if (financeManager != null) financeManager.OnMoneyChanged -= updateCurrentMoneyUI;
-        if (GameManager.instance != null) GameManager.instance.UserNotification -= NotifyUser;
         if (gridPlayerManager != null) gridPlayerManager.newCursorPosition -= UpdateCursorPosition;
     }
     
@@ -130,6 +145,13 @@ public class UIManager : MonoBehaviour
                 WaterDeltaUIText.color = (waterDelta >= 0) ? Color.white : Color.red;
             }
         }
+    }
+
+    private void UpdateDayProgressBar(float progressRatio)
+    {
+        if (dayProgressBar == null) { Debug.LogWarning("Day Progress Bar Not Assigned to UI mananger."); return; }
+
+        dayProgressBar.value = progressRatio;
     }
 
     private void NotifyUser(string Text, bool emergency)

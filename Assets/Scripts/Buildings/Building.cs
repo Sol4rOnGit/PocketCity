@@ -64,5 +64,7 @@ public class Building : MonoBehaviour
         isInfected = false;
 
         if (activeInfectionEffect != null ) { Destroy(activeInfectionEffect); }
+
+        isAmbulanceOnRoute = false; //Reset
     }
 }

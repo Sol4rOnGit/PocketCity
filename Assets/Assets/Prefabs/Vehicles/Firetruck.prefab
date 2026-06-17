@@ -320,7 +320,7 @@ MonoBehaviour:
   isExtinguishing: 0
   isReturningHome: 0
   speed: 5
-  rotSpeed: 10
+  rotSpeed: 20
   timeToPutOutFire: 3
   waterSprayPrefab: {fileID: 5262313334801206639, guid: 17bc1847121f44f40afc840993935909, type: 3}
 --- !u!1 &919132149155446097

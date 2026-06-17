@@ -169,6 +169,9 @@ MonoBehaviour:
   waterConsumed: 4
   isOnFire: 0
   fireParticles: {fileID: 2938381441238916310, guid: 3081ae8bd68b5ff4fbfb4e5fd2842a42, type: 3}
+  isInfected: 0
+  isAmbulanceOnRoute: 0
+  infectionParticles: {fileID: 8365328619083316851, guid: c717996e406e0b64f9a8fdc8a99b3b16, type: 3}
   isDestroying: 0
   maxEmployees: 100
   taxRevenue: 4058

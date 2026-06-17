@@ -79,6 +79,8 @@ public class Ambulance : MonoBehaviour
 
     private IEnumerator HealBuilding()
     {
+        isHealing = true;
+
         if (targetBuilding != null && targetBuilding.isInfected)
         {
             Vector3 buildingWorldPos = new Vector3(targetBuilding.gridPos.x * gridScale, transform.position.y, targetBuilding.gridPos.y * gridScale);

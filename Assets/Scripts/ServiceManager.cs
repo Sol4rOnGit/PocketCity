@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.Rendering.UI;
 
 public class ServiceManager : MonoBehaviour
 {
@@ -64,12 +63,16 @@ public class ServiceManager : MonoBehaviour
 
         Firetruck firetruck = truckObj.GetComponent<Firetruck>();
         firetruck.Init(route, burningBuilding, scale, bestStation.gridPos);
+
+        FinanceManager.instance.Purchase(FinanceManager.instance.serviceChargeFire);
     }
 
-    public void DispatchAmbulance(Building infectedBuilding)
+    //Ambulance
+
+    public bool DispatchAmbulance(Building infectedBuilding)
     {
-        if (infectedBuilding == null) return;
-        if (gridPathfinder == null) { Debug.LogError("ERROR! NO GRID PATHFINDER!"); return; }
+        if (infectedBuilding == null) return false;
+        if (gridPathfinder == null) { Debug.LogError("ERROR! NO GRID PATHFINDER!"); return false; }
 
         List<Vector2Int> route = null;
         Building bestHospital = FindClosestReachableHospital(infectedBuilding.gridPos, out route);
@@ -77,13 +80,13 @@ public class ServiceManager : MonoBehaviour
         if (bestHospital == null && route == null)
         {
             GameManager.instance.UserNotification?.Invoke("Infection but there are no Hospitals!", false);
-            return;
+            return false;
         }
 
         if (route == null || route.Count == 0)
         {
             GameManager.instance.UserNotification?.Invoke("Infection but no path to there from a hospital!", true);
-            return;
+            return false;
         }
 
         if (bestHospital is Hospital hospital)
@@ -103,8 +106,18 @@ public class ServiceManager : MonoBehaviour
 
         Ambulance ambulance = ambulanceObj.GetComponent<Ambulance>();
         ambulance.Init(route, infectedBuilding, scale, bestHospital.gridPos);
+
+        FinanceManager.instance.Purchase(FinanceManager.instance.serviceChargeHospital);
+
+        return true;
     }
 
+    public void DispatchPolice()
+    {
+
+    }
+
+    //Helper functions
     private Building FindClosestReachableFireStation(Vector2Int targetPos, out List<Vector2Int> bestRoute)
     {
         Building closestStation = null;
@@ -181,11 +194,6 @@ public class ServiceManager : MonoBehaviour
         }
 
         return closestStation;
-    }
-
-    public void DispatchPolice()
-    {
-
     }
 
     public List<Vector2Int> CalculateRoadPath(Vector2Int start, Vector2Int end)

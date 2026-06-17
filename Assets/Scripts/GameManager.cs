@@ -1,8 +1,8 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.ComponentModel;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 public class GameManager : MonoBehaviour
 {
@@ -18,7 +18,15 @@ public class GameManager : MonoBehaviour
     [HideInInspector] private FinanceManager financeManager;
     public GridManager gridManager;
 
+    [Header("Initial settings")]
+    public float startDayDuration = 3f;
+    public float finalDayDuration = 1.5f;
+    public float daysUntilFinal = 100f;
+
+    private float dayDuration = 0f;
+
     [Header("City Statistics")]
+    public int daysPassed;
     public int currentPopulation;
     public int currentUnemployed;
     public int currentVacanies;
@@ -38,6 +46,7 @@ public class GameManager : MonoBehaviour
     [Header("Actions")]
     public Action OnDayEnd;
     public Action<string, bool> UserNotification;
+    public Action<float> OnDayProgress;
 
     public readonly Vector2Int[] directions = { Vector2Int.up, Vector2Int.down, Vector2Int.left, Vector2Int.right };
 
@@ -156,10 +165,26 @@ public class GameManager : MonoBehaviour
         return amount;
     }
 
+
+    //Clocks
     private IEnumerator completeCommercialDay()
     {
+        dayDuration = startDayDuration; //Lerp towards minimum later -> to add (make the game harder as the you go along in normal/hard mode)
+
         while (true)
         {
+            float elapsedTime = 0f;
+
+            while (elapsedTime < dayDuration)
+            {
+                elapsedTime += Time.deltaTime;
+                float progressRatio = elapsedTime / dayDuration;
+                OnDayProgress?.Invoke(progressRatio);
+
+                yield return null;
+            }
+
+            //Day end functions, 3 staged
             PreDayEndFunctions();
 
             if (!isLockdownActive) { OnDayEnd?.Invoke(); }
@@ -167,7 +192,13 @@ public class GameManager : MonoBehaviour
 
             DayEndFunctions();
 
-            yield return new WaitForSeconds(3f); //every 3 seconds
+            daysPassed++;
+
+            //Update next day
+            float ratio = daysUntilFinal > 0 ? (float)daysPassed / daysUntilFinal : 1.0f;
+            ratio = Mathf.Clamp01(ratio);
+
+            dayDuration = Mathf.Lerp(startDayDuration, finalDayDuration, ratio);
         }
     }
 
@@ -204,9 +235,16 @@ public class GameManager : MonoBehaviour
     private void DayEndFunctions()
     {
         financeManager.Purchase(gridManager.RoadPositions.Count * financeManager.roadMaintainanceCost);
-        CheckForFires();
+
+        if (UnityEngine.Random.Range(0, 7) == 6)
+        {
+            CheckForFires(); //12.5% chance of spreading everyday
+        }
+        
         CheckForInfections();
     }
+
+    //Natural disasters
 
     private void Earthquake()
     {
@@ -268,15 +306,20 @@ public class GameManager : MonoBehaviour
         if (gridManager.BuildingPositions.Count == 0) { return; }
 
         Vector2Int randomPos = gridManager.BuildingPositions[UnityEngine.Random.Range(0, gridManager.BuildingPositions.Count)];
-        Dictionary<Vector2Int, GridManager.GridTile> mapGrid = gridManager.GetMapGrid();
+        var mapGrid = gridManager.GetMapGrid();
 
-        if(mapGrid.TryGetValue(randomPos, out GridManager.GridTile tile) && tile.buildingScript != null)
+        foreach (Vector2Int buildingPos in gridManager.BuildingPositions) //Optimistaion -> hashmap for infected buildings and houses auto append? O(1)?
         {
-            if (tile.buildingScript.isOnFire)
+            if (mapGrid.TryGetValue(buildingPos, out GridManager.GridTile tile) && tile.buildingScript is House houseScript)
             {
+
+                if (!houseScript.isOnFire) continue;
+
                 StartCoroutine(SpreadFire(randomPos, mapGrid));
             }
         }
+
+        return;
     }
 
     private IEnumerator BurnBuilding(Vector2Int pos, Building buildingScript)
@@ -299,16 +342,26 @@ public class GameManager : MonoBehaviour
             yield break;
         }
 
+        List<GridManager.GridTile> validTargets = new List<GridManager.GridTile>();
+
         foreach (Vector2Int dir in directions)
         {
             Vector2Int checkPos = pos + dir;
             if (mapGrid.TryGetValue(checkPos, out GridManager.GridTile tile) && tile.buildingScript != null && !tile.buildingScript.isOnFire)
             {
-                if (UnityEngine.Random.Range(0, 2) == 0) continue;
-
-                tile.buildingScript.IgniteFire();
-                StartCoroutine(BurnBuilding(checkPos, tile.buildingScript));
+                validTargets.Add(tile);
             }
+        }
+
+        if (validTargets.Count > 0 && UnityEngine.Random.Range(0, 2) != 0)
+        {
+            int randomIndex = UnityEngine.Random.Range(0, validTargets.Count);
+            GridManager.GridTile tile = validTargets[randomIndex];
+
+            tile.buildingScript.IgniteFire();
+
+            StartCoroutine(BurnBuilding(tile.buildingScript.gridPos, tile.buildingScript));
+            yield break; //only one building -> remove this if decide not to.
         }
     }
 
@@ -328,15 +381,19 @@ public class GameManager : MonoBehaviour
                 tile.buildingScript.Infect();
 
                 infectedPopulation += houseScript.residents;
-                if (newVirus) { UserNotification?.Invoke("A virus outbreak has occured virus!", true); }
+                if (newVirus) { UserNotification?.Invoke("A virus outbreak has occured!", true); }
                 else { UserNotification?.Invoke("Another house has been infected!", true); }
 
 
                 //Timer
                 StartCoroutine(KillBuilding(randomPos, houseScript));
 
-                //Call fire services
-                if (ServiceManager.instance != null) ServiceManager.instance.DispatchAmbulance(tile.buildingScript);
+                //Call ambulances
+                if (ServiceManager.instance != null)
+                {
+                    bool served = ServiceManager.instance.DispatchAmbulance(tile.buildingScript);
+                    if (served) tile.buildingScript.isAmbulanceOnRoute = true;
+                }
                 else { Debug.LogError("Service Manager not found!"); }
             }
         }
@@ -346,19 +403,42 @@ public class GameManager : MonoBehaviour
     {
         yield return new WaitForSeconds(10f);
 
-        TriggerVirusOutbreak(false);
+        if (houseScript != null && !houseScript.isInfected) yield break;
 
-        if (houseScript != null && houseScript.isInfected)
+        for (int i = 0; i < houseScript.residents; i++)
         {
-            gridManager.forceRemoveElement(randomPos);
-            UserNotification?.Invoke("A building has been destroyed as it has been overriden with viruses!", true);
+            TriggerVirusOutbreak(false);
         }
+
+        gridManager.forceRemoveElement(randomPos);
+        UserNotification?.Invoke("A building has been destroyed as it has been overriden with viruses!", true);
     }
 
     private void CheckForInfections()
     {
-        //////// TO ADD!!
-        //Check for infected buildings and then dispatch ambulance if it isn't already being attended to
+        if (gridManager.BuildingPositions.Count == 0) { return; }
+
+        var serviceManager = ServiceManager.instance;
+        if (serviceManager == null)
+        {
+            Debug.LogError("Service manager not found!");
+            return;
+        }
+
+        var mapGrid = gridManager.GetMapGrid();
+
+        foreach (Vector2Int buildingPos in gridManager.BuildingPositions) //Optimistaion -> hashmap for infected buildings and houses auto append? O(1)?
+        {
+            if (mapGrid.TryGetValue(buildingPos, out GridManager.GridTile tile) && tile.buildingScript is House houseScript){
+
+                if (!houseScript.isInfected) continue;
+
+                if (houseScript.isAmbulanceOnRoute) continue;
+                houseScript.isAmbulanceOnRoute = true;
+
+                serviceManager.DispatchAmbulance(houseScript);
+            }
+        }
 
         return;
     }

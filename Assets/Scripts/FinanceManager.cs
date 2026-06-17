@@ -13,7 +13,7 @@ public class FinanceManager : MonoBehaviour
     }
 
     [Header("Settings")]
-    [SerializeField] private long initialMoney = 200_000;
+    [SerializeField] private long initialMoney = 200_000; //3-400k probably reasonable. 600k for normal, 300k for hard. Infinite for city builder mode.
     public long currentMoney { get; private set; }
     public long prevMoney;
 
@@ -24,6 +24,9 @@ public class FinanceManager : MonoBehaviour
     public int costDemolitionBase = 15000;
 
     public int roadMaintainanceCost = 1;
+
+    public int serviceChargeFire = 1500;
+    public int serviceChargeHospital = 2000;
 
     [Header("Actions")]
     public Action<long> OnMoneyChanged;
