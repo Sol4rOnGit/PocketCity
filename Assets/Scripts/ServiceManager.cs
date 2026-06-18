@@ -49,13 +49,21 @@ public class ServiceManager : MonoBehaviour
 
         if (bestStation is FireStation fireStation)
         {
+
+            if (FinanceManager.instance.Purchase(FinanceManager.instance.serviceChargeFire) == false)
+            {
+                GameManager.instance.UserNotification?.Invoke("Not enough money to dispatch firetruck for a fire!", true);
+                return;
+            }
+
             fireStation.DispatchTruck();
         } else
         {
             Debug.LogError("ServiceMananger: Fire station not a fire station.");
         }
 
-            Vector2Int spawnGridPos = route[0];
+
+        Vector2Int spawnGridPos = route[0];
         float scale = gridManager.getGridScale();
         Vector3 spawnWorldPos = new Vector3(spawnGridPos.x * scale, 0f, spawnGridPos.y * scale);
 
@@ -63,8 +71,6 @@ public class ServiceManager : MonoBehaviour
 
         Firetruck firetruck = truckObj.GetComponent<Firetruck>();
         firetruck.Init(route, burningBuilding, scale, bestStation.gridPos);
-
-        FinanceManager.instance.Purchase(FinanceManager.instance.serviceChargeFire);
     }
 
     //Ambulance
@@ -91,6 +97,11 @@ public class ServiceManager : MonoBehaviour
 
         if (bestHospital is Hospital hospital)
         {
+            if (FinanceManager.instance.Purchase(FinanceManager.instance.serviceChargeHospital) == false)
+            {
+                GameManager.instance.UserNotification?.Invoke("Not enough money to dispatch ambulance to infection!", true);
+            }
+
             hospital.DispatchAmbulance();
         }
         else
@@ -107,7 +118,7 @@ public class ServiceManager : MonoBehaviour
         Ambulance ambulance = ambulanceObj.GetComponent<Ambulance>();
         ambulance.Init(route, infectedBuilding, scale, bestHospital.gridPos);
 
-        FinanceManager.instance.Purchase(FinanceManager.instance.serviceChargeHospital);
+        
 
         return true;
     }

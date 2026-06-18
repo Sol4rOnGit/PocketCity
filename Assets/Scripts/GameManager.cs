@@ -2,7 +2,6 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UIElements;
 
 public class GameManager : MonoBehaviour
 {
@@ -241,6 +240,8 @@ public class GameManager : MonoBehaviour
             CheckForFires(); //12.5% chance of spreading everyday
         }
         
+        financeManager.DoDailyReport();
+
         CheckForInfections();
     }
 

@@ -26,10 +26,14 @@ public class UIManager : MonoBehaviour
     [SerializeField] private GameObject CityStatsPanel;
     private bool statsPanelActive;
     [SerializeField] private TMPro.TextMeshProUGUI PopulationUIText;
+
     [SerializeField] private TMPro.TextMeshProUGUI UnemployedUIText;
     [SerializeField] private TMPro.TextMeshProUGUI VacanciesUIText;
-    [SerializeField] private TMPro.TextMeshProUGUI MaintenanceUIText;
     [SerializeField] private TMPro.TextMeshProUGUI DisastersSurvivedUIText;
+
+    [SerializeField] private TMPro.TextMeshProUGUI lastDayIncome;
+    [SerializeField] private TMPro.TextMeshProUGUI lastDayMaintenance;
+    [SerializeField] private TMPro.TextMeshProUGUI lastDayPlayer;
 
     [SerializeField] private TMPro.TextMeshProUGUI PowerDeltaUIText;
     [SerializeField] private TMPro.TextMeshProUGUI WaterDeltaUIText;
@@ -132,8 +136,13 @@ public class UIManager : MonoBehaviour
             PopulationUIText.text = $"Population: {GameManager.instance.currentPopulation}";
             UnemployedUIText.text = $"Unemployed: {GameManager.instance.currentUnemployed}";
             VacanciesUIText.text = $"Vacancies: {GameManager.instance.currentVacanies}";
-            MaintenanceUIText.text = $"Maintenance: Road:{financeManager.roadMaintainanceCost * GameManager.instance.gridManager.RoadPositions.Count}";
-            DisastersSurvivedUIText.text = $"Disasters Survived: {GameManager.instance.disastersSurvived.ToString()}";
+            DisastersSurvivedUIText.text = $"Disasters Survived: {GameManager.instance.disastersSurvived}";
+
+            FinancialReport report = financeManager.lastFinancialReport;
+
+            if (lastDayIncome != null) lastDayIncome.text = $"Revenue: {ReturnTextFromMoney(report.totalIncome)}";
+            if (lastDayIncome != null) lastDayMaintenance.text = $"Maintenance Costs: {ReturnTextFromMoney(report.maintenanceCosts)}";
+            if (lastDayIncome != null) lastDayPlayer.text = $"Maintenance Costs: {ReturnTextFromMoney(report.playerCosts)}";
 
             if (ChunkManager.instance != null)
             {
