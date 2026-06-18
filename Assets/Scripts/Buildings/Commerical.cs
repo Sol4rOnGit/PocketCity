@@ -14,12 +14,14 @@ public class Commercial : Building
     public float energySupplyHealthiness = 1; //0-1
 
     private int badDays = 0;
+    private int lowEmployeeDays = 0;
 
     private void OnEnable()
     {
         if (GameManager.instance != null)
         {
             GameManager.instance.OnDayEnd += TryToHire;
+            GameManager.instance.OnDayEnd += CheckForEmployees;
         }
 
         if (ChunkManager.instance != null) ChunkManager.instance.BuildingUtilitiesUpdated += OnUtilities;
@@ -30,6 +32,7 @@ public class Commercial : Building
         if(GameManager.instance != null)
         {
             GameManager.instance.OnDayEnd -= TryToHire;
+            GameManager.instance.OnDayEnd -= CheckForEmployees;
         }
 
         if (ChunkManager.instance != null) ChunkManager.instance.BuildingUtilitiesUpdated -= OnUtilities;
@@ -54,6 +57,22 @@ public class Commercial : Building
                 GameManager.instance.currentUnemployed -= 1;
                 GameManager.instance.currentVacanies -= 1;
             }
+        }
+    }
+
+    private void CheckForEmployees()
+    {
+        if (employees > maxEmployees/5) //NEED 20% FULL!!
+        {
+            lowEmployeeDays = 0;
+            return;
+        }
+
+        lowEmployeeDays++;
+        if (lowEmployeeDays > 7) //a week
+        {
+            GameManager.instance.UserNotification?.Invoke("Commericial block shut down due to lack of employees.", false);
+            GameManager.instance.gridManager.forceRemoveElement(gridPos);
         }
     }
 

@@ -373,26 +373,31 @@ public class GridManager : MonoBehaviour
                 tile.buildingScript.isDestroying = true;
             }
 
-            if (ChunkManager.instance != null)
+            if (tile.buildingScript != null)
             {
-                ChunkManager.instance.RemoveBuildingFromChunk(pos, 
+                if (ChunkManager.instance == null) { Debug.LogError("No chunk manager."); return; }
+                
+                ChunkManager.instance.RemoveBuildingFromChunk(pos,
                     tile.buildingScript.powerGenerated,
                     tile.buildingScript.powerConsumed,
                     tile.buildingScript.waterGenerated,
-                    tile.buildingScript.waterConsumed);
-            }
+                    tile.buildingScript.waterConsumed
+                );
 
-            if (tile.buildingType != null && tile.buildingScript != null)
-            {
-                if (tile.buildingScript is House houseScript)
+                if (tile.buildingScript != null)
                 {
-                    GameManager.instance.LosePopulation(houseScript.residents);
-                } else if (tile.buildingScript is Commercial commercialScript)
-                {
-                    GameManager.instance.LoseJobs(commercialScript.GetMaxEmployees(), commercialScript.employees);
-                } else if (tile.buildingScript is Industrial industrialScript)
-                {
-                    GameManager.instance.LoseJobs(industrialScript.GetMaxEmployees(), industrialScript.employees);
+                    if (tile.buildingScript is House houseScript)
+                    {
+                        GameManager.instance.LosePopulation(houseScript.residents);
+                    }
+                    else if (tile.buildingScript is Commercial commercialScript)
+                    {
+                        GameManager.instance.LoseJobs(commercialScript.GetMaxEmployees(), commercialScript.employees);
+                    }
+                    else if (tile.buildingScript is Industrial industrialScript)
+                    {
+                        GameManager.instance.LoseJobs(industrialScript.GetMaxEmployees(), industrialScript.employees);
+                    }
                 }
             }
 

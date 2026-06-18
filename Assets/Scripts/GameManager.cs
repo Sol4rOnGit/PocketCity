@@ -26,18 +26,18 @@ public class GameManager : MonoBehaviour
     private float dayDuration = 0f;
 
     [Header("City Statistics")]
-    public int daysPassed;
-    public int currentPopulation;
-    public int currentUnemployed;
-    public int currentVacanies;
-    public int disastersSurvived;
+    public int daysPassed = 0;
+    public int currentPopulation = 0;
+    public int currentUnemployed = 0;
+    public int currentVacanies = 0;
+    public int disastersSurvived = 0;
 
     [Header("Health Statistics")]
     private int infectedPopulation; 
     public bool isLockdownActive = false; //Let user use later
 
     [Header("Disasters")]
-    [SerializeField] private float gradePeriod = 60 * 2f;
+    [SerializeField] private float gradePeriod = 60f;
     [SerializeField] private float minInterval = 60 * 1.5f;
     [SerializeField] private float maxInterval = 60 * 2.5f;
 
@@ -88,7 +88,7 @@ public class GameManager : MonoBehaviour
         if (currentVacanies < 0) currentVacanies = 0;
         if (currentUnemployed < 0) currentUnemployed = 0;
     }
-
+    
     public int RemoveWorkersFromBuildings(int amount)
     {
         List<Vector2Int> positions = gridManager.BuildingPositions;
@@ -165,7 +165,6 @@ public class GameManager : MonoBehaviour
         return amount;
     }
 
-
     //Clocks
     private IEnumerator completeCommercialDay()
     {
@@ -234,7 +233,8 @@ public class GameManager : MonoBehaviour
 
     private void DayEndFunctions()
     {
-        financeManager.Purchase(gridManager.RoadPositions.Count * financeManager.roadMaintainanceCost);
+        financeManager.MaintainancePurchase(gridManager.RoadPositions.Count);
+        financeManager.Inflate(currentPopulation, daysPassed);
 
         if (UnityEngine.Random.Range(0, 7) == 6)
         {
@@ -244,7 +244,19 @@ public class GameManager : MonoBehaviour
         CheckForInfections();
     }
 
+    public void GameOver()
+    {
+        StopAllCoroutines();
+
+        UserNotification?.Invoke("Game Over!", true);
+
+        Time.timeScale = 0;
+    }
+
     //Natural disasters
+
+    float minRatio = 0.01f;
+    float maxRatio = 0.3f;
 
     private void Earthquake()
     {
@@ -258,11 +270,10 @@ public class GameManager : MonoBehaviour
 
         UserNotification?.Invoke("Earthquake!", false);
 
-        //Why is it destroyign all the buildings now!??!
-        int numBuildingsToDestroy = UnityEngine.Random.Range(
-            (int)Mathf.Max(1, (gridManager.BuildingPositions.Count/10)), 
-            (int)(gridManager.BuildingPositions.Count/5));
+        //Update ratios
+        float ratio = Mathf.Lerp(minRatio, maxRatio, daysPassed / daysUntilFinal);
 
+        int numBuildingsToDestroy = (int)(ratio * gridManager.BuildingPositions.Count);
 
         for (int i = 0; i < numBuildingsToDestroy + 1; i++)
         {
@@ -305,17 +316,15 @@ public class GameManager : MonoBehaviour
     {
         if (gridManager.BuildingPositions.Count == 0) { return; }
 
-        Vector2Int randomPos = gridManager.BuildingPositions[UnityEngine.Random.Range(0, gridManager.BuildingPositions.Count)];
         var mapGrid = gridManager.GetMapGrid();
 
         foreach (Vector2Int buildingPos in gridManager.BuildingPositions) //Optimistaion -> hashmap for infected buildings and houses auto append? O(1)?
         {
             if (mapGrid.TryGetValue(buildingPos, out GridManager.GridTile tile) && tile.buildingScript is House houseScript)
             {
-
                 if (!houseScript.isOnFire) continue;
 
-                StartCoroutine(SpreadFire(randomPos, mapGrid));
+                StartCoroutine(SpreadFire(buildingPos, mapGrid));
             }
         }
 
@@ -403,7 +412,7 @@ public class GameManager : MonoBehaviour
     {
         yield return new WaitForSeconds(10f);
 
-        if (houseScript != null && !houseScript.isInfected) yield break;
+        if (houseScript == null || !houseScript.isInfected) yield break;
 
         for (int i = 0; i < houseScript.residents; i++)
         {
@@ -443,6 +452,11 @@ public class GameManager : MonoBehaviour
         return;
     }
 
+    //RUBBISH
+
+    //Create a: destroyed house, commercial and industrail assets.
+    //Create rubbish manager
+    //Similar to fire/ambulance after but with a rubbish truck and landfill -> will have to buy!
 
     //-- Tornado
 

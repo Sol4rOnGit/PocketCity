@@ -15,6 +15,7 @@ public class UIManager : MonoBehaviour
     [SerializeField] private TMPro.TextMeshProUGUI addedMoneyUIText;
 
     [SerializeField] private Slider dayProgressBar;
+    [SerializeField] private TMPro.TextMeshProUGUI daysPassedUIText;
 
     [SerializeField] private TMPro.TextMeshProUGUI userNotificationUIText;
     private Coroutine notifRoutine;
@@ -70,6 +71,7 @@ public class UIManager : MonoBehaviour
     {
         if (GameManager.instance != null)
         {
+            GameManager.instance.OnDayEnd += UpdateDaysPassed;
             GameManager.instance.UserNotification += NotifyUser;
             GameManager.instance.OnDayProgress += UpdateDayProgressBar;
 
@@ -83,6 +85,7 @@ public class UIManager : MonoBehaviour
     {
         if (GameManager.instance != null)
         {
+            GameManager.instance.OnDayEnd += UpdateDaysPassed;
             GameManager.instance.UserNotification -= NotifyUser;
             GameManager.instance.OnDayProgress -= UpdateDayProgressBar;
 
@@ -152,6 +155,16 @@ public class UIManager : MonoBehaviour
         if (dayProgressBar == null) { Debug.LogWarning("Day Progress Bar Not Assigned to UI mananger."); return; }
 
         dayProgressBar.value = progressRatio;
+    }
+
+    private void UpdateDaysPassed()
+    {
+        if (daysPassedUIText == null) { Debug.LogWarning("Day Passed UI text Not Assigned to UI mananger."); return; }
+
+        if (GameManager.instance == null) { Debug.LogError("No Game Manager! UI Manager."); }
+        int daysPassed = GameManager.instance.daysPassed; 
+
+        daysPassedUIText.text = $"Day {daysPassed.ToString()}";
     }
 
     private void NotifyUser(string Text, bool emergency)

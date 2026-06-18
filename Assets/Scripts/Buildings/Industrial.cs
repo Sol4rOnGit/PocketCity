@@ -13,12 +13,14 @@ public class Industrial : Building
     public float waterSupplyHealthiness = 1; //0-1
 
     private int badDays = 0;
+    private int noEmployeeDays;
 
     private void OnEnable()
     {
         if (GameManager.instance != null)
         {
             GameManager.instance.OnDayEnd += TryToHire;
+            GameManager.instance.OnDayEnd += CheckForEmployees;
         }
         if (ChunkManager.instance != null) ChunkManager.instance.BuildingUtilitiesUpdated += OnUtilities;
     }
@@ -28,6 +30,7 @@ public class Industrial : Building
         if (GameManager.instance != null)
         {
             GameManager.instance.OnDayEnd -= TryToHire;
+            GameManager.instance.OnDayEnd -= CheckForEmployees;
         }
         if (ChunkManager.instance != null) ChunkManager.instance.BuildingUtilitiesUpdated -= OnUtilities;
     }
@@ -49,6 +52,21 @@ public class Industrial : Building
                 GameManager.instance.currentUnemployed -= 1;
                 GameManager.instance.currentVacanies -= 1;
             }
+        }
+    }
+
+    private void CheckForEmployees()
+    {
+        if (employees > 0)
+        {
+            noEmployeeDays = 0;
+            return;
+        }
+
+        noEmployeeDays++;
+        if (noEmployeeDays > 7) //a week
+        {
+            GameManager.instance.gridManager.forceRemoveElement(gridPos);
         }
     }
 
