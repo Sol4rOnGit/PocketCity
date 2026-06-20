@@ -58,8 +58,9 @@ public class GameManager : MonoBehaviour
     public void LosePopulation(int populationLeaving)
     {
         currentPopulation -= populationLeaving;
+        if (currentPopulation < 0) { Debug.LogError("Something went wrong and population is now below zero."); currentPopulation = 0; }
 
-        if (currentPopulation >= populationLeaving)
+        if (currentUnemployed >= populationLeaving)
         {
             //Remove unemplyed
             currentUnemployed -= populationLeaving;
@@ -80,10 +81,17 @@ public class GameManager : MonoBehaviour
     public void LoseJobs(int jobsLost, int employeesLost)
     {
         currentUnemployed += employeesLost;
-        int unfilledVacancies = jobsLost - employeesLost;
-        currentVacanies -= unfilledVacancies;
 
-        if (currentVacanies < 0) currentVacanies = 0;
+        int unfilledVacancies = jobsLost - employeesLost;
+
+        if (currentVacanies >= unfilledVacancies)
+        {
+            currentVacanies -= unfilledVacancies;
+        } else
+        {
+            currentVacanies = 0;
+        }
+
         if (currentUnemployed < 0) currentUnemployed = 0;
     }
     
@@ -161,6 +169,31 @@ public class GameManager : MonoBehaviour
         }
 
         return amount;
+    }
+
+    public void OnBuildingSpawned(Building buildingScript)
+    {
+        if (buildingScript == null) return;
+
+        if (buildingScript is House house)
+        {
+            currentPopulation += house.residents;
+            currentUnemployed += house.residents;
+        } else if (buildingScript is Commercial commercial)
+        {
+            int maxJobs = commercial.GetMaxEmployees();
+            commercial.employees = Mathf.Min(maxJobs, currentUnemployed);
+            currentUnemployed -= commercial.employees;
+
+            currentVacanies += (maxJobs - commercial.employees);
+        } else if (buildingScript is Industrial industrial)
+        {
+            int maxJobs = industrial.GetMaxEmployees();
+            industrial.employees = Mathf.Min(maxJobs, currentUnemployed);
+            currentUnemployed -= industrial.employees;
+
+            currentVacanies += (maxJobs - industrial.employees);
+        }
     }
 
     //Clocks
@@ -384,9 +417,9 @@ public class GameManager : MonoBehaviour
 
         if (mapGrid.TryGetValue(randomPos, out GridManager.GridTile tile) && tile.buildingScript != null)
         {
-            if (tile.buildingScript is House houseScript && !tile.buildingScript.isInfected)
+            if (tile.buildingScript is House houseScript && !houseScript.isInfected)
             {
-                tile.buildingScript.Infect();
+                houseScript.Infect();
 
                 infectedPopulation += houseScript.residents;
                 if (newVirus) { UserNotification?.Invoke("A virus outbreak has occured!", true); }
@@ -400,7 +433,7 @@ public class GameManager : MonoBehaviour
                 if (ServiceManager.instance != null)
                 {
                     bool served = ServiceManager.instance.DispatchAmbulance(tile.buildingScript);
-                    if (served) tile.buildingScript.isAmbulanceOnRoute = true;
+                    if (served) houseScript.isAmbulanceOnRoute = true;
                 }
                 else { Debug.LogError("Service Manager not found!"); }
             }

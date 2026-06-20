@@ -16,12 +16,18 @@ public class Commercial : Building
     private int badDays = 0;
     private int lowEmployeeDays = 0;
 
+    private void Start()
+    {
+        calculatePerEmployeeTax();
+    }
+
     private void OnEnable()
     {
         if (GameManager.instance != null)
         {
             GameManager.instance.OnDayEnd += TryToHire;
             GameManager.instance.OnDayEnd += CheckForEmployees;
+            GameManager.instance.OnDayEnd += GenerateWealth;
         }
 
         if (ChunkManager.instance != null) ChunkManager.instance.BuildingUtilitiesUpdated += OnUtilities;
@@ -33,9 +39,33 @@ public class Commercial : Building
         {
             GameManager.instance.OnDayEnd -= TryToHire;
             GameManager.instance.OnDayEnd -= CheckForEmployees;
+            GameManager.instance.OnDayEnd -= GenerateWealth;
         }
 
         if (ChunkManager.instance != null) ChunkManager.instance.BuildingUtilitiesUpdated -= OnUtilities;
+    }
+
+    private void calculatePerEmployeeTax()
+    {
+        float min = 30f;
+        float max = 80f;
+        float average = 45f;
+        float density = 1f; //higher makes it tighter, less makes it looser
+
+        float rand = Random.value;
+        float taxPerEmployee;
+
+        if (rand < 0.5f)
+        {
+            float ratio = Mathf.Pow(rand * 2f, density);
+            taxPerEmployee = Mathf.Lerp(min, average, ratio);
+        } else
+        {
+            float ratio = Mathf.Pow((rand - 0.5f) * 2f, 1f / density);
+            taxPerEmployee = Mathf.Lerp(average, max, ratio);
+        }
+
+        taxRevenue = maxEmployees * taxPerEmployee;
     }
 
     public void GenerateWealth()
@@ -45,6 +75,8 @@ public class Commercial : Building
         revenue *= energySupplyHealthiness;
 
         if (revenue > 0) { FinanceManager.instance.Gain(revenue); }
+
+        Debug.Log($"I just made {revenue} with {employees} emploees with max Employees {maxEmployees} and {taxRevenue} as my max revenue");
     }
 
     private void TryToHire()
@@ -86,8 +118,6 @@ public class Commercial : Building
         energySupplyHealthiness = chunk.powerConsumed > 0 ?
             Mathf.Clamp01((float)(chunk.powerGenerated + chunk.powerImported) / chunk.powerConsumed)
             : 1;
-
-        GenerateWealth();
 
         if (energySupplyHealthiness < 0.5f)
         {

@@ -81,7 +81,11 @@ public class Ambulance : MonoBehaviour
     {
         isHealing = true;
 
-        if (targetBuilding != null && targetBuilding.isInfected)
+        House houseScript = null;
+
+        if (targetBuilding is House house) { houseScript = house; }
+
+        if (targetBuilding != null && houseScript.isInfected)
         {
             Vector3 buildingWorldPos = new Vector3(targetBuilding.gridPos.x * gridScale, transform.position.y, targetBuilding.gridPos.y * gridScale);
             Vector3 lookDir = (buildingWorldPos - transform.position).normalized;
@@ -92,7 +96,7 @@ public class Ambulance : MonoBehaviour
 
             if (targetBuilding != null)
             {
-                targetBuilding.Heal();
+                houseScript.Heal();
             }
         } else
         {

@@ -6,13 +6,23 @@ public class Service : Building
     public int maxEmployees => _maxEmployees;
     public int employees = 0;
 
-    public int monthlyCost; //To be implemented -> currently does nothing
+    public float dailyCost; //To be implemented -> currently does nothing
+    private float baseDailyCost;
+
+    public void Start()
+    {
+        if (dailyCost == 0) { dailyCost = 100; }
+        baseDailyCost = dailyCost;
+    }
 
     public void OnEnable()
     {
+
+
         if (GameManager.instance != null)
         {
             GameManager.instance.OnDayEnd += TryToHire;
+            GameManager.instance.OnDayEnd += MaintenanceCosts;
         }
     }
 
@@ -21,6 +31,7 @@ public class Service : Building
         if (GameManager.instance != null)
         {
             GameManager.instance.OnDayEnd -= TryToHire;
+            GameManager.instance.OnDayEnd -= MaintenanceCosts;
         }
     }
 
@@ -35,5 +46,16 @@ public class Service : Building
                 GameManager.instance.currentVacanies -= 1;
             }
         }
+    }
+
+    public void MaintenanceCosts()
+    {
+        FinanceManager.instance.ForcePurchase(dailyCost);
+        Inflate();
+    }
+
+    public void Inflate()
+    {
+        dailyCost += 0.04f * baseDailyCost;
     }
 }

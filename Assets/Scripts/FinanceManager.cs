@@ -37,24 +37,24 @@ public class FinanceManager : MonoBehaviour
     [SerializeField] private long maxDebtLimit = -50_000;
     
     [Header("Costs")]
-    public float costRoad = 300f;
-    public float costRoadDemolition = 400f;
-    public float costZoning = 1530f;
+    public float costRoad = 245f;
+    public float costRoadDemolition = 445f;
+    public float costZoning = 1033f;
 
-    public float roadMaintainanceCost = 3f;
+    public float roadMaintainanceCost = 20f;
 
-    public float serviceChargeFire = 1500f;
-    public float serviceChargeHospital = 2000f;
+    public float serviceChargeFire = 900f;
+    public float serviceChargeHospital = 400f;
 
     [Header("Base Costs")]
-    private float baseCostRoad = 300f;
-    private float baseCostRoadDemolition = 400f;
-    private float baseCostZoning = 1530f;
+    private float baseCostRoad;
+    private float baseCostRoadDemolition;
+    private float baseCostZoning;
 
-    private float baseRoadMaintainanceCost = 3f;
+    private float baseRoadMaintainanceCost;
 
-    private float baseServiceChargeFire = 1500f;
-    private float baseServiceChargeHospital = 2000f;
+    private float baseServiceChargeFire;
+    private float baseServiceChargeHospital;
 
     [Header("Actions")]
     public Action<long> OnMoneyChanged;
@@ -156,6 +156,11 @@ public class FinanceManager : MonoBehaviour
 
     private float GetInflationForDaysPassed(int daysPassed)
     {
-        return 1f + (0.01f * (daysPassed));
+        if (daysPassed > 130)
+        {
+            return 3f + (0.2f * (daysPassed - 100)); //mad increase now
+        }
+
+        return 1f + (0.02f * (daysPassed));
     }
 }

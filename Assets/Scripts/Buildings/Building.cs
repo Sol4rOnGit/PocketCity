@@ -20,12 +20,6 @@ public class Building : MonoBehaviour
     [SerializeField] private GameObject fireParticles;
     private GameObject activeFireEffect;
 
-    [Header("Infected")]
-    public bool isInfected = false;
-    public bool isAmbulanceOnRoute = false;
-    [SerializeField] private GameObject infectionParticles;
-    private GameObject activeInfectionEffect;
-
     [HideInInspector] public bool isDestroying;
 
     public void IgniteFire()
@@ -45,26 +39,5 @@ public class Building : MonoBehaviour
         isOnFire = false;
 
         if (activeFireEffect != null ) { Destroy(activeFireEffect); }
-    }
-
-    public void Infect()
-    {
-        if ( isInfected ) { return; }
-        isInfected = true;
-
-        if (infectionParticles != null )
-        {
-            activeInfectionEffect = Instantiate(infectionParticles, transform.position + (Vector3.up * 0.5f), Quaternion.identity, transform);
-        }
-    }
-
-    public void Heal()
-    {
-        if (!isInfected) { return; }
-        isInfected = false;
-
-        if (activeInfectionEffect != null ) { Destroy(activeInfectionEffect); }
-
-        isAmbulanceOnRoute = false; //Reset
     }
 }

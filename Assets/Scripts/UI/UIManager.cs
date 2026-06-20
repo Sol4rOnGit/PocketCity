@@ -142,7 +142,7 @@ public class UIManager : MonoBehaviour
 
             if (lastDayIncome != null) lastDayIncome.text = $"Revenue: {ReturnTextFromMoney(report.totalIncome)}";
             if (lastDayIncome != null) lastDayMaintenance.text = $"Maintenance Costs: {ReturnTextFromMoney(report.maintenanceCosts)}";
-            if (lastDayIncome != null) lastDayPlayer.text = $"Maintenance Costs: {ReturnTextFromMoney(report.playerCosts)}";
+            if (lastDayIncome != null) lastDayPlayer.text = $"Player Costs: {ReturnTextFromMoney(report.playerCosts)}";
 
             if (ChunkManager.instance != null)
             {

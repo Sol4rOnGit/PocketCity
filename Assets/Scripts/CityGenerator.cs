@@ -63,7 +63,8 @@ public class CityGenerator : MonoBehaviour
         Vector2Int targetSpawnPos = Vector2Int.zero;
         bool foundValidSpot = false;
         
-        if (!foundValidSpot) //If option 2 failed, skipped or have no buildings then roadside
+        //Spawn along the roadside
+        if (!foundValidSpot) 
         {
             (targetSpawnPos, directionToRoad, currentBuildingType) = TrySpawnAlongRoad(gridManager.RoadPositions, currentMapGrid);
 
@@ -159,8 +160,13 @@ public class CityGenerator : MonoBehaviour
         //Force a building Type if it isn't already declared
         if (!buildingType.HasValue)
         {
-            int randomCategory = Random.Range(0, 3);
-            buildingType = (BuildingType)randomCategory;
+            float roll = Random.value;
+            buildingType = roll switch
+            {
+                < 0.8f => BuildingType.Residential, //80% chance of residentail 
+                < 0.9f => BuildingType.Commercial, //otherwise randomly chose between commer/indust.
+                _ => BuildingType.Industrial
+            };
         }
 
         //Grab Prefab

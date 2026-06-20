@@ -12,6 +12,12 @@ public class House : Building
 
     private int daysWithLowHappiness = 10000;
 
+    [Header("Infected")]
+    public bool isInfected = false;
+    public bool isAmbulanceOnRoute = false;
+    [SerializeField] private GameObject infectionParticles;
+    private GameObject activeInfectionEffect;
+
     public void OnEnable()
     {
         if (ChunkManager.instance != null) { ChunkManager.instance.BuildingUtilitiesUpdated += OnUtilities; }
@@ -49,5 +55,25 @@ public class House : Building
         {
             daysWithLowHappiness = 0;
         }
+    }
+    public void Infect()
+    {
+        if (isInfected) { return; }
+        isInfected = true;
+
+        if (infectionParticles != null)
+        {
+            activeInfectionEffect = Instantiate(infectionParticles, transform.position + (Vector3.up * 0.5f), Quaternion.identity, transform);
+        }
+    }
+
+    public void Heal()
+    {
+        if (!isInfected) { return; }
+        isInfected = false;
+
+        if (activeInfectionEffect != null) { Destroy(activeInfectionEffect); }
+
+        isAmbulanceOnRoute = false; //Reset
     }
 }

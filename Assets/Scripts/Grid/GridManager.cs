@@ -167,6 +167,8 @@ public class GridManager : MonoBehaviour
 
             if (!BuildingPositions.Contains(pos)) { BuildingPositions.Add(pos); }
 
+            GameManager.instance.OnBuildingSpawned(buildingScript);
+
             //Add utilities to chunk
             if (ChunkManager.instance != null && buildingScript != null)
             {
@@ -184,6 +186,8 @@ public class GridManager : MonoBehaviour
 
         mapGrid.Add(pos, buildingTile);
         BuildingPositions.Add(pos);
+
+        GameManager.instance.OnBuildingSpawned(buildingScript);
 
         //Add utilities to chunk
         if (ChunkManager.instance != null && buildingScript != null)
@@ -393,10 +397,12 @@ public class GridManager : MonoBehaviour
                     else if (tile.buildingScript is Commercial commercialScript)
                     {
                         GameManager.instance.LoseJobs(commercialScript.GetMaxEmployees(), commercialScript.employees);
+                        commercialScript.employees = 0;
                     }
                     else if (tile.buildingScript is Industrial industrialScript)
                     {
                         GameManager.instance.LoseJobs(industrialScript.GetMaxEmployees(), industrialScript.employees);
+                        industrialScript.employees = 0;
                     }
                 }
             }
@@ -592,8 +598,6 @@ public class GridManager : MonoBehaviour
         if (buildingScript is House houseScript)
         {
             houseScript.residents = UnityEngine.Random.Range(2, houseScript.maxResidents + 1);
-            GameManager.instance.currentPopulation += houseScript.residents;
-            GameManager.instance.currentUnemployed += houseScript.residents;
         }
 
         //Set variables for commercial
@@ -601,15 +605,12 @@ public class GridManager : MonoBehaviour
         {
             commercialScript.employees = Math.Min(commercialScript.GetMaxEmployees(), GameManager.instance.currentUnemployed);
             GameManager.instance.currentUnemployed -= commercialScript.employees;
-            GameManager.instance.currentVacanies += commercialScript.GetMaxEmployees() - commercialScript.employees;
         }
 
         //Set variables for industrial
         if (buildingScript is Industrial industrialBuilding)
         {
             industrialBuilding.employees = Math.Min(industrialBuilding.GetMaxEmployees(), GameManager.instance.currentUnemployed);
-            GameManager.instance.currentUnemployed -= industrialBuilding.employees;
-            GameManager.instance.currentVacanies += industrialBuilding.GetMaxEmployees() - industrialBuilding.employees;
         }
 
         return buildingScript;

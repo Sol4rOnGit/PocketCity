@@ -15,12 +15,18 @@ public class Industrial : Building
     private int badDays = 0;
     private int noEmployeeDays;
 
+    private void Start()
+    {
+        taxRevenue = maxEmployees * Random.Range(30f, 50f);
+    }
+
     private void OnEnable()
     {
         if (GameManager.instance != null)
         {
             GameManager.instance.OnDayEnd += TryToHire;
             GameManager.instance.OnDayEnd += CheckForEmployees;
+            GameManager.instance.OnDayEnd += GenerateWealth;
         }
         if (ChunkManager.instance != null) ChunkManager.instance.BuildingUtilitiesUpdated += OnUtilities;
     }
@@ -31,6 +37,7 @@ public class Industrial : Building
         {
             GameManager.instance.OnDayEnd -= TryToHire;
             GameManager.instance.OnDayEnd -= CheckForEmployees;
+            GameManager.instance.OnDayEnd -= GenerateWealth;
         }
         if (ChunkManager.instance != null) ChunkManager.instance.BuildingUtilitiesUpdated -= OnUtilities;
     }
@@ -57,7 +64,7 @@ public class Industrial : Building
 
     private void CheckForEmployees()
     {
-        if (employees > 0)
+        if (employees > maxEmployees/20) //5% required
         {
             noEmployeeDays = 0;
             return;
@@ -95,8 +102,6 @@ public class Industrial : Building
         waterSupplyHealthiness = chunk.waterConsumed > 0 ?
             Mathf.Clamp01((float)(chunk.waterGenerated + chunk.waterImported) / chunk.waterConsumed) 
             : 1;
-
-        GenerateWealth();
 
         if (energySupplyHealthiness < 0.7f || waterSupplyHealthiness < 0.7f)
         {

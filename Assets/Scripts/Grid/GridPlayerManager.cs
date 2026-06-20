@@ -231,23 +231,23 @@ public class GridPlayerManager : MonoBehaviour
         {
             case SpecialBuildingTypes.WaterTower:
                 prefabToPlace = waterTowerPrefab;
-                buildCost = 5000;
+                buildCost = 3000;
                 break;
             case SpecialBuildingTypes.Fire:
                 prefabToPlace = fireStationPrefab;
-                buildCost = 120_000;
+                buildCost = 80_000;
                 break;
             case SpecialBuildingTypes.Police:
                 prefabToPlace = policeStationPrefab;
-                buildCost = 100_000;
+                buildCost = 40_000;
                 break;
             case SpecialBuildingTypes.Hospital:
                 prefabToPlace = hospitalPrefab;
-                buildCost = 90_000;
+                buildCost = 50_000;
                 break;
             case SpecialBuildingTypes.CoalStation:
                 prefabToPlace = coalPowerStationPrefab;
-                buildCost = 100_000;
+                buildCost = 80_000;
                 break;
             case SpecialBuildingTypes.NuclearStation:
                 prefabToPlace = nuclearPowerStationPrefab;
