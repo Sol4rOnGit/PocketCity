@@ -1,5 +1,4 @@
 using System;
-using System.Collections;
 using UnityEngine;
 
 public struct FinancialReport
@@ -157,20 +156,6 @@ public class FinanceManager : MonoBehaviour
 
     private float GetInflationForDaysPassed(int daysPassed)
     {
-        if (daysPassed < 10) return 1f;
-        if (daysPassed < 20) return 1.1f;
-        if (daysPassed < 30) return 1.3f;
-        if (daysPassed < 40) return 1.5f;
-        if (daysPassed < 50) return 1.6f;
-        if (daysPassed < 70) return 1.7f;
-        if (daysPassed < 90) return 1.8f;
-        if (daysPassed < 130) return 1.9f;
-        if (daysPassed < 150) return 2.0f;
-        if (daysPassed < 180) return 2.1f;
-        if (daysPassed < 220) return 2.2f;
-        if (daysPassed < 250) return 2.3f;
-        if (daysPassed < 300) return 2.4f;
-
-        return 3.0f;
+        return 1f + (0.01f * (daysPassed));
     }
 }

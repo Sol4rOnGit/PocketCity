@@ -6,7 +6,6 @@ using UnityEngine;
 public class GameManager : MonoBehaviour
 {
     public static GameManager instance { get; private set; }
-
     public void Awake()
     {
         if (instance != null && instance != this) { Destroy(gameObject); }
@@ -199,7 +198,6 @@ public class GameManager : MonoBehaviour
             dayDuration = Mathf.Lerp(startDayDuration, finalDayDuration, ratio);
         }
     }
-
     private IEnumerator randomEventTimer()
     {
         yield return new WaitForSeconds(gradePeriod);
@@ -485,7 +483,6 @@ public class GameManager : MonoBehaviour
     //Strikes & burnout 
 
     //-- Country declares war on you 
-
 
     //HEALTH!!
 
