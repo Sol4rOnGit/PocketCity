@@ -76,7 +76,7 @@ public class Commercial : Building
 
         if (revenue > 0) { FinanceManager.instance.Gain(revenue); }
 
-        Debug.Log($"I just made {revenue} with {employees} emploees with max Employees {maxEmployees} and {taxRevenue} as my max revenue");
+        //Debug.Log($"I just made {revenue} with {employees} emploees with max Employees {maxEmployees} and {taxRevenue} as my max revenue");
     }
 
     private void TryToHire()
