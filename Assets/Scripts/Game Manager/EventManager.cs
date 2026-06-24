@@ -1,7 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using Unity.VisualScripting;
+using System.Threading.Tasks;
 using UnityEngine;
 
 public class EventManager : MonoBehaviour
@@ -16,6 +16,7 @@ public class EventManager : MonoBehaviour
     [Header("Dependencies")]
     private GameManager gameManager;
     private GridManager gridManager;
+    private GameEffects gameEffects;
 
 
     [Header("Disasters")]
@@ -47,23 +48,64 @@ public class EventManager : MonoBehaviour
         }
     }
 
+    //Political Question stuff
+    public class PoliticalQuestion
+    {
+        public string Question;
+        public TaskCompletionSource<bool> TaskCompletionSource = new TaskCompletionSource<bool>();
+        public Action onAccept;
+
+        public PoliticalQuestion(string question, Action onAccept)
+        {
+            Question = question;
+            this.onAccept = onAccept;
+        }
+    }
+
+    public class PoliticalScenario
+    {
+        public string description;
+        public Action runnable;
+
+        public PoliticalScenario(string featureDescription, Action functionality)
+        {
+            description = featureDescription;
+            runnable = functionality;
+        }
+    }
+
+    [Header("Political Question Variables")]
+    public List<PoliticalQuestion> PendingQuestions = new List<PoliticalQuestion>();
+    public event Action onQueueChanged;
+
+    private PoliticalScenario[] goodFeatures;
+
+    private PoliticalScenario[] badFeatures;
+
+    private static void TemporaryFx()
+    {
+        Debug.Log("Something would've happened!");
+        return;
+    }
+
     //Helper functions for Weights
     private void UpdateWeights()
     {
         int daysPassed = gameManager.daysPassed;
 
-        if (daysPassed >= 300) { SetWeights(0, 30, 20, 40); return; }
-        if (daysPassed >= 200) { SetWeights(0, 25, 10, 30); return; }
-        if (daysPassed >= 100) { SetWeights(5, 20, 10, 20); return; }
-        SetWeights(20, 5, 40, 20);
+        if (daysPassed >= 300) { SetWeights(0, 30, 20, 40, 20); return; }
+        if (daysPassed >= 200) { SetWeights(5, 25, 10, 30, 10); return; }
+        if (daysPassed >= 100) { SetWeights(10, 20, 10, 20, 15); return; }
+        SetWeights(20, 5, 40, 20, 50); //Temporary set to 50 !=!+!
     }
 
-    private void SetWeights(int nothing, int earthquake, int fire, int virus)
+    private void SetWeights(int nothing, int earthquake, int fire, int virus, int polquest)
     {
         UpdateWeight("Nothing", nothing);
         UpdateWeight("Earthquake", earthquake);
         UpdateWeight("Fire", fire);
         UpdateWeight("Virus", virus);
+        UpdateWeight("PoliticalQuestion", polquest);
     }
 
     private void UpdateWeight(string name, int newWeight)
@@ -88,6 +130,10 @@ public class EventManager : MonoBehaviour
         //Dependencies
         gameManager = GameManager.instance;
         gridManager = GridManager.instance;
+        gameEffects = GameEffects.instance;
+
+        if(gameManager == null) { Debug.LogError("Game Manager not found!"); }
+        if(gridManager == null) { Debug.LogError("Grid Manager not found!"); }
 
         //Subscribe
         gameManager.OnDayEnd += Clock;
@@ -101,8 +147,25 @@ public class EventManager : MonoBehaviour
         weightedEvents.Add(new WeightedEvent("Earthquake", 5, Earthquake));
         weightedEvents.Add(new WeightedEvent("Fire", 40, SetBuildingOnFire));
         weightedEvents.Add(new WeightedEvent("Virus", 20, () => { TriggerVirusOutbreak(); } ));
+        weightedEvents.Add(new WeightedEvent("PoliticalQuestion", 50, () => { _ = TriggerUserPoliticalEvent(); })); //TEMP 50!!
 
         UpdateTotalWeight();
+
+        //Populate good/bad features for political
+
+        goodFeatures = new PoliticalScenario[]
+        {
+            new PoliticalScenario("Tax revenue increases", () => { gameEffects.IncreaseTaxes(); }),
+            new PoliticalScenario("Public happiness improves", () => { gameEffects.IncreaseHappiness(); }),
+            new PoliticalScenario("City grows faster", () => { gameEffects.IncreaseCityGrowthSpeed(); }),
+        };
+
+        badFeatures = new PoliticalScenario[]
+        {
+            new PoliticalScenario("corruption steals 20% of your net worth", () => { gameEffects.Take20PercentNetWorth(); }),
+            new PoliticalScenario("sudden power surge", () => { gameEffects.SuddenPowerSurge(); }),
+            new PoliticalScenario("increase in crime (currently does nothing)", () => { TemporaryFx(); }),
+        };
     }
 
     private void OnDisable()
@@ -134,30 +197,53 @@ public class EventManager : MonoBehaviour
         float lerp = Mathf.Lerp(0f, 1f, gameManager.daysPassed / 200f);
         float chanceOfDouble = 5f * lerp;
 
-        playRandomEvent();
+        string currentEventType = playRandomEvent();
 
-        if (UnityEngine.Random.value < chanceOfDouble) { yield return new WaitForSeconds(2.5f); playRandomEvent(); }
-    }
-    private void playRandomEvent()
-    {
-        int randInt = UnityEngine.Random.Range(0, totalWeight);
-        int cursor = 0;
-
-        foreach (var _event in weightedEvents)
-        {
-            cursor+= _event.weight;
-            if (cursor >= randInt)
-            {
-                _event?.weightedEvent.Invoke();
-                return;
-            }
+        if (UnityEngine.Random.value < chanceOfDouble) { 
+            yield return new WaitForSeconds(2.5f); 
+            playRandomEvent(currentEventType); 
         }
+    }
+    private string playRandomEvent(string prevEventName = "non-existant-event")
+    {
+        WeightedEvent selectedEvent = null;
+
+
+        int safety = 0;
+        while (selectedEvent == null && safety < 5)
+        {
+            int randInt = UnityEngine.Random.Range(0, totalWeight);
+            int cursor = 0;
+
+            foreach (var _event in weightedEvents)
+            {
+                cursor += _event.weight;
+                if (cursor >= randInt)
+                {
+                    if (_event.name != prevEventName)
+                    {
+                        selectedEvent = _event;
+                        break;
+                    }
+                }
+            }
+            safety++;
+        }
+
+        //Rejection handling
+        if (selectedEvent == null) { 
+            Debug.Log("Couldn't find a valid event to play in 5 iterations"); 
+            return "non-existant-event"; 
+        }
+
+        selectedEvent.weightedEvent?.Invoke();
+        return selectedEvent.name;
     }
 
     //Natural disasters
 
-    float minRatio = 0.01f;
-    float maxRatio = 0.3f;
+    private float minRatio = 0.01f; //1%
+    private float maxRatio = 0.1f; //max 10%
 
     private void Earthquake()
     {
@@ -352,7 +438,40 @@ public class EventManager : MonoBehaviour
         return;
     }
 
-    //Political questions
+    //"POLITICAL" QUESTIONS
+
+    public async Task TriggerUserPoliticalEvent()
+    {
+        if (goodFeatures == null || goodFeatures.Length == 0 || badFeatures == null || badFeatures.Length == 0) { Debug.LogError("No good/bad feautres!"); return; }
+
+        //Select raddom good/bad feature
+        PoliticalScenario goodFeature = goodFeatures[UnityEngine.Random.Range(0, goodFeatures.Length)];
+        PoliticalScenario badFeature = badFeatures[UnityEngine.Random.Range(0, badFeatures.Length)];
+
+        string questionString = $"{goodFeature.description} but {badFeature.description}.";
+
+        //generate question strng
+        //then calls the trigger political question with that
+
+        PoliticalQuestion currentQuestion = new PoliticalQuestion(questionString, 
+            ()=> { goodFeature.runnable?.Invoke(); 
+                badFeature.runnable?.Invoke(); 
+            }
+        );
+
+        PendingQuestions.Add(currentQuestion);
+        onQueueChanged?.Invoke();
+
+        bool userChoice = await currentQuestion.TaskCompletionSource.Task;
+        Debug.Log($"User Choice Received: {userChoice}");
+
+        //Pop
+        PendingQuestions.Remove(currentQuestion);
+
+        //Process request
+        if (userChoice) { currentQuestion.onAccept?.Invoke(); }
+        else { Debug.Log("Not invoked!"); }
+    }
 
 
     //RUBBISH

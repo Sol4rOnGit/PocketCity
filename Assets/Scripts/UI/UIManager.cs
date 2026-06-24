@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using System.Threading;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.UI;
@@ -38,27 +39,42 @@ public class UIManager : MonoBehaviour
     [SerializeField] private TMPro.TextMeshProUGUI PowerDeltaUIText;
     [SerializeField] private TMPro.TextMeshProUGUI WaterDeltaUIText;
 
+    [Header("QuestionUI")]
+    [SerializeField] private GameObject QuestionContainer;
+    [SerializeField] private TMPro.TextMeshProUGUI QuestionField;
+    private EventManager.PoliticalQuestion activeQuestion;
+    private Coroutine questionTimer;
+
     [Header("ZoningVars")]
     [SerializeField] private Camera playerCamera;
     [SerializeField] private string zoningLayerName = "ZoningVisual";
     public InputActionAsset inputActions;
     InputAction toggleZoningUI;
     InputAction toggleStatsPanelUI;
+    InputAction accept;
+    InputAction deny;
 
     FinanceManager financeManager;
+    EventManager eventManager;
 
     private void Awake()
     {
-        financeManager = GameObject.FindAnyObjectByType<FinanceManager>();
+        financeManager = FinanceManager.instance;
+        eventManager = EventManager.instance;
 
-        if (financeManager == null) { Debug.LogError("UIManager couldn't find the Finance Manager."); }
+        if (financeManager == null) { Debug.LogError("Finance Manager not found!"); }
+        if (eventManager == null) { Debug.LogError("Event Manager not found!"); }
     }
 
     private void Start()
     {
+        //Mapping
         InputActionMap UIMap = inputActions.FindActionMap("UI");
+        UIMap.Enable();
         toggleZoningUI = UIMap.FindAction("ToggleZoningUI");
         toggleStatsPanelUI = UIMap.FindAction("ToggleStatsPanel");
+        accept = UIMap.FindAction("Accept");
+        deny = UIMap.FindAction("Deny");
 
         statsPanelActive = CityStatsPanel.activeSelf;
 
@@ -71,8 +87,10 @@ public class UIManager : MonoBehaviour
         HandleStatsUpdate();
     }
 
+    //Sub/Unsub
     private void OnEnable()
     {
+        //Subscriptions
         if (GameManager.instance != null)
         {
             GameManager.instance.OnDayEnd += UpdateDaysPassed;
@@ -80,13 +98,17 @@ public class UIManager : MonoBehaviour
             GameManager.instance.OnDayProgress += UpdateDayProgressBar;
 
         } else { Debug.LogError("No game manager!"); }
+
         if (financeManager != null) financeManager.OnMoneyChanged += updateCurrentMoneyUI; else Debug.LogError("No finance manager!");
+
+        if (eventManager != null) eventManager.onQueueChanged += CheckForPendingQuestions; else Debug.LogError("No event manager!");
 
         if (gridPlayerManager != null) gridPlayerManager.newCursorPosition += UpdateCursorPosition; else Debug.LogError("No grid player manager!");
     }
 
     private void OnDisable()
     {
+        //Unsub
         if (GameManager.instance != null)
         {
             GameManager.instance.OnDayEnd += UpdateDaysPassed;
@@ -98,37 +120,41 @@ public class UIManager : MonoBehaviour
         if (financeManager != null) financeManager.OnMoneyChanged -= updateCurrentMoneyUI;
         if (gridPlayerManager != null) gridPlayerManager.newCursorPosition -= UpdateCursorPosition;
     }
-    
+
     private void HandleUserInput()
     {
+        if (accept == null) Debug.Log("sumting wong.");
+
         if (toggleZoningUI.WasPressedThisFrame()) { ToggleZoningLayer(); }
         if (toggleStatsPanelUI.WasPressedThisFrame()) { ToggleStatsPanel(); }
+
+        if (QuestionContainer.activeSelf)
+        {
+            if (accept.WasPressedThisFrame()) {
+                Debug.Log("Accept Input Pressed");  
+                RespondToQuestion(true); 
+            }
+            if (deny.WasPressedThisFrame()) {
+                Debug.Log("Deny Input Pressed");
+                RespondToQuestion(false); 
+            }
+        }
     }
 
-    public void updateCurrentMoneyUI(long currentMoney)
+    //Stats
+    private void ToggleStatsPanel()
     {
-        if (currentMoneyUIText == null) { Debug.LogError("Missing UI reference."); return; }
-
-        long delta = currentMoney - financeManager.prevMoney;
-
-        string formattedMoney = ReturnTextFromMoney(currentMoney);
-        string deltaMoney = (delta > 0) ? $"+{ReturnTextFromMoney(delta)}" : $"{ReturnTextFromMoney(delta)}";
-
-        currentMoneyUIText.text = formattedMoney;
-        addedMoneyUIText.text = deltaMoney;
+        if (statsPanelActive)
+        {
+            CityStatsPanel.SetActive(false);
+            statsPanelActive = false;
+        }
+        else
+        {
+            CityStatsPanel.SetActive(true);
+            statsPanelActive = true;
+        }
     }
-
-    private void ToggleZoningLayer()
-    {
-        if (playerCamera == null) { Debug.LogError("Camera not found."); return; }
-
-        int layerIndex = LayerMask.NameToLayer(zoningLayerName);
-
-        if(layerIndex == -1) { Debug.LogError($"Zoning Layer with the layer name {zoningLayerName} doesn't exist!"); }
-
-        playerCamera.cullingMask ^= 1 << layerIndex;
-    }
-
     private void HandleStatsUpdate()
     {
         if (statsPanelActive)
@@ -159,6 +185,7 @@ public class UIManager : MonoBehaviour
         }
     }
 
+    //Day
     private void UpdateDayProgressBar(float progressRatio)
     {
         if (dayProgressBar == null) { Debug.LogWarning("Day Progress Bar Not Assigned to UI mananger."); return; }
@@ -176,6 +203,31 @@ public class UIManager : MonoBehaviour
         daysPassedUIText.text = $"Day {daysPassed.ToString()}";
     }
 
+    //Simple functions
+    public void updateCurrentMoneyUI(long currentMoney)
+    {
+        if (currentMoneyUIText == null) { Debug.LogError("Missing UI reference."); return; }
+
+        long delta = currentMoney - financeManager.prevMoney;
+
+        string formattedMoney = ReturnTextFromMoney(currentMoney);
+        string deltaMoney = (delta > 0) ? $"+{ReturnTextFromMoney(delta)}" : $"{ReturnTextFromMoney(delta)}";
+
+        currentMoneyUIText.text = formattedMoney;
+        addedMoneyUIText.text = deltaMoney;
+    }
+
+    private void ToggleZoningLayer()
+    {
+        if (playerCamera == null) { Debug.LogError("Camera not found."); return; }
+
+        int layerIndex = LayerMask.NameToLayer(zoningLayerName);
+
+        if (layerIndex == -1) { Debug.LogError($"Zoning Layer with the layer name {zoningLayerName} doesn't exist!"); }
+
+        playerCamera.cullingMask ^= 1 << layerIndex;
+    }
+
     private void NotifyUser(string Text, bool emergency)
     {
         userNotificationUIText.enabled = true;
@@ -189,7 +241,77 @@ public class UIManager : MonoBehaviour
         if (notifRoutine != null) { StopCoroutine(notifRoutine); }
         notifRoutine = StartCoroutine(HideNotificationAfterSeconds());
     }
+    
+    private void UpdateCursorPosition(Vector2Int pos)
+    {
+        cursorPosUIText.text = $"({pos.x}, {pos.y})";
+    }
 
+    //Political Questions
+
+    private void UpdateQuestion(string question)
+    {
+        QuestionContainer.SetActive(true);
+        QuestionField.text = question;
+
+        if (questionTimer != null) StopCoroutine(questionTimer);
+        questionTimer = StartCoroutine(HideQuestionAfterSeconds());
+    }
+
+    private void CheckForPendingQuestions()
+    {
+        //If there is a question showing or there is one waiting, return
+        if (activeQuestion != null || eventManager.PendingQuestions.Count == 0) return; 
+
+        activeQuestion = eventManager.PendingQuestions[0];
+        UpdateQuestion(activeQuestion.Question);
+    }
+
+    private void RespondToQuestion(bool choice)
+    {
+        if (activeQuestion == null) {
+            QuestionContainer.SetActive(false);
+            return; 
+        }
+
+        if (questionTimer != null)
+        {
+            StopCoroutine(questionTimer);
+            questionTimer = null;
+        }
+
+        if (!activeQuestion.TaskCompletionSource.Task.IsCompleted) activeQuestion.TaskCompletionSource.SetResult(choice);        
+
+        QuestionContainer.SetActive(false);
+
+        activeQuestion = null;
+
+        CheckForPendingQuestions();
+    }
+
+    //Helper functions
+    private string ReturnTextFromMoney(long amount)
+    {
+        if (amount >= 1_000_000_000_000)
+        {
+            float trillions = (float)amount / 1_000_000_000_000;
+            return $"£{trillions:0.00} trillion";
+        }
+        else if (amount >= 1_000_000_000)
+        {
+            float billions = (float)amount / 1_000_000_000;
+            return $"£{billions:0.00} billion";
+        }
+        else if (amount >= 1_000_000)
+        {
+            float millions = (float)amount / 1_000_000;
+            return $"£{millions:0.00} million";
+        }
+        else
+        {
+            return $"£{amount:N0}";
+        }
+    }
     private IEnumerator HideNotificationAfterSeconds(int seconds = 3)
     {
         yield return new WaitForSeconds(seconds);
@@ -213,45 +335,10 @@ public class UIManager : MonoBehaviour
         userNotificationUIText.enabled = false;
     }
 
-    private void UpdateCursorPosition(Vector2Int pos)
+    private IEnumerator HideQuestionAfterSeconds(int seconds = 3)
     {
-        cursorPosUIText.text = $"({pos.x}, {pos.y})";
-    }
+        yield return new WaitForSeconds(seconds);
 
-    private void ToggleStatsPanel()
-    {
-        if (statsPanelActive)
-        {
-            CityStatsPanel.SetActive(false);
-            statsPanelActive = false;
-        } 
-        else
-        {
-            CityStatsPanel.SetActive(true);
-            statsPanelActive = true;
-        }
-    }
-
-    private string ReturnTextFromMoney(long amount)
-    {
-        if (amount >= 1_000_000_000_000)
-        {
-            float trillions = (float)amount / 1_000_000_000_000;
-            return $"£{trillions:0.00} trillion";
-        }
-        else if (amount >= 1_000_000_000)
-        {
-            float billions = (float)amount / 1_000_000_000;
-            return $"£{billions:0.00} billion";
-        }
-        else if (amount >= 1_000_000)
-        {
-            float millions = (float)amount / 1_000_000;
-            return $"£{millions:0.00} million";
-        }
-        else
-        {
-            return $"£{amount:N0}";
-        }
+        RespondToQuestion(false);
     }
 }

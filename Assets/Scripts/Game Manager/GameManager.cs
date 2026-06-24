@@ -247,10 +247,9 @@ public class GameManager : MonoBehaviour
     public void GameOver()
     {
         StopAllCoroutines();
+        
+        Time.timeScale = 0;
 
         UserNotification?.Invoke("Game Over!", true);
-
-        Time.timeScale = 0;
     }
-
 }

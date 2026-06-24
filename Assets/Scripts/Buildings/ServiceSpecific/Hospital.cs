@@ -26,6 +26,12 @@ public class Hospital : Building
 
     public void AmbulanceReturned()
     {
+        if(currentAmbulances == maxAmbulances)
+        {
+            Debug.LogError("Somehow more ambulances returned than dispatched.");
+            return;
+        }
+
         currentAmbulances += 1;
     }
 }

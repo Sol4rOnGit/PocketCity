@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -13,17 +14,66 @@ public class ChunkManager : MonoBehaviour
         if (instance != null && instance != this) { Destroy(gameObject); }
         instance = this;
     }
+
+    [Header("Dependencies")]
+    [SerializeField] private GridManager gridManager;
+    [SerializeField] private Transform playerTransform;
+
+    [Header("Global power/water variables")]
     public int GlobalPowerCapacity { get; private set; }
     public int GlobalPowerDemand { get; private set; }
     public int GlobalWaterCapacity { get; private set; }
     public int GlobalWaterDemand { get; private set; }
 
+    public IEnumerator IncreasePowerDemandTemporarily(int power, float seconds)
+    {
+        List<ChunkData> affectedChunks = new List<ChunkData>();
+        List<Vector2Int> allChunkKeys = new List<Vector2Int>(generatedChunks.Keys);
+
+        int chunksToAffect = allChunkKeys.Count / UnityEngine.Random.Range(4, 8); //1/4 to 1/8 of all chunks
+        if (chunksToAffect == 0) { chunksToAffect = 1; } //atleast 1!
+
+        int powerPerChunk = power / chunksToAffect;
+        if (powerPerChunk <= 100) { powerPerChunk = 100; }
+
+        for (int i = 0; i <  chunksToAffect; i++)
+        {
+            int randomIndex = UnityEngine.Random.Range(0, allChunkKeys.Count);
+            Vector2Int key = allChunkKeys[randomIndex];
+
+            ChunkData chunk = generatedChunks[key];
+
+            chunk.powerConsumed += powerPerChunk;
+            affectedChunks.Add(chunk);
+        }
+
+        DistributeUtilitiesAcrossCity();
+        Debug.Log($"Surge active with {chunksToAffect} chunks loaded with an additional {powerPerChunk} MW each!");
+
+        Debug.Log($"Demand is now {GlobalPowerDemand}");
+
+        yield return new WaitForSeconds(seconds);
+
+        foreach (ChunkData chunk in affectedChunks)
+        {
+            chunk.powerConsumed -= powerPerChunk;
+        }
+
+        DistributeUtilitiesAcrossCity();
+
+        Debug.Log($"Demand is now {GlobalPowerDemand}, should be normalised due to end of surge");
+    }
+
     [Header("Toggle")]
     [SerializeField] private bool showTrees;
 
-    [Header("Requirements")]
-    [SerializeField] private GridManager gridManager;
-    [SerializeField] private Transform playerTransform;
+    [Header("Happiness settings")]
+    [SerializeField] private float baselineHappiness = 0f;
+
+    public void IncreaseBaselineHappiness(float increase)
+    {
+        baselineHappiness += increase;
+    }
 
     [Header("Chunk settings")]
     [SerializeField] private int chunkSize = 16;
@@ -228,7 +278,7 @@ public class ChunkManager : MonoBehaviour
 
     public void calculateHappiness(ChunkData chunk)
     {
-        float currentHappiness = 50f;
+        float currentHappiness = 50f + baselineHappiness;
 
         if (!chunk.HasEnoughPower) { currentHappiness -= 30f; }
         if (!chunk.HasEnoughWater) { currentHappiness -= 30f; }

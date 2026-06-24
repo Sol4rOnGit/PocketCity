@@ -3,6 +3,13 @@ using UnityEngine;
 
 public class CityGenerator : MonoBehaviour
 {
+    public static CityGenerator instance { get; private set; }
+    public void Awake()
+    {
+        if (instance != null && instance != this) { Destroy(gameObject); }
+        instance = this;
+    }
+
     [Header("Houses")]
     [SerializeField] private List<GameObject> HousePrefabs;
 
@@ -19,6 +26,12 @@ public class CityGenerator : MonoBehaviour
     [SerializeField] private float startWaitTimeSeconds = 30.0f;
     [SerializeField] private float finalWaitTimeSeconds = 5.0f;
     [SerializeField] private float realTimeUntilFinalTimeSeconds = 900.0f; //15 minutes
+
+    public void IncreaseSpawningRate()
+    {
+        startWaitTimeSeconds = startWaitTimeSeconds / 2;
+        finalWaitTimeSeconds = finalWaitTimeSeconds / 2;
+    }
 
     private float spawnTimer = 0.0f;
     private float timeSinceStartSeconds = 0.0f;

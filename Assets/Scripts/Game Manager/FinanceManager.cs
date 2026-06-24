@@ -31,8 +31,8 @@ public class FinanceManager : MonoBehaviour
     private long dayPlayerCostTracker;
 
     [Header("Economics")]
+    public float taxMultiplier = 1f;
     public float inflationRate = 0.01f; //1%
-    [SerializeField] private float maxInflation = 0.5f; //50%
 
     [SerializeField] private long maxDebtLimit = -50_000;
     
@@ -117,11 +117,20 @@ public class FinanceManager : MonoBehaviour
         ForcePurchase(roadMaintainanceCost * numRoads);
     }
 
+    public void Steal(long amount)
+    {
+        Debug.Log($"currentMoney before steal: {currentMoney}");
+        currentMoney -= amount;
+        dayPlayerCostTracker -= amount;
+        OnMoneyChanged?.Invoke(currentMoney);
+        Debug.Log($"currentMoney after steal: {currentMoney}");
+    }
+
     public void Gain(float amount)
     {
         if (amount <= 0 || float.IsNaN(amount)) return;
 
-        long gained = (long)amount;
+        long gained = (long)amount * (long)taxMultiplier;
         currentMoney += gained;
         dayIncomeTracker += gained;
         OnMoneyChanged?.Invoke(currentMoney);
