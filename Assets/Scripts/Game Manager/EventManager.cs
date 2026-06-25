@@ -88,43 +88,6 @@ public class EventManager : MonoBehaviour
         return;
     }
 
-    //Helper functions for Weights
-    private void UpdateWeights()
-    {
-        int daysPassed = gameManager.daysPassed;
-
-        if (daysPassed >= 300) { SetWeights(0, 30, 20, 40, 20); return; }
-        if (daysPassed >= 200) { SetWeights(5, 25, 10, 30, 10); return; }
-        if (daysPassed >= 100) { SetWeights(10, 20, 10, 20, 15); return; }
-        SetWeights(20, 5, 40, 20, 50); //Temporary set to 50 !=!+!
-    }
-
-    private void SetWeights(int nothing, int earthquake, int fire, int virus, int polquest)
-    {
-        UpdateWeight("Nothing", nothing);
-        UpdateWeight("Earthquake", earthquake);
-        UpdateWeight("Fire", fire);
-        UpdateWeight("Virus", virus);
-        UpdateWeight("PoliticalQuestion", polquest);
-    }
-
-    private void UpdateWeight(string name, int newWeight)
-    {
-        var evnt = weightedEvents.Find(e => e.name == name);
-        if (evnt != null) evnt.weight = newWeight;
-
-        UpdateTotalWeight();
-    }
-
-    private void UpdateTotalWeight()
-    {
-        totalWeight = 0;
-        foreach (var weightedEvent in weightedEvents) totalWeight += weightedEvent.weight;
-    }
-
-    List<WeightedEvent> weightedEvents = new List<WeightedEvent>();
-    private int totalWeight;
-
     void Start()
     {
         //Dependencies
@@ -147,7 +110,7 @@ public class EventManager : MonoBehaviour
         weightedEvents.Add(new WeightedEvent("Earthquake", 5, Earthquake));
         weightedEvents.Add(new WeightedEvent("Fire", 40, SetBuildingOnFire));
         weightedEvents.Add(new WeightedEvent("Virus", 20, () => { TriggerVirusOutbreak(); } ));
-        weightedEvents.Add(new WeightedEvent("PoliticalQuestion", 50, () => { _ = TriggerUserPoliticalEvent(); })); //TEMP 50!!
+        weightedEvents.Add(new WeightedEvent("PoliticalQuestion", 30, () => { _ = TriggerUserPoliticalEvent(); }));
 
         UpdateTotalWeight();
 
@@ -306,9 +269,12 @@ public class EventManager : MonoBehaviour
 
         foreach (Vector2Int buildingPos in gridManager.BuildingPositions) //Optimistaion -> hashmap for infected buildings and houses auto append? O(1)?
         {
-            if (mapGrid.TryGetValue(buildingPos, out GridManager.GridTile tile) && tile.buildingScript is House houseScript)
+            if (mapGrid.TryGetValue(buildingPos, out GridManager.GridTile tile) && tile.buildingScript)
             {
-                if (!houseScript.isOnFire) continue;
+                if (!tile.buildingScript.isOnFire) continue;
+                if (tile.buildingScript.isSpreadingFire) continue;
+
+                tile.buildingScript.isSpreadingFire = true;
 
                 StartCoroutine(SpreadFire(buildingPos, mapGrid));
             }
@@ -332,8 +298,12 @@ public class EventManager : MonoBehaviour
     {
         yield return new WaitForSeconds(UnityEngine.Random.Range(3f, 9f));
 
-        if (!mapGrid.TryGetValue(pos, out GridManager.GridTile sourceTile) || sourceTile.buildingScript == null || !sourceTile.buildingScript.isOnFire)
+        //Return if no longer on fire/existant
+        if (!mapGrid.TryGetValue(pos, out GridManager.GridTile sourceTile) || sourceTile.buildingScript == null) yield break;
+
+        if (!sourceTile.buildingScript.isOnFire)
         {
+            sourceTile.buildingScript.isSpreadingFire = false;
             yield break;
         }
 
@@ -356,8 +326,13 @@ public class EventManager : MonoBehaviour
             tile.buildingScript.IgniteFire();
 
             StartCoroutine(BurnBuilding(tile.buildingScript.gridPos, tile.buildingScript));
-            yield break; //only one building -> remove this if decide not to.
+
+            sourceTile.buildingScript.isSpreadingFire = false;
+
+            yield break; //only one building!
         }
+
+        sourceTile.buildingScript.isSpreadingFire = false;
     }
 
     //HEALTH
@@ -473,6 +448,45 @@ public class EventManager : MonoBehaviour
         else { Debug.Log("Not invoked!"); }
     }
 
+    //Helper functions for Weights
+    private void UpdateWeights()
+    {
+        int daysPassed = gameManager.daysPassed;
+
+        //SetWeights(nothing, earthquake, fire, virus, polquest);
+
+        if (daysPassed >= 300) { SetWeights(0, 10, 20, 40, 20); return; }
+        if (daysPassed >= 200) { SetWeights(5, 9, 10, 30, 15); return; }
+        if (daysPassed >= 100) { SetWeights(10, 7, 10, 20, 25); return; }
+        SetWeights(20, 5, 40, 20, 30);
+
+    }
+
+    private void SetWeights(int nothing, int earthquake, int fire, int virus, int polquest)
+    {
+        UpdateWeight("Nothing", nothing);
+        UpdateWeight("Earthquake", earthquake);
+        UpdateWeight("Fire", fire);
+        UpdateWeight("Virus", virus);
+        UpdateWeight("PoliticalQuestion", polquest);
+    }
+
+    private void UpdateWeight(string name, int newWeight)
+    {
+        var evnt = weightedEvents.Find(e => e.name == name);
+        if (evnt != null) evnt.weight = newWeight;
+
+        UpdateTotalWeight();
+    }
+
+    private void UpdateTotalWeight()
+    {
+        totalWeight = 0;
+        foreach (var weightedEvent in weightedEvents) totalWeight += weightedEvent.weight;
+    }
+
+    List<WeightedEvent> weightedEvents = new List<WeightedEvent>();
+    private int totalWeight;
 
     //RUBBISH
 

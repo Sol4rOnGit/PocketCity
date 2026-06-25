@@ -17,6 +17,7 @@ public class Building : MonoBehaviour
 
     [Header("Fire")]
     public bool isOnFire = false;
+    public bool isSpreadingFire = false;
     [SerializeField] private GameObject fireParticles;
     private GameObject activeFireEffect;
 

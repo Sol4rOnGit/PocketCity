@@ -167,7 +167,7 @@ public class GridManager : MonoBehaviour
 
             if (!BuildingPositions.Contains(pos)) { BuildingPositions.Add(pos); }
 
-            GameManager.instance.OnBuildingSpawned(buildingScript);
+            GameManager.instance.OnBuildingSpawned(buildingScript); //Subtraction occurs here
 
             //Add utilities to chunk
             if (ChunkManager.instance != null && buildingScript != null)
@@ -187,7 +187,7 @@ public class GridManager : MonoBehaviour
         mapGrid.Add(pos, buildingTile);
         BuildingPositions.Add(pos);
 
-        GameManager.instance.OnBuildingSpawned(buildingScript);
+        GameManager.instance.OnBuildingSpawned(buildingScript); //Subtraction occurs here
 
         //Add utilities to chunk
         if (ChunkManager.instance != null && buildingScript != null)
@@ -604,7 +604,6 @@ public class GridManager : MonoBehaviour
         if (buildingScript is Commercial commercialScript)
         {
             commercialScript.employees = Math.Min(commercialScript.GetMaxEmployees(), GameManager.instance.currentUnemployed);
-            GameManager.instance.currentUnemployed -= commercialScript.employees;
         }
 
         //Set variables for industrial

@@ -45,9 +45,25 @@ public class GameManager : MonoBehaviour
         StartCoroutine(completeCommercialDay());
     }
 
+    //Employment game mechanics
+    public void AdjustUnemployed(int amount)
+    {
+        if (currentUnemployed + amount < 0) { Debug.LogError("Invalid current employment adjustment."); return; }
+
+        currentUnemployed = Mathf.Max(0, currentUnemployed + amount);
+    }
+
+    public void AdjustVacanices(int amount)
+    {
+        if (currentVacanies + amount < 0) { Debug.LogError("Invalid current vacancies adjustment."); return; }
+
+        currentVacanies = Mathf.Max(0, currentVacanies + amount);
+    }
+
     public void LosePopulation(int populationLeaving)
     {
         currentPopulation -= populationLeaving;
+
         if (currentPopulation < 0) { Debug.LogError("Something went wrong and population is now below zero."); currentPopulation = 0; }
 
         if (currentUnemployed >= populationLeaving)
@@ -70,13 +86,13 @@ public class GameManager : MonoBehaviour
 
     public void LoseJobs(int jobsLost, int employeesLost)
     {
-        currentUnemployed += employeesLost;
+        AdjustUnemployed(employeesLost);
 
         int unfilledVacancies = jobsLost - employeesLost;
 
         if (currentVacanies >= unfilledVacancies)
         {
-            currentVacanies -= unfilledVacancies;
+            AdjustVacanices(-unfilledVacancies);
         } else
         {
             currentVacanies = 0;
@@ -115,14 +131,14 @@ public class GameManager : MonoBehaviour
             if(randomEmployer is Commercial commercialScript && commercialScript.employees > 0)
             {
                 commercialScript.employees--;
-                currentVacanies++;
+                AdjustVacanices(1);
                 amount--;
             }
 
             else if (randomEmployer is Industrial industrialScript && industrialScript.employees > 0)
             {
                 industrialScript.employees--;
-                currentVacanies++;
+                AdjustVacanices(1);
                 amount--;
             }
         }
@@ -234,10 +250,7 @@ public class GameManager : MonoBehaviour
         financeManager.MaintainancePurchase(gridManager.RoadPositions.Count);
         financeManager.Inflate(currentPopulation, daysPassed);
 
-        if (UnityEngine.Random.Range(0, 7) == 6)
-        {
-            eventManager.CheckForFires(); //12.5% chance of spreading everyday
-        }
+        eventManager.CheckForFires();
         
         financeManager.DoDailyReport();
 

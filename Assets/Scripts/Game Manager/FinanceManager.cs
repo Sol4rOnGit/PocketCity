@@ -119,11 +119,9 @@ public class FinanceManager : MonoBehaviour
 
     public void Steal(long amount)
     {
-        Debug.Log($"currentMoney before steal: {currentMoney}");
         currentMoney -= amount;
         dayPlayerCostTracker -= amount;
         OnMoneyChanged?.Invoke(currentMoney);
-        Debug.Log($"currentMoney after steal: {currentMoney}");
     }
 
     public void Gain(float amount)
@@ -167,9 +165,9 @@ public class FinanceManager : MonoBehaviour
     {
         if (daysPassed > 130)
         {
-            return 3f + (0.2f * (daysPassed - 100)); //mad increase now
+            return 3f + (0.05f * (daysPassed - 100)); //increase more after day 130
         }
 
-        return 1f + (0.02f * (daysPassed));
+        return 1f + (0.02f * (daysPassed)); //3f at 100 days hence 3f above
     }
 }
