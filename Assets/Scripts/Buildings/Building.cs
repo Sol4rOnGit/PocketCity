@@ -23,8 +23,14 @@ public class Building : MonoBehaviour
 
     [HideInInspector] public bool isDestroying;
 
+    [Header("Earthquake")]
+    public int RetroFitCost = 15_000;
+    public bool isRetrofitted;
+
     public void IgniteFire()
     {
+        if (this is FireStation) { return; }
+
         if (isOnFire) { return; }
         isOnFire = true;
 
@@ -40,5 +46,26 @@ public class Building : MonoBehaviour
         isOnFire = false;
 
         if (activeFireEffect != null ) { Destroy(activeFireEffect); }
+    }
+
+    public int RetroFit()
+    {
+        if (isRetrofitted)
+        {
+            GameManager.instance.UserNotification?.Invoke("Building Already Retrofitted!", false);
+            return -1;
+        }
+
+        if (FinanceManager.instance.Purchase(RetroFitCost))
+        {
+            Debug.Log($"Retrofitted {gridPos.x} {gridPos.y} succesfully!");
+            isRetrofitted = true;
+            return RetroFitCost;
+        } else
+        {
+            GameManager.instance.UserNotification?.Invoke("Not enough money to retrofit!", false);
+        }
+
+        return -1;
     }
 }

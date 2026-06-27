@@ -60,6 +60,9 @@ public class GridPlayerManager : MonoBehaviour
     [Header("UI")]
     [SerializeField] private TMPro.TextMeshProUGUI PlayerModeUIText;
 
+    [Header("Special Fx")]
+    public Action<Vector2Int> buildingSpecialFx;
+
     void Start()
     {
         //Input
@@ -171,7 +174,7 @@ public class GridPlayerManager : MonoBehaviour
                 gridManager.removeZoneFromGrid(currentGridPosHovering); break;
 
             case PlayerMode.BuildingPlacement:
-                gridManager.eraseRoadElement(currentGridPosHovering); break;
+                buildingSpecialFx?.Invoke(currentGridPosHovering); break;
             default:
                 Debug.LogError("Invalid Player State!");
                 break;

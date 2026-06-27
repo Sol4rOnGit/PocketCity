@@ -35,7 +35,7 @@ public class ServiceManager : MonoBehaviour
         List<Vector2Int> route = null;
         Building bestStation = FindClosestReachableFireStation(burningBuilding.gridPos, out route);
 
-        if (bestStation == null && route == null)
+        if (bestStation == null)
         {
             GameManager.instance.UserNotification?.Invoke("Burning burning but there is no fire stations!", false);
             return; 
@@ -43,7 +43,7 @@ public class ServiceManager : MonoBehaviour
 
         if (route == null || route.Count == 0)
         {
-            GameManager.instance.UserNotification?.Invoke("Burning burning but no path to a fire stations!", true);
+            GameManager.instance.UserNotification?.Invoke("Burning burning but no path to a fire stations!", false);
             return;
         }
 
@@ -52,7 +52,7 @@ public class ServiceManager : MonoBehaviour
 
             if (FinanceManager.instance.Purchase(FinanceManager.instance.serviceChargeFire) == false)
             {
-                GameManager.instance.UserNotification?.Invoke("Not enough money to dispatch firetruck for a fire!", true);
+                GameManager.instance.UserNotification?.Invoke("Not enough money to dispatch firetruck for a fire!", false);
                 return;
             }
 

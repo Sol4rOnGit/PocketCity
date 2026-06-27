@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class Hospital : Building
+public class Hospital : Service
 {
     [Header("Hospital Setup")]
     [SerializeField] private int maxAmbulances = 3;

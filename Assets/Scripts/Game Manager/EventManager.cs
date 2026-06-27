@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using UnityEngine;
+using static UnityEngine.EventSystems.EventTrigger;
 
 public class EventManager : MonoBehaviour
 {
@@ -19,12 +20,12 @@ public class EventManager : MonoBehaviour
     private GameEffects gameEffects;
 
 
-    [Header("Disasters")]
+    [Header("Event Rolling")]
     [SerializeField] private int gracePeriodDays = 3;
     [SerializeField] private int minIntervalDays = 3;
     [SerializeField] private int maxIntervalDays = 6; 
     private int daysLeft;
-    private float chanceForDoubleEvent;
+    private float chanceForDoubleEvent = 0.75f;
 
     private float secondsToBurnBuilding = 10f;
 
@@ -82,6 +83,10 @@ public class EventManager : MonoBehaviour
 
     private PoliticalScenario[] badFeatures;
 
+    [Header("Rare Events")]
+    [SerializeField] private GameObject asteroidPrefab;
+    [SerializeField] private GameObject explosionEffectPrefab;
+
     private static void TemporaryFx()
     {
         Debug.Log("Something would've happened!");
@@ -97,6 +102,7 @@ public class EventManager : MonoBehaviour
 
         if(gameManager == null) { Debug.LogError("Game Manager not found!"); }
         if(gridManager == null) { Debug.LogError("Grid Manager not found!"); }
+        if(gameEffects == null) { Debug.LogError("Game Effects not found!"); }
 
         //Subscribe
         gameManager.OnDayEnd += Clock;
@@ -106,29 +112,10 @@ public class EventManager : MonoBehaviour
         daysLeft = gracePeriodDays + minIntervalDays;
 
         //Ad the weights
-        weightedEvents.Add(new WeightedEvent("Nothing", 20, () => { }));
-        weightedEvents.Add(new WeightedEvent("Earthquake", 5, Earthquake));
-        weightedEvents.Add(new WeightedEvent("Fire", 40, SetBuildingOnFire));
-        weightedEvents.Add(new WeightedEvent("Virus", 20, () => { TriggerVirusOutbreak(); } ));
-        weightedEvents.Add(new WeightedEvent("PoliticalQuestion", 30, () => { _ = TriggerUserPoliticalEvent(); }));
-
-        UpdateTotalWeight();
+        InitialiseWeights();
 
         //Populate good/bad features for political
-
-        goodFeatures = new PoliticalScenario[]
-        {
-            new PoliticalScenario("Tax revenue increases", () => { gameEffects.IncreaseTaxes(); }),
-            new PoliticalScenario("Public happiness improves", () => { gameEffects.IncreaseHappiness(); }),
-            new PoliticalScenario("City grows faster", () => { gameEffects.IncreaseCityGrowthSpeed(); }),
-        };
-
-        badFeatures = new PoliticalScenario[]
-        {
-            new PoliticalScenario("corruption steals 20% of your net worth", () => { gameEffects.Take20PercentNetWorth(); }),
-            new PoliticalScenario("sudden power surge", () => { gameEffects.SuddenPowerSurge(); }),
-            new PoliticalScenario("increase in crime (currently does nothing)", () => { TemporaryFx(); }),
-        };
+        InitialisePoliticalQuestions();
     }
 
     private void OnDisable()
@@ -158,7 +145,7 @@ public class EventManager : MonoBehaviour
     private IEnumerator rollEvents()
     {
         float lerp = Mathf.Lerp(0f, 1f, gameManager.daysPassed / 200f);
-        float chanceOfDouble = 5f * lerp;
+        float chanceOfDouble = chanceForDoubleEvent * lerp;
 
         string currentEventType = playRandomEvent();
 
@@ -186,8 +173,8 @@ public class EventManager : MonoBehaviour
                     if (_event.name != prevEventName)
                     {
                         selectedEvent = _event;
-                        break;
                     }
+                    break;
                 }
             }
             safety++;
@@ -218,7 +205,7 @@ public class EventManager : MonoBehaviour
             return;
         }
 
-        gameManager.UserNotification?.Invoke("Earthquake!", false);
+        gameManager.UserNotification?.Invoke("Earthquake!", true);
 
         //Update ratios
         float ratio = Mathf.Lerp(minRatio, maxRatio, gameManager.daysPassed / gameManager.daysUntilFinal);
@@ -231,6 +218,16 @@ public class EventManager : MonoBehaviour
 
             int randomInt = UnityEngine.Random.Range(0, gridManager.BuildingPositions.Count);
             Vector2Int buildingPos = gridManager.BuildingPositions[randomInt];
+
+            var mapGrid = gridManager.GetMapGrid();
+            if (mapGrid.TryGetValue(buildingPos, out GridManager.GridTile gridTile))
+            {
+                if (gridTile.buildingScript.isRetrofitted)
+                {
+                    Debug.Log("Retrofitted! Saved from earthquake");
+                    continue;
+                }
+            }
 
             gridManager.forceRemoveElement(buildingPos);
         }
@@ -367,7 +364,6 @@ public class EventManager : MonoBehaviour
             }
         }
     }
-
     private IEnumerator KillBuilding(Vector2Int randomPos, House houseScript)
     {
         yield return new WaitForSeconds(10f);
@@ -415,6 +411,23 @@ public class EventManager : MonoBehaviour
 
     //"POLITICAL" QUESTIONS
 
+    private void InitialisePoliticalQuestions()
+    {
+        goodFeatures = new PoliticalScenario[]
+{
+            new PoliticalScenario("Tax revenue increases", () => { gameEffects.IncreaseTaxes(); }),
+            new PoliticalScenario("Public happiness improves", () => { gameEffects.IncreaseHappiness(); }),
+            new PoliticalScenario("City grows faster", () => { gameEffects.IncreaseCityGrowthSpeed(); }),
+};
+
+        badFeatures = new PoliticalScenario[]
+        {
+            new PoliticalScenario("corruption steals 20% of your net worth", () => { gameEffects.Take20PercentNetWorth(); }),
+            new PoliticalScenario("sudden power surge", () => { gameEffects.SuddenPowerSurge(); }),
+            new PoliticalScenario("increase in crime (currently does nothing)", () => { TemporaryFx(); }),
+        };
+    }
+
     public async Task TriggerUserPoliticalEvent()
     {
         if (goodFeatures == null || goodFeatures.Length == 0 || badFeatures == null || badFeatures.Length == 0) { Debug.LogError("No good/bad feautres!"); return; }
@@ -449,26 +462,40 @@ public class EventManager : MonoBehaviour
     }
 
     //Helper functions for Weights
+    private void InitialiseWeights()
+    {
+        weightedEvents.Add(new WeightedEvent("Nothing", 20, () => { }));
+        weightedEvents.Add(new WeightedEvent("Earthquake", 5, Earthquake));
+        weightedEvents.Add(new WeightedEvent("Fire", 40, SetBuildingOnFire));
+        weightedEvents.Add(new WeightedEvent("Virus", 20, () => { TriggerVirusOutbreak(); }));
+        weightedEvents.Add(new WeightedEvent("PoliticalQuestion", 30, () => { _ = TriggerUserPoliticalEvent(); }));
+        weightedEvents.Add(new WeightedEvent("AsteroidStrike", 0, AsteroidStrike));
+
+        UpdateTotalWeight();
+    }
+    
     private void UpdateWeights()
     {
         int daysPassed = gameManager.daysPassed;
 
-        //SetWeights(nothing, earthquake, fire, virus, polquest);
+        //SetWeights(nothing, earthquake, fire, virus, polquest, asteroidStrike);
 
-        if (daysPassed >= 300) { SetWeights(0, 10, 20, 40, 20); return; }
-        if (daysPassed >= 200) { SetWeights(5, 9, 10, 30, 15); return; }
-        if (daysPassed >= 100) { SetWeights(10, 7, 10, 20, 25); return; }
-        SetWeights(20, 5, 40, 20, 30);
+        if (daysPassed >= 300) { SetWeights(0, 10, 20, 40, 20, 5); return; }
+        if (daysPassed >= 200) { SetWeights(5, 9, 10, 30, 15, 5); return; }
+        if (daysPassed >= 100) { SetWeights(10, 7, 10, 20, 25, 1); return; }
+        SetWeights(20, 5, 40, 20, 30, 0); //TESTING!!
 
+        UpdateTotalWeight();
     }
 
-    private void SetWeights(int nothing, int earthquake, int fire, int virus, int polquest)
+    private void SetWeights(int nothing, int earthquake, int fire, int virus, int polquest, int asteroidStrike)
     {
         UpdateWeight("Nothing", nothing);
         UpdateWeight("Earthquake", earthquake);
         UpdateWeight("Fire", fire);
         UpdateWeight("Virus", virus);
         UpdateWeight("PoliticalQuestion", polquest);
+        UpdateWeight("AsteroidStrike", asteroidStrike);
     }
 
     private void UpdateWeight(string name, int newWeight)
@@ -487,6 +514,95 @@ public class EventManager : MonoBehaviour
 
     List<WeightedEvent> weightedEvents = new List<WeightedEvent>();
     private int totalWeight;
+
+    //Rare Events -----!!
+
+    //Asteroid Strike
+
+    private void AsteroidStrike()
+    {
+        if (gridManager.BuildingPositions.Count == 0) { return; }
+
+        Vector2Int centre = gridManager.BuildingPositions[UnityEngine.Random.Range(0, gridManager.BuildingPositions.Count)];
+
+        StartCoroutine(AsteroidAnimation(centre));
+    }
+
+    private IEnumerator AsteroidAnimation(Vector2Int centre)
+    {
+        float scale = gridManager.getGridScale();
+        Vector3 startPos = new Vector3(0, 100, 0);
+        Vector3 endPos = new Vector3(centre.x * scale, 0f, centre.y);
+
+        GameObject asteroid = Instantiate(asteroidPrefab, startPos, Quaternion.identity);
+
+        float timeElapsedSeconds = 0f;
+        float timeToMoveSeconds = 1.5f;
+
+        while (timeElapsedSeconds < timeToMoveSeconds)
+        {
+            asteroid.transform.position = Vector3.Lerp(startPos, endPos, timeElapsedSeconds / timeToMoveSeconds);
+            timeElapsedSeconds += Time.deltaTime;
+            yield return null;
+        }
+
+        Destroy(asteroid);
+        StartCoroutine(DoExplosionEffect(endPos));
+        BlastDestruction(centre);
+    }
+
+    private void BlastDestruction(Vector2Int centre)
+    {
+        var mapGrid = gridManager.GetMapGrid();
+
+        //Destruction event -> annihilate everything within 3 grid blocks & set everything within radius on fire
+        gridManager.forceRemoveElement(centre);
+
+        int radius = 6;
+        int innerRadius = 3;
+
+        for (int i = centre.x - radius; i <= centre.x + radius; i++)
+        {
+            for (int j = centre.y - radius; j <= centre.y + radius; j++)
+            {
+                Vector2Int pos = new Vector2Int(i, j);
+                float distance = Vector2Int.Distance(centre, pos);
+
+                if (distance < innerRadius)
+                {
+                    gridManager.forceRemoveElement(pos);
+                }
+                else if (distance < radius)
+                {
+                    if (mapGrid.TryGetValue(pos, out var tile))
+                    {
+                        if (tile.isRoad) { gridManager.forceRemoveElement(pos); }
+                        if (tile.buildingScript) {
+
+                            //Set building on fire
+                            tile.buildingScript.IgniteFire();
+
+                            StartCoroutine(BurnBuilding(pos, tile.buildingScript));
+
+                            //Call fire services
+                            if (ServiceManager.instance != null) ServiceManager.instance.DispatchFiretruck(tile.buildingScript);
+                            else { Debug.LogError("Service Manager not found!"); }
+                        }
+                    }
+                }
+
+            }
+        }
+    }
+
+    private IEnumerator DoExplosionEffect(Vector3 centreWorldPos)
+    {
+        GameObject explosionEffect = Instantiate(explosionEffectPrefab, centreWorldPos, Quaternion.identity);
+
+        yield return new WaitForSeconds(3.0f);
+
+        Destroy(explosionEffect);
+    }
 
     //RUBBISH
 

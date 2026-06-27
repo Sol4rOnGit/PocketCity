@@ -240,6 +240,7 @@ public class ChunkManager : MonoBehaviour
             if (waterDefecit > 0)
             {
                 if (totalGlobalWater >= waterDefecit)
+
                 {
                     chunk.waterImported = waterDefecit;
                     totalGlobalWater -= waterDefecit;

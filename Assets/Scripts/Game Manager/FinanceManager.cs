@@ -20,7 +20,7 @@ public class FinanceManager : MonoBehaviour
     }
 
     [Header("Settings")]
-    [SerializeField] private long initialMoney = 100_000; //reasonable values?: 300k for normal, 100k for hard. 1 million for city builder mode.
+    [SerializeField] private long initialMoney = 400_000; //reasonable values?: 400k for normal, 150k for hard. 1 million for city builder mode.
     public long currentMoney { get; private set; }
     public long prevMoney;
 
@@ -39,7 +39,7 @@ public class FinanceManager : MonoBehaviour
     [Header("Costs")]
     public float costRoad = 245f;
     public float costRoadDemolition = 445f;
-    public float costZoning = 1033f;
+    public float costZoning = 550;
 
     public float roadMaintainanceCost = 20f;
 
@@ -165,7 +165,7 @@ public class FinanceManager : MonoBehaviour
     {
         if (daysPassed > 130)
         {
-            return 3f + (0.05f * (daysPassed - 100)); //increase more after day 130
+            return 3f + (0.03f * (daysPassed - 100)); //increase more after day 130
         }
 
         return 1f + (0.02f * (daysPassed)); //3f at 100 days hence 3f above

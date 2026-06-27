@@ -86,6 +86,15 @@
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": false
+                },
+                {
+                    "name": "One",
+                    "type": "Button",
+                    "id": "2b13dc0c-b514-4dbe-b0a7-8a6f3ecffd12",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
                 }
             ],
             "bindings": [
@@ -374,6 +383,17 @@
                     "action": "ChangeSpecialBuilding",
                     "isComposite": false,
                     "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "192a6e60-c4e7-47d8-9945-96ebfea25175",
+                    "path": "<Keyboard>/1",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "One",
+                    "isComposite": false,
+                    "isPartOfComposite": false
                 }
             ]
         },
@@ -484,6 +504,15 @@
                     "name": "Deny",
                     "type": "Button",
                     "id": "bb144063-5096-4ed6-b0c8-1fbd69c98e69",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "One",
+                    "type": "Button",
+                    "id": "c4e3adc2-bb88-4464-8611-4c4cbd24e2c4",
                     "expectedControlType": "",
                     "processors": "",
                     "interactions": "",
@@ -972,6 +1001,17 @@
                     "processors": "",
                     "groups": "",
                     "action": "ToggleStatsPanel",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "4ef7eed5-70fc-42cf-9053-76cd7cf185fe",
+                    "path": "<Keyboard>/1",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "One",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

@@ -165,8 +165,11 @@ MonoBehaviour:
   waterGenerated: 0
   waterConsumed: 0
   isOnFire: 0
+  isSpreadingFire: 0
   fireParticles: {fileID: 0}
   isDestroying: 0
+  RetroFitCost: 40000
+  isRetrofitted: 0
   _maxEmployees: 20
   employees: 0
-  monthlyCost: 0
+  dailyCost: 0

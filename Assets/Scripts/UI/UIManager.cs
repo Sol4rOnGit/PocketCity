@@ -1,9 +1,9 @@
 using System;
 using System.Collections;
-using System.Threading;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.UI;
+using UnityEngine.UIElements;
 
 public class UIManager : MonoBehaviour
 {
@@ -15,7 +15,7 @@ public class UIManager : MonoBehaviour
     [SerializeField] private TMPro.TextMeshProUGUI currentMoneyUIText;
     [SerializeField] private TMPro.TextMeshProUGUI addedMoneyUIText;
 
-    [SerializeField] private Slider dayProgressBar;
+    [SerializeField] private UnityEngine.UI.Slider dayProgressBar;
     [SerializeField] private TMPro.TextMeshProUGUI daysPassedUIText;
 
     [SerializeField] private TMPro.TextMeshProUGUI userNotificationUIText;
@@ -54,6 +54,13 @@ public class UIManager : MonoBehaviour
     InputAction accept;
     InputAction deny;
 
+    [Header("SpecialFx")]
+    [SerializeField] private GameObject SpecialFxContainer;
+    [SerializeField] private TMPro.TextMeshProUGUI specialFxTitle;
+    [SerializeField] private TMPro.TextMeshProUGUI option1;
+    InputAction one;
+    private Building targetBuilding;
+
     FinanceManager financeManager;
     EventManager eventManager;
 
@@ -75,6 +82,7 @@ public class UIManager : MonoBehaviour
         toggleStatsPanelUI = UIMap.FindAction("ToggleStatsPanel");
         accept = UIMap.FindAction("Accept");
         deny = UIMap.FindAction("Deny");
+        one = UIMap.FindAction("One");
 
         statsPanelActive = CityStatsPanel.activeSelf;
 
@@ -99,11 +107,18 @@ public class UIManager : MonoBehaviour
 
         } else { Debug.LogError("No game manager!"); }
 
+        if (gridPlayerManager != null)
+        {
+            gridPlayerManager.newCursorPosition += UpdateCursorPosition;
+            gridPlayerManager.buildingSpecialFx += HandleBuildingSpecialFx;
+        }
+        else { Debug.LogError("No grid player manager!"); }
+
         if (financeManager != null) financeManager.OnMoneyChanged += updateCurrentMoneyUI; else Debug.LogError("No finance manager!");
 
         if (eventManager != null) eventManager.onQueueChanged += CheckForPendingQuestions; else Debug.LogError("No event manager!");
 
-        if (gridPlayerManager != null) gridPlayerManager.newCursorPosition += UpdateCursorPosition; else Debug.LogError("No grid player manager!");
+
     }
 
     private void OnDisable()
@@ -117,8 +132,17 @@ public class UIManager : MonoBehaviour
 
         }
         else { Debug.LogError("No game manager!"); }
+
+        if (gridPlayerManager != null)
+        {
+            gridPlayerManager.newCursorPosition -= UpdateCursorPosition;
+            gridPlayerManager.buildingSpecialFx -= HandleBuildingSpecialFx;
+        }
+        else { Debug.LogError("No grid player manager!"); }
+
         if (financeManager != null) financeManager.OnMoneyChanged -= updateCurrentMoneyUI;
-        if (gridPlayerManager != null) gridPlayerManager.newCursorPosition -= UpdateCursorPosition;
+
+        if (eventManager != null) eventManager.onQueueChanged -= CheckForPendingQuestions; else Debug.LogError("No event manager!");
     }
 
     private void HandleUserInput()
@@ -137,6 +161,14 @@ public class UIManager : MonoBehaviour
             if (deny.WasPressedThisFrame()) {
                 Debug.Log("Deny Input Pressed");
                 RespondToQuestion(false); 
+            }
+        }
+
+        if (SpecialFxContainer.activeSelf)
+        {
+            if (one.WasPressedThisFrame())
+            {
+                DoBuildingSpecialFx();
             }
         }
     }
@@ -233,7 +265,7 @@ public class UIManager : MonoBehaviour
         userNotificationUIText.enabled = true;
         userNotificationUIText.text = Text;
 
-        Color targetColor = emergency ? Color.white : Color.red;
+        Color targetColor = emergency ? Color.red : Color.white;
         targetColor.a = 1f;
 
         userNotificationUIText.color = targetColor;
@@ -289,6 +321,39 @@ public class UIManager : MonoBehaviour
         CheckForPendingQuestions();
     }
 
+    //Special fx
+
+    private void HandleBuildingSpecialFx(Vector2Int gridPos)
+    {
+        var mapGrid = GridManager.instance.GetMapGrid();
+
+        if (mapGrid.TryGetValue(gridPos, out var tile) && tile.buildingScript != null)
+        {
+            SpecialFxContainer.SetActive(true);
+            targetBuilding = tile.buildingScript;
+
+            //Labelling
+            if (tile.buildingScript is Service serviceScript) { specialFxTitle.text = $"{targetBuilding.buildingName} functions"; }
+            else { specialFxTitle.text = $"{targetBuilding.type} functions"; }
+              
+            option1.text = $"[1] Earthquake Retrofit : £{targetBuilding.RetroFitCost}";
+        }
+    }
+
+    private void DoBuildingSpecialFx()
+    {
+        if (targetBuilding == null) return;
+
+        targetBuilding.RetroFit();
+        SpecialFxContainer.SetActive(false);
+    }
+
+    private void CloseSpecialFx()
+    {
+        SpecialFxContainer.SetActive(false);
+        targetBuilding = null;
+    }
+
     //Helper functions
     private string ReturnTextFromMoney(long amount)
     {
@@ -334,7 +399,6 @@ public class UIManager : MonoBehaviour
 
         userNotificationUIText.enabled = false;
     }
-
     private IEnumerator HideQuestionAfterSeconds(int seconds = 3)
     {
         yield return new WaitForSeconds(seconds);

@@ -17,8 +17,6 @@ public class Service : Building
 
     public void OnEnable()
     {
-
-
         if (GameManager.instance != null)
         {
             GameManager.instance.OnDayEnd += TryToHire;
