@@ -3,19 +3,23 @@ using System.Collections;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.UI;
-using UnityEngine.UIElements;
 
 public class UIManager : MonoBehaviour
 {
-    [Header("Dependencies")]
-    [SerializeField] private GridPlayerManager gridPlayerManager;
+    [Header("Hotbar & Mode UI")]
+    [SerializeField] private TMPro.TextMeshProUGUI playerModeShowText;
+    [SerializeField] private Image roadImg;
+    [SerializeField] private Image zoningImg;
+    [SerializeField] private Image buildingImg;
+    [SerializeField] private Color activeColour = Color.white;
+    [SerializeField] private Color inactiveColour = new Color(0.5f, 0.5f, 0.5f, 0.5f);
 
     [Header("Basic UI")]
     //public Boolean Enabled = true;
     [SerializeField] private TMPro.TextMeshProUGUI currentMoneyUIText;
     [SerializeField] private TMPro.TextMeshProUGUI addedMoneyUIText;
 
-    [SerializeField] private UnityEngine.UI.Slider dayProgressBar;
+    [SerializeField] private Slider dayProgressBar;
     [SerializeField] private TMPro.TextMeshProUGUI daysPassedUIText;
 
     [SerializeField] private TMPro.TextMeshProUGUI userNotificationUIText;
@@ -58,9 +62,14 @@ public class UIManager : MonoBehaviour
     [SerializeField] private GameObject SpecialFxContainer;
     [SerializeField] private TMPro.TextMeshProUGUI specialFxTitle;
     [SerializeField] private TMPro.TextMeshProUGUI option1;
-    InputAction one;
+    InputAction optionOneKey;
     private Building targetBuilding;
 
+    [Header("Experience")]
+    [SerializeField] private Slider experienceSlider;
+    [SerializeField] private TMPro.TextMeshProUGUI experienceLevelDisplay;
+
+    GridPlayerManager gridPlayerManager;
     FinanceManager financeManager;
     EventManager eventManager;
 
@@ -68,6 +77,7 @@ public class UIManager : MonoBehaviour
     {
         financeManager = FinanceManager.instance;
         eventManager = EventManager.instance;
+        gridPlayerManager = GridPlayerManager.instance;
 
         if (financeManager == null) { Debug.LogError("Finance Manager not found!"); }
         if (eventManager == null) { Debug.LogError("Event Manager not found!"); }
@@ -82,7 +92,9 @@ public class UIManager : MonoBehaviour
         toggleStatsPanelUI = UIMap.FindAction("ToggleStatsPanel");
         accept = UIMap.FindAction("Accept");
         deny = UIMap.FindAction("Deny");
-        one = UIMap.FindAction("One");
+        optionOneKey = UIMap.FindAction("OptionOneKey");
+
+        accept.Enable(); deny.Enable(); optionOneKey.Enable();
 
         statsPanelActive = CityStatsPanel.activeSelf;
 
@@ -104,6 +116,8 @@ public class UIManager : MonoBehaviour
             GameManager.instance.OnDayEnd += UpdateDaysPassed;
             GameManager.instance.UserNotification += NotifyUser;
             GameManager.instance.OnDayProgress += UpdateDayProgressBar;
+            GameManager.instance.OnXPChanged += UpdateXP;
+            GameManager.instance.OnNewXPLevel += UpdateXPLevel;
 
         } else { Debug.LogError("No game manager!"); }
 
@@ -111,6 +125,7 @@ public class UIManager : MonoBehaviour
         {
             gridPlayerManager.newCursorPosition += UpdateCursorPosition;
             gridPlayerManager.buildingSpecialFx += HandleBuildingSpecialFx;
+            gridPlayerManager.OnToolChanged += HandleToolChanged;
         }
         else { Debug.LogError("No grid player manager!"); }
 
@@ -126,9 +141,11 @@ public class UIManager : MonoBehaviour
         //Unsub
         if (GameManager.instance != null)
         {
-            GameManager.instance.OnDayEnd += UpdateDaysPassed;
+            GameManager.instance.OnDayEnd -= UpdateDaysPassed;
             GameManager.instance.UserNotification -= NotifyUser;
             GameManager.instance.OnDayProgress -= UpdateDayProgressBar;
+            GameManager.instance.OnXPChanged -= UpdateXP;
+            GameManager.instance.OnNewXPLevel -= UpdateXPLevel;
 
         }
         else { Debug.LogError("No game manager!"); }
@@ -137,12 +154,16 @@ public class UIManager : MonoBehaviour
         {
             gridPlayerManager.newCursorPosition -= UpdateCursorPosition;
             gridPlayerManager.buildingSpecialFx -= HandleBuildingSpecialFx;
+            gridPlayerManager.OnToolChanged -= HandleToolChanged;
         }
         else { Debug.LogError("No grid player manager!"); }
 
         if (financeManager != null) financeManager.OnMoneyChanged -= updateCurrentMoneyUI;
 
         if (eventManager != null) eventManager.onQueueChanged -= CheckForPendingQuestions; else Debug.LogError("No event manager!");
+
+        //UI
+        accept.Enable(); deny.Enable(); optionOneKey.Enable();
     }
 
     private void HandleUserInput()
@@ -166,11 +187,32 @@ public class UIManager : MonoBehaviour
 
         if (SpecialFxContainer.activeSelf)
         {
-            if (one.WasPressedThisFrame())
+            if (optionOneKey.WasPressedThisFrame())
             {
                 DoBuildingSpecialFx();
             }
         }
+    }
+
+    //Toolbar
+    private void HandleToolChanged(IBuildTool activeTool)
+    {
+        if (activeTool == null) return;
+
+        string mainCat = activeTool.GetMainCategoryName();
+        string subType = activeTool.GetSubTypeName();
+
+        if (string.IsNullOrEmpty(subType))
+        {
+            playerModeShowText.text = mainCat;
+        } else
+        {
+            playerModeShowText.text = $"{mainCat} : {subType}";
+        }
+
+        roadImg.color = (activeTool is RoadTool) ? activeColour : inactiveColour;
+        zoningImg.color = (activeTool is ZoningTool) ? activeColour : inactiveColour;
+        buildingImg.color = (activeTool is BuildingTool) ? activeColour : inactiveColour;
     }
 
     //Stats
@@ -336,7 +378,7 @@ public class UIManager : MonoBehaviour
             if (tile.buildingScript is Service serviceScript) { specialFxTitle.text = $"{targetBuilding.buildingName} functions"; }
             else { specialFxTitle.text = $"{targetBuilding.type} functions"; }
               
-            option1.text = $"[1] Earthquake Retrofit : £{targetBuilding.RetroFitCost}";
+            option1.text = $"[F1] Earthquake Retrofit : £{targetBuilding.RetroFitCost}"; //[OptionOneKey] !!!! Update here if ever changed
         }
     }
 
@@ -352,6 +394,24 @@ public class UIManager : MonoBehaviour
     {
         SpecialFxContainer.SetActive(false);
         targetBuilding = null;
+    }
+
+    //XP
+
+    private void UpdateXP(int experiencePoints, int experiencePointsLimit)
+    {
+        if (experiencePointsLimit > 0)
+        {
+            experienceSlider.value = (float)experiencePoints / experiencePointsLimit;
+        } else
+        {
+            experienceSlider.value = 0;
+        }
+    }
+
+    private void UpdateXPLevel(int experienceLevel)
+    {
+        experienceLevelDisplay.text = $"{experienceLevel}";
     }
 
     //Helper functions

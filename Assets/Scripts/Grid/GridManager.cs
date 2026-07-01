@@ -4,7 +4,7 @@ using UnityEngine;
 
 public enum ZoneType
 {
-    None,
+    None = 0,
     NoBuild,
     Residential,
     Commercial,
@@ -276,6 +276,8 @@ public class GridManager : MonoBehaviour
 
         success = financeManager.Purchase(financeManager.costZoning);
         if (!success) return;
+
+        GameManager.instance.GainExperience(1);
 
         GameObject currentInstance = InstantiateZonePrefab(pos, zoneType);
 

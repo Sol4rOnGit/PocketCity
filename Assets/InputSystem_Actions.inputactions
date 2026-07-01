@@ -70,27 +70,45 @@
                     "initialStateCheck": false
                 },
                 {
-                    "name": "ChangePlayerMode",
+                    "name": "Btn1",
                     "type": "Button",
-                    "id": "77fa78a0-0509-4fdf-bdbf-6075369a5ac7",
+                    "id": "93ec3849-ae5a-4a5e-a394-4ec5030ebb0a",
                     "expectedControlType": "",
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": false
                 },
                 {
-                    "name": "ChangeSpecialBuilding",
+                    "name": "Btn2",
                     "type": "Button",
-                    "id": "698a5542-d964-4f09-89aa-c282029fd79c",
+                    "id": "18a226bc-fd85-4d3f-9c1c-e0f733fec472",
                     "expectedControlType": "",
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": false
                 },
                 {
-                    "name": "One",
+                    "name": "Btn3",
                     "type": "Button",
-                    "id": "2b13dc0c-b514-4dbe-b0a7-8a6f3ecffd12",
+                    "id": "48ca5691-ba58-42fd-a3f8-2e83fe58efe6",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "CycleToolCategory",
+                    "type": "Button",
+                    "id": "863bb58c-bd83-435e-a37d-6042189fd296",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "CycleToolType",
+                    "type": "Button",
+                    "id": "963b35d1-8466-4338-a60e-62714d04e2f1",
                     "expectedControlType": "",
                     "processors": "",
                     "interactions": "",
@@ -364,34 +382,56 @@
                 },
                 {
                     "name": "",
-                    "id": "6b7b31b3-f98f-44b0-a7cf-c8ddab0f79f4",
-                    "path": "<Keyboard>/r",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "ChangePlayerMode",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
-                    "id": "ba387d4c-9c40-4b28-a01f-d95dfef66b27",
-                    "path": "<Keyboard>/b",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "ChangeSpecialBuilding",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
-                    "id": "192a6e60-c4e7-47d8-9945-96ebfea25175",
+                    "id": "a3426253-221d-4e31-bb84-9b0e29236fdc",
                     "path": "<Keyboard>/1",
                     "interactions": "",
                     "processors": "",
                     "groups": "",
-                    "action": "One",
+                    "action": "Btn1",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "e144cfab-c30d-4946-9fd1-a020ba0aaa34",
+                    "path": "<Keyboard>/2",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Btn2",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "681a2810-d28c-4fe6-9483-1d1ab83064ec",
+                    "path": "<Keyboard>/3",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Btn3",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "58a0e0e8-13c0-42c2-b011-9890848f3070",
+                    "path": "<Keyboard>/r",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "CycleToolCategory",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "acbb3420-2d73-4fe6-b036-f8a50a307e08",
+                    "path": "<Keyboard>/b",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "CycleToolType",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }
@@ -510,9 +550,9 @@
                     "initialStateCheck": false
                 },
                 {
-                    "name": "One",
+                    "name": "OptionOneKey",
                     "type": "Button",
-                    "id": "c4e3adc2-bb88-4464-8611-4c4cbd24e2c4",
+                    "id": "1590f8de-4023-48c4-91bf-b974ab84d8a1",
                     "expectedControlType": "",
                     "processors": "",
                     "interactions": "",
@@ -786,6 +826,17 @@
                 },
                 {
                     "name": "",
+                    "id": "eef7540a-5baa-4ee2-a871-697d3d463800",
+                    "path": "<Keyboard>/f1",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "OptionOneKey",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
                     "id": "da1bbebb-1c2a-47bb-b98a-1c6310af4bb7",
                     "path": "<Keyboard>/n",
                     "interactions": "",
@@ -1001,17 +1052,6 @@
                     "processors": "",
                     "groups": "",
                     "action": "ToggleStatsPanel",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
-                    "id": "4ef7eed5-70fc-42cf-9053-76cd7cf185fe",
-                    "path": "<Keyboard>/1",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "One",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }
