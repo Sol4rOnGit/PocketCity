@@ -10,6 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2885612863356533495}
   - component: {fileID: 8635997100623039222}
+  - component: {fileID: 415662034726501355}
   m_Layer: 0
   m_Name: Shop1
   m_TagString: Untagged
@@ -55,15 +56,40 @@ MonoBehaviour:
   waterGenerated: 0
   waterConsumed: 2
   isOnFire: 0
+  isSpreadingFire: 0
   fireParticles: {fileID: 2938381441238916310, guid: 3081ae8bd68b5ff4fbfb4e5fd2842a42, type: 3}
-  isInfected: 0
-  isAmbulanceOnRoute: 0
-  infectionParticles: {fileID: 8365328619083316851, guid: c717996e406e0b64f9a8fdc8a99b3b16, type: 3}
   isDestroying: 0
+  RetroFitCost: 15000
+  isRetrofitted: 0
   maxEmployees: 5
-  taxRevenue: 100
   employees: 0
-  energySupplyHealthiness: 1
+  taxRevenue: 100
+--- !u!205 &415662034726501355
+LODGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4495368410415221046}
+  serializedVersion: 2
+  m_LocalReferencePoint: {x: 0, y: 0.4465, z: 0}
+  m_Size: 2
+  m_FadeMode: 0
+  m_AnimateCrossFading: 0
+  m_LastLODIsBillboard: 0
+  m_LODs:
+  - screenRelativeHeight: 0.034792554
+    fadeTransitionWidth: 0
+    renderers:
+    - renderer: {fileID: 7541391107250184098}
+    - renderer: {fileID: 915314773193526193}
+    - renderer: {fileID: 2990427883724852755}
+  - screenRelativeHeight: 0.008820632
+    fadeTransitionWidth: 0
+    renderers:
+    - renderer: {fileID: 7541391107250184098}
+    - renderer: {fileID: 915314773193526193}
+  m_Enabled: 1
 --- !u!1 &7452716329311681953
 GameObject:
   m_ObjectHideFlags: 0
@@ -233,6 +259,11 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 0f2847d65bc0fd64db383e2666a948f4, type: 3}
+--- !u!23 &915314773193526193 stripped
+MeshRenderer:
+  m_CorrespondingSourceObject: {fileID: -7511558181221131132, guid: 0f2847d65bc0fd64db383e2666a948f4, type: 3}
+  m_PrefabInstance: {fileID: 1977727084721379125}
+  m_PrefabAsset: {fileID: 0}
 --- !u!4 &2087688028385571038 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 0f2847d65bc0fd64db383e2666a948f4, type: 3}
@@ -295,6 +326,11 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 07c601b0a2f65214dbaffa7e9e635bb0, type: 3}
+--- !u!23 &2990427883724852755 stripped
+MeshRenderer:
+  m_CorrespondingSourceObject: {fileID: -7511558181221131132, guid: 07c601b0a2f65214dbaffa7e9e635bb0, type: 3}
+  m_PrefabInstance: {fileID: 4486068950181171863}
+  m_PrefabAsset: {fileID: 0}
 --- !u!4 &4164438276432213372 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 07c601b0a2f65214dbaffa7e9e635bb0, type: 3}
