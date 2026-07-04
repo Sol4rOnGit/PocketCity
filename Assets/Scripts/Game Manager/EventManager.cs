@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using UnityEngine;
+using UnityEngine.Tilemaps;
 using static UnityEngine.EventSystems.EventTrigger;
 
 public class EventManager : MonoBehaviour
@@ -26,6 +27,9 @@ public class EventManager : MonoBehaviour
     [SerializeField] private int maxIntervalDays = 6; 
     private int daysLeft;
     private float chanceForDoubleEvent = 0.75f;
+
+    private float rareEventMultiplier = 1f;
+    private int crimeWeightingIncrease = 0;
 
     private float secondsToBurnBuilding = 10f;
 
@@ -144,7 +148,7 @@ public class EventManager : MonoBehaviour
 
     private IEnumerator rollEvents()
     {
-        float lerp = Mathf.Lerp(0f, 1f, gameManager.daysPassed / 200f);
+        float lerp = Mathf.Lerp(0f, 1f, Mathf.Clamp01(gameManager.daysPassed / 200f));
         float chanceOfDouble = chanceForDoubleEvent * lerp;
 
         string currentEventType = playRandomEvent();
@@ -193,7 +197,7 @@ public class EventManager : MonoBehaviour
     //Natural disasters
 
     private float minRatio = 0.01f; //1%
-    private float maxRatio = 0.1f; //max 10%
+    private float maxRatio = 0.05f; //max 5%
 
     private void Earthquake()
     {
@@ -208,7 +212,8 @@ public class EventManager : MonoBehaviour
         gameManager.UserNotification?.Invoke("Earthquake!", true);
 
         //Update ratios
-        float ratio = Mathf.Lerp(minRatio, maxRatio, gameManager.daysPassed / gameManager.daysUntilFinal);
+        maxRatio = Mathf.Lerp(minRatio, maxRatio, gameManager.daysPassed / 300f);
+        float ratio = UnityEngine.Random.Range(0f, maxRatio);
 
         int numBuildingsToDestroy = (int)(ratio * gridManager.BuildingPositions.Count);
 
@@ -252,7 +257,9 @@ public class EventManager : MonoBehaviour
                 StartCoroutine(BurnBuilding(randomPos, tile.buildingScript));
 
                 //Call fire services
-                if (ServiceManager.instance != null) ServiceManager.instance.DispatchFiretruck(tile.buildingScript);
+                if (ServiceManager.instance != null) { 
+                    ServiceManager.instance.DispatchFiretruck(tile.buildingScript); 
+                }
                 else { Debug.LogError("Service Manager not found!"); }
             }
         }
@@ -400,13 +407,95 @@ public class EventManager : MonoBehaviour
                 if (!houseScript.isInfected) continue;
 
                 if (houseScript.isAmbulanceOnRoute) continue;
-                houseScript.isAmbulanceOnRoute = true;
 
-                serviceManager.DispatchAmbulance(houseScript);
+                bool served = serviceManager.DispatchAmbulance(houseScript);
+                if (served) houseScript.isAmbulanceOnRoute = true;
             }
         }
 
         return;
+    }
+
+    //CRIME
+
+    //ARSON
+
+    private void TriggerArson()
+    {
+        if (gridManager.BuildingPositions.Count == 0) { return; }
+
+        Vector2Int randomPos = gridManager.BuildingPositions[UnityEngine.Random.Range(0, gridManager.BuildingPositions.Count)];
+        var mapGrid = gridManager.GetMapGrid();
+
+        if (mapGrid.TryGetValue(randomPos, out GridManager.GridTile gridTile))
+        {
+            if (!gridTile.buildingScript.isOnFire)
+            {
+                gameManager.UserNotification?.Invoke($"Arson Threat Declared at {randomPos.x}, {randomPos.y}", true);
+
+                StartCoroutine(ArsonTimer(randomPos, gridTile.buildingScript));
+
+                if (ServiceManager.instance == null) { return; }
+                ServiceManager.instance.DispatchPolice(gridTile.buildingScript);
+            }
+        }
+    }
+
+    private IEnumerator ArsonTimer(Vector2Int gridPos, Building buildingScript)
+    {
+        buildingScript.isCrimeScene = true;
+        GameObject timerCube = CreateTimerCube(gridPos);
+
+        float totalTime = 25f;
+        float timeRemaining = totalTime;
+
+        while (timeRemaining > 0)
+        {
+            if (buildingScript == null || !buildingScript.isCrimeScene)
+            {
+                Destroy(timerCube);
+                yield break;
+            }
+
+            float currentSize = timeRemaining / totalTime;
+            timerCube.transform.localScale = new Vector3(currentSize, currentSize, currentSize);
+
+            timeRemaining -= Time.deltaTime;
+            yield return null;
+        }
+
+        Destroy(timerCube);
+
+        if(buildingScript != null && buildingScript.isCrimeScene)
+        {
+            buildingScript.isCrimeScene = false;
+            gameManager.UserNotification?.Invoke($"Arsonist set fire to building at {gridPos.x} {gridPos.y}", true);
+
+            buildingScript.IgniteFire();
+            StartCoroutine(BurnBuilding(gridPos, buildingScript));
+
+            if (ServiceManager.instance != null) { ServiceManager.instance.DispatchFiretruck(buildingScript); }
+        }
+
+    }
+    
+    private GameObject CreateTimerCube(Vector2Int gridPos)
+    {
+        float scale = gridManager.getGridScale();
+
+        Vector3 spawnPos = new Vector3(gridPos.x * scale, 6f, gridPos.y * scale);
+        GameObject timerCube = GameObject.CreatePrimitive(PrimitiveType.Cube);
+        timerCube.transform.position = spawnPos;
+
+        Destroy(timerCube.GetComponent<BoxCollider>());
+
+        //Making the cube texture
+        Renderer cubeRenderer = timerCube.GetComponent<Renderer>();
+
+        cubeRenderer.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
+        cubeRenderer.material.color = new Color(0.01f, 4f, 4f, 0.67f);
+
+        return timerCube;
     }
 
     //"POLITICAL" QUESTIONS
@@ -415,16 +504,20 @@ public class EventManager : MonoBehaviour
     {
         goodFeatures = new PoliticalScenario[]
 {
-            new PoliticalScenario("Tax revenue increases", () => { gameEffects.IncreaseTaxes(); }),
+            new PoliticalScenario("Tax revenue increases by 5%", () => { gameEffects.IncreaseTaxes(); }),
             new PoliticalScenario("Public happiness improves", () => { gameEffects.IncreaseHappiness(); }),
-            new PoliticalScenario("City grows faster", () => { gameEffects.IncreaseCityGrowthSpeed(); }),
+            new PoliticalScenario("City grows faster", () => { gameEffects.IncreaseCityGrowthSpeed(2); }),
+            new PoliticalScenario("City grows a lot faster", () => { gameEffects.IncreaseCityGrowthSpeed(3); }),
+            new PoliticalScenario("City grows MUCH faster", () => { gameEffects.IncreaseCityGrowthSpeed(4); }),
 };
 
         badFeatures = new PoliticalScenario[]
         {
             new PoliticalScenario("corruption steals 20% of your net worth", () => { gameEffects.Take20PercentNetWorth(); }),
             new PoliticalScenario("sudden power surge", () => { gameEffects.SuddenPowerSurge(); }),
-            new PoliticalScenario("increase in crime (currently does nothing)", () => { TemporaryFx(); }),
+            new PoliticalScenario("increase in crime", () => { crimeWeightingIncrease += 3; }),
+            new PoliticalScenario("50% increase in rare events", () => { rareEventMultiplier += 0.5f; }),
+            new PoliticalScenario("get an asteroid bombing", () => { gameEffects.AsteroidBombing(); })
         };
     }
 
@@ -468,6 +561,7 @@ public class EventManager : MonoBehaviour
         weightedEvents.Add(new WeightedEvent("Earthquake", 5, Earthquake));
         weightedEvents.Add(new WeightedEvent("Fire", 40, SetBuildingOnFire));
         weightedEvents.Add(new WeightedEvent("Virus", 20, () => { TriggerVirusOutbreak(); }));
+        weightedEvents.Add(new WeightedEvent("Arson", 15, TriggerArson));
         weightedEvents.Add(new WeightedEvent("PoliticalQuestion", 30, () => { _ = TriggerUserPoliticalEvent(); }));
         weightedEvents.Add(new WeightedEvent("AsteroidStrike", 0, AsteroidStrike));
 
@@ -478,24 +572,33 @@ public class EventManager : MonoBehaviour
     {
         int daysPassed = gameManager.daysPassed;
 
-        //SetWeights(nothing, earthquake, fire, virus, polquest, asteroidStrike);
+        //SetWeights(nothing, earthquake, fire, virus, arson, polquest, asteroidStrike, arson);
 
-        if (daysPassed >= 300) { SetWeights(0, 10, 20, 40, 20, 5); return; }
-        if (daysPassed >= 200) { SetWeights(5, 9, 10, 30, 15, 5); return; }
-        if (daysPassed >= 100) { SetWeights(10, 7, 10, 20, 25, 1); return; }
-        SetWeights(20, 5, 40, 20, 30, 0); //TESTING!!
+        if (daysPassed >= 300) { SetWeights(0, 10, 20, 40, 15, 20, 1); return; }
+        if (daysPassed >= 200) { SetWeights(5, 9, 10, 30, 20, 15, 1); return; }
+        if (daysPassed >= 100) { SetWeights(10, 7, 10, 20, 40, 25, 1); return; }
+        SetWeights(20, 5, 40, 20, 20, 30, 0);
 
         UpdateTotalWeight();
     }
 
-    private void SetWeights(int nothing, int earthquake, int fire, int virus, int polquest, int asteroidStrike)
+    private void SetWeights(int nothing, int earthquake, int fire, int virus, int arson, int polquest, int asteroidStrike)
     {
         UpdateWeight("Nothing", nothing);
+
+        //"Natural" disasters
         UpdateWeight("Earthquake", earthquake);
         UpdateWeight("Fire", fire);
         UpdateWeight("Virus", virus);
+
+        //Crime
+        UpdateWeight("Arson", arson + crimeWeightingIncrease);
+
+        //Other
         UpdateWeight("PoliticalQuestion", polquest);
-        UpdateWeight("AsteroidStrike", asteroidStrike);
+
+        //Rare events
+        UpdateWeight("AsteroidStrike", (int)(asteroidStrike * rareEventMultiplier));
     }
 
     private void UpdateWeight(string name, int newWeight)
@@ -519,7 +622,7 @@ public class EventManager : MonoBehaviour
 
     //Asteroid Strike
 
-    private void AsteroidStrike()
+    public void AsteroidStrike()
     {
         if (gridManager.BuildingPositions.Count == 0) { return; }
 
@@ -532,7 +635,7 @@ public class EventManager : MonoBehaviour
     {
         float scale = gridManager.getGridScale();
         Vector3 startPos = new Vector3(0, 100, 0);
-        Vector3 endPos = new Vector3(centre.x * scale, 0f, centre.y);
+        Vector3 endPos = new Vector3(centre.x * scale, 0f, centre.y * scale);
 
         GameObject asteroid = Instantiate(asteroidPrefab, startPos, Quaternion.identity);
 
@@ -622,14 +725,6 @@ public class EventManager : MonoBehaviour
 
     //Gang wars
 
-    //Police
-
-
-    //POLITICS
-
-    //Blackout ???
-
-    //Video game choices issues -> e.g. raise taxes but you nuke half the city
 
     //Political unrest -> people start rioting (become unemployed, set stuff on fire)
 

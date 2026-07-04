@@ -1,0 +1,177 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &221019354706932507
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1741478006195949918}
+  - component: {fileID: 2149336436079034515}
+  m_Layer: 0
+  m_Name: PoliceStation
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1741478006195949918
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 221019354706932507}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 5341314206682358350}
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &2149336436079034515
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 221019354706932507}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0cbff4734caa53e46aa397878a06fe3c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PoliceStation
+  buildingName: Police Station
+  type: 3
+  gridPos: {x: 0, y: 0}
+  powerGenerated: 0
+  powerConsumed: 0
+  waterGenerated: 0
+  waterConsumed: 0
+  isCrimeScene: 0
+  isOnFire: 0
+  isSpreadingFire: 0
+  fireParticles: {fileID: 2938381441238916310, guid: 3081ae8bd68b5ff4fbfb4e5fd2842a42, type: 3}
+  isDestroying: 0
+  RetroFitCost: 35000
+  isRetrofitted: 0
+  _maxEmployees: 3
+  employees: 0
+  dailyCost: 0
+  maxPolice: 10
+--- !u!1001 &5596445490828920229
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 1741478006195949918}
+    m_Modifications:
+    - target: {fileID: -8679921383154817045, guid: 59b0d164230033b44a079b94908bdcb6, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 59b0d164230033b44a079b94908bdcb6, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 59b0d164230033b44a079b94908bdcb6, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 59b0d164230033b44a079b94908bdcb6, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 59b0d164230033b44a079b94908bdcb6, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 59b0d164230033b44a079b94908bdcb6, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 59b0d164230033b44a079b94908bdcb6, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 59b0d164230033b44a079b94908bdcb6, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 59b0d164230033b44a079b94908bdcb6, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 59b0d164230033b44a079b94908bdcb6, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 59b0d164230033b44a079b94908bdcb6, type: 3}
+      propertyPath: m_Name
+      value: policestation 1
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 59b0d164230033b44a079b94908bdcb6, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 5428328873319060728}
+  m_SourcePrefab: {fileID: 100100000, guid: 59b0d164230033b44a079b94908bdcb6, type: 3}
+--- !u!23 &3379173466259141879 stripped
+MeshRenderer:
+  m_CorrespondingSourceObject: {fileID: 7156129480023273810, guid: 59b0d164230033b44a079b94908bdcb6, type: 3}
+  m_PrefabInstance: {fileID: 5596445490828920229}
+  m_PrefabAsset: {fileID: 0}
+--- !u!23 &3864181260698798582 stripped
+MeshRenderer:
+  m_CorrespondingSourceObject: {fileID: 8649943633771727955, guid: 59b0d164230033b44a079b94908bdcb6, type: 3}
+  m_PrefabInstance: {fileID: 5596445490828920229}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1 &4714134475334547700 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: 59b0d164230033b44a079b94908bdcb6, type: 3}
+  m_PrefabInstance: {fileID: 5596445490828920229}
+  m_PrefabAsset: {fileID: 0}
+--- !u!205 &5428328873319060728
+LODGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4714134475334547700}
+  serializedVersion: 2
+  m_LocalReferencePoint: {x: 0, y: 0.6880512, z: 0}
+  m_Size: 2.000001
+  m_FadeMode: 0
+  m_AnimateCrossFading: 0
+  m_LastLODIsBillboard: 0
+  m_LODs:
+  - screenRelativeHeight: 0.6
+    fadeTransitionWidth: 0
+    renderers:
+    - renderer: {fileID: 6386262585286935833}
+  - screenRelativeHeight: 0.3
+    fadeTransitionWidth: 0
+    renderers:
+    - renderer: {fileID: 3864181260698798582}
+  - screenRelativeHeight: 0.013674934
+    fadeTransitionWidth: 0
+    renderers:
+    - renderer: {fileID: 3379173466259141879}
+  m_Enabled: 1
+--- !u!4 &5341314206682358350 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 59b0d164230033b44a079b94908bdcb6, type: 3}
+  m_PrefabInstance: {fileID: 5596445490828920229}
+  m_PrefabAsset: {fileID: 0}
+--- !u!23 &6386262585286935833 stripped
+MeshRenderer:
+  m_CorrespondingSourceObject: {fileID: 1516057731949428924, guid: 59b0d164230033b44a079b94908bdcb6, type: 3}
+  m_PrefabInstance: {fileID: 5596445490828920229}
+  m_PrefabAsset: {fileID: 0}

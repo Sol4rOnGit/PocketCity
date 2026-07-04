@@ -100,6 +100,7 @@ public class GridPathfinder
         return null;
     }
 
+    //Helper functions
     private List<Vector2Int> FindAdjacentRoad(Vector2Int building, GridManager gridManager)
     {
         List<Vector2Int> roads = new List<Vector2Int>();

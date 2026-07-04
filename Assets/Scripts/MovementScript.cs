@@ -1,5 +1,3 @@
-using System;
-using Unity.Mathematics.Geometry;
 using UnityEngine;
 using UnityEngine.InputSystem;
 

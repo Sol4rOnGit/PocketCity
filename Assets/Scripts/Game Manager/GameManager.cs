@@ -179,17 +179,14 @@ public class GameManager : MonoBehaviour
         if (positions.Count == 0) return amount;
 
         Dictionary<Vector2Int, GridManager.GridTile> mapGrid = gridManager.GetMapGrid();
-        List<Building> employers = new List<Building>();
+        List<Employer> employers = new List<Employer>();
 
         //Add buildings to the list
         foreach (Vector2Int position in positions)
         {
-            if (mapGrid.TryGetValue(position, out var tile) && tile.buildingScript != null)
+            if (mapGrid.TryGetValue(position, out var tile) && tile.buildingScript is Employer employer)
             {
-                if (tile.buildingScript is Commercial || tile.buildingScript is Industrial)
-                {
-                    employers.Add(tile.buildingScript);
-                }
+                employers.Add(employer);
             }
         }
         //if no buildings, return amount
@@ -197,19 +194,11 @@ public class GameManager : MonoBehaviour
 
         for (int i = 0; i < 20 && amount > 0; i++) //20 iterations (hard-coded)
         {
-            Building randomEmployer = employers[UnityEngine.Random.Range(0, employers.Count)];
+            Employer randomEmployer = employers[UnityEngine.Random.Range(0, employers.Count)];
 
-            //Remove an employee from the buildings (if possible)
-            if (randomEmployer is Commercial commercialScript && commercialScript.employees > 0)
+            if (randomEmployer.employees > 0)
             {
-                commercialScript.employees--;
-                AdjustVacanices(1);
-                amount--;
-            }
-
-            else if (randomEmployer is Industrial industrialScript && industrialScript.employees > 0)
-            {
-                industrialScript.employees--;
+                randomEmployer.employees--;
                 AdjustVacanices(1);
                 amount--;
             }
@@ -218,28 +207,13 @@ public class GameManager : MonoBehaviour
         //Linear search if failed
         if (amount > 0)
         {
-            foreach (Building employer in employers)
+            foreach (Employer employer in employers)
             {
-                //Commercial
-                if (employer is Commercial commercialScript)
+                while (employer.employees > 0 && amount > 0)
                 {
-                    while (commercialScript.employees > 0 && amount > 0)
-                    {
-                        commercialScript.employees--;
-                        currentVacanies++;
-                        amount--;
-                    }
-                }
-
-                //Industrial
-                else if (employer is Industrial industrialScript)
-                {
-                    while (industrialScript.employees > 0 && amount > 0)
-                    {
-                        industrialScript.employees--;
-                        currentVacanies++;
-                        amount--;
-                    }
+                    employer.employees--;
+                    AdjustVacanices(1);
+                    amount--;
                 }
 
                 if (amount == 0) break; //Enough done
@@ -260,21 +234,14 @@ public class GameManager : MonoBehaviour
             currentPopulation += house.residents;
             currentUnemployed += house.residents;
         }
-        else if (buildingScript is Commercial commercial)
-        {
-            int maxJobs = commercial.GetMaxEmployees();
-            commercial.employees = Mathf.Min(maxJobs, currentUnemployed);
-            currentUnemployed -= commercial.employees;
 
-            currentVacanies += (maxJobs - commercial.employees);
-        }
-        else if (buildingScript is Industrial industrial)
+        else if (buildingScript is Employer employer)
         {
-            int maxJobs = industrial.GetMaxEmployees();
-            industrial.employees = Mathf.Min(maxJobs, currentUnemployed);
-            currentUnemployed -= industrial.employees;
+            int maxJobs = employer.GetMaxEmployees();
+            employer.employees = Mathf.Min(maxJobs, currentUnemployed);
 
-            currentVacanies += (maxJobs - industrial.employees);
+            AdjustUnemployed(-employer.employees);
+            AdjustVacanices(maxJobs - employer.employees);
         }
     }
 

@@ -27,10 +27,10 @@ public class CityGenerator : MonoBehaviour
     [SerializeField] private float finalWaitTimeSeconds = 5.0f;
     [SerializeField] private float realTimeUntilFinalTimeSeconds = 900.0f; //15 minutes
 
-    public void IncreaseSpawningRate()
+    public void IncreaseSpawningRate(int factor)
     {
-        startWaitTimeSeconds = startWaitTimeSeconds / 2;
-        finalWaitTimeSeconds = finalWaitTimeSeconds / 2;
+        startWaitTimeSeconds = startWaitTimeSeconds / (factor / 2f);
+        finalWaitTimeSeconds = finalWaitTimeSeconds / (factor / 1.5f);
     }
 
     private float spawnTimer = 0.0f;

@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -27,13 +28,15 @@ public class ServiceManager : MonoBehaviour
     {
         gridManager = GridManager.instance;
     }
+
+    //Dispatch functions
     public void DispatchFiretruck(Building burningBuilding)
     {
         if (burningBuilding == null) return;
         if (gridPathfinder == null) { Debug.LogError("ERROR! NO GRID PATHFINDER!"); return; }
 
         List<Vector2Int> route = null;
-        Building bestStation = FindClosestReachableFireStation(burningBuilding.gridPos, out route);
+        Building bestStation = FindClosestReachableService<FireStation>(burningBuilding.gridPos, fs => fs.HasTrucks(), out route);
 
         if (bestStation == null)
         {
@@ -73,15 +76,13 @@ public class ServiceManager : MonoBehaviour
         firetruck.Init(route, burningBuilding, scale, bestStation.gridPos);
     }
 
-    //Ambulance
-
     public bool DispatchAmbulance(Building infectedBuilding)
     {
         if (infectedBuilding == null) return false;
         if (gridPathfinder == null) { Debug.LogError("ERROR! NO GRID PATHFINDER!"); return false; }
 
         List<Vector2Int> route = null;
-        Building bestHospital = FindClosestReachableHospital(infectedBuilding.gridPos, out route);
+        Building bestHospital = FindClosestReachableService<Hospital>(infectedBuilding.gridPos, h => h.HasAmbulances(), out route);
 
         if (bestHospital == null && route == null)
         {
@@ -100,6 +101,7 @@ public class ServiceManager : MonoBehaviour
             if (FinanceManager.instance.Purchase(FinanceManager.instance.serviceChargeHospital) == false)
             {
                 GameManager.instance.UserNotification?.Invoke("Not enough money to dispatch ambulance to infection!", true);
+                return false;
             }
 
             hospital.DispatchAmbulance();
@@ -118,95 +120,97 @@ public class ServiceManager : MonoBehaviour
         Ambulance ambulance = ambulanceObj.GetComponent<Ambulance>();
         ambulance.Init(route, infectedBuilding, scale, bestHospital.gridPos);
 
-        
+        return true;
+    }
+
+    public bool DispatchPolice(Building building)
+    {
+        if (building == null) return false;
+        if (gridPathfinder == null) { Debug.LogError("ERROR! NO GRID PATHFINDER!"); return false; }
+
+        List<Vector2Int> route = null;
+        Building bestStation = FindClosestReachableService<PoliceStation>(building.gridPos, ps => ps.HasPolice(), out route);
+
+        if (bestStation == null && route == null)
+        {
+            GameManager.instance.UserNotification?.Invoke("Crime scene but there are no way for police to access!", false);
+            return false;
+        }
+
+        if (route == null || route.Count == 0)
+        {
+            GameManager.instance.UserNotification?.Invoke("Crime scene but no path from police station!", true);
+            return false;
+        }
+
+        if (bestStation is PoliceStation policeStation)
+        {
+            if (FinanceManager.instance.Purchase(FinanceManager.instance.serviceChargePoliceTrip) == false)
+            {
+                GameManager.instance.UserNotification?.Invoke("Not enough money to dispatch police to crime scene!", true);
+                return false;
+            }
+
+            policeStation.DispatchPolice();
+        }
+        else
+        {
+            Debug.LogError("ServiceMananger: PoliceStation not a PoliceStation.");
+        }
+
+        Vector2Int spawnGridPos = route[0];
+        float scale = gridManager.getGridScale();
+        Vector3 spawnWorldPos = new Vector3(spawnGridPos.x * scale, 0f, spawnGridPos.y * scale);
+
+        GameObject policeObj = Instantiate(policecarPrefab, spawnWorldPos, Quaternion.identity);
+
+        Police police = policeObj.GetComponent<Police>();
+        police.Init(route, building, scale, bestStation.gridPos);
 
         return true;
     }
 
-    public void DispatchPolice()
+    //Generic functions
+    private T FindClosestReachableService<T>(Vector2Int targetPos, Func<T, bool> hasAvailableVehicles, out List<Vector2Int> bestRoute) where T : Building
     {
+        T closestBuilding = null;
+        bestRoute = null;
+        int shortestRouteLength = int.MaxValue;
+        bool foundBuildingOfThisType = false;
 
+        foreach (var kvp in gridManager.GetMapGrid())
+        {
+            GridManager.GridTile tile = kvp.Value;
+
+            if (tile.buildingScript != null && tile.buildingScript is T serviceBuilding)
+            {
+                foundBuildingOfThisType = true;
+
+                if (!hasAvailableVehicles(serviceBuilding)) continue;
+
+                List<Vector2Int> testRoute = CalculateRoadPath(tile.buildingScript.gridPos, targetPos);
+
+                if (testRoute == null || testRoute.Count == 0) continue;
+
+                if (testRoute.Count < shortestRouteLength)
+                {
+                    shortestRouteLength = testRoute.Count;
+                    bestRoute = testRoute;
+                    closestBuilding = serviceBuilding;
+                }
+            }
+        }
+
+        if (!foundBuildingOfThisType)
+        {
+            bestRoute = null;
+            return null;
+        }
+
+        return closestBuilding;
     }
 
     //Helper functions
-    private Building FindClosestReachableFireStation(Vector2Int targetPos, out List<Vector2Int> bestRoute)
-    {
-        Building closestStation = null;
-        bestRoute = null;
-        int shortestRouteLength = int.MaxValue;
-        bool foundAStation = false;
-
-        foreach (var kvp in gridManager.GetMapGrid())
-        {
-            GridManager.GridTile tile = kvp.Value;
-
-            if (tile.buildingScript != null && tile.buildingScript is FireStation fireStation)
-            {
-                foundAStation = true;
-
-                if (!fireStation.HasTrucks()) continue;
-
-                List<Vector2Int> testRoute = CalculateRoadPath(tile.buildingScript.gridPos, targetPos);
-
-                if (testRoute == null || testRoute.Count == 0) continue;
-
-                if (testRoute.Count < shortestRouteLength)
-                {
-                    shortestRouteLength = testRoute.Count;
-                    bestRoute = testRoute;
-                    closestStation = tile.buildingScript;
-                }
-            }
-        }
-
-        if (!foundAStation)
-        {
-            bestRoute = null;
-            return null;
-        }
-
-        return closestStation;
-    }
-
-    private Building FindClosestReachableHospital(Vector2Int targetPos, out List<Vector2Int> bestRoute)
-    {
-        Building closestStation = null;
-        bestRoute = null;
-        int shortestRouteLength = int.MaxValue;
-        bool foundAStation = false;
-
-        foreach (var kvp in gridManager.GetMapGrid())
-        {
-            GridManager.GridTile tile = kvp.Value;
-
-            if (tile.buildingScript != null && tile.buildingScript is Hospital hospital)
-            {
-                foundAStation = true;
-
-                if (!hospital.HasAmbulances()) continue;
-
-                List<Vector2Int> testRoute = CalculateRoadPath(tile.buildingScript.gridPos, targetPos);
-
-                if (testRoute == null || testRoute.Count == 0) continue;
-
-                if (testRoute.Count < shortestRouteLength)
-                {
-                    shortestRouteLength = testRoute.Count;
-                    bestRoute = testRoute;
-                    closestStation = tile.buildingScript;
-                }
-            }
-        }
-
-        if (!foundAStation)
-        {
-            bestRoute = null;
-            return null;
-        }
-
-        return closestStation;
-    }
-
     public List<Vector2Int> CalculateRoadPath(Vector2Int start, Vector2Int end)
     {
         return gridPathfinder.FindPath(gridManager, start, end);

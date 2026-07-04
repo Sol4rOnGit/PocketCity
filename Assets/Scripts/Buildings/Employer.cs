@@ -52,7 +52,7 @@ public abstract class Employer : Building
     {
         if (employees < 1) { return false; }
         employees -= 1;
-        GameManager.instance.currentVacanies += 1;
+        GameManager.instance.AdjustVacanices(1);
         return true;
     }
 

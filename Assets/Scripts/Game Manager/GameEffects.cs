@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 
 public class GameEffects : MonoBehaviour
@@ -13,6 +14,7 @@ public class GameEffects : MonoBehaviour
     [Header("Dependencies")]
     [SerializeField] private FinanceManager financeManager;
     [SerializeField] private ChunkManager chunkManager;
+    private EventManager eventManager;
     private CityGenerator cityGenerator;
 
     void Start()
@@ -20,25 +22,23 @@ public class GameEffects : MonoBehaviour
         financeManager = FinanceManager.instance;
         chunkManager = ChunkManager.instance;
         cityGenerator = CityGenerator.instance;
+        eventManager = EventManager.instance;
     }
 
     //Positive effects
     public void IncreaseTaxes()
     {
-        Debug.Log("Increase tax");
-        financeManager.taxMultiplier += 0.01f;
+        financeManager.taxMultiplier += 0.05f;
     }
 
     public void IncreaseHappiness()
     {
-        Debug.Log("Increase Happiness");
         chunkManager.IncreaseBaselineHappiness(10f);
     }
 
-    public void IncreaseCityGrowthSpeed()
+    public void IncreaseCityGrowthSpeed(int factor)
     {
-        Debug.Log("Increase City Growth Speed");
-        cityGenerator.IncreaseSpawningRate();
+        cityGenerator.IncreaseSpawningRate(factor);
     }
 
     //Negative effects
@@ -63,6 +63,20 @@ public class GameEffects : MonoBehaviour
         float seconds = UnityEngine.Random.Range(3f, 30f);
 
         chunkManager.StartCoroutine(chunkManager.IncreasePowerDemandTemporarily(power, seconds));
+    }
+
+    public void AsteroidBombing() => StartCoroutine(AsteroidBombingRoutine());
+
+    private IEnumerator AsteroidBombingRoutine()
+    {
+        int numberOfStrikes = 3;
+
+        for (int i = numberOfStrikes; i > 0; i--)
+        {
+            yield return new WaitForSeconds(1.5f);
+
+            eventManager.AsteroidStrike();
+        }
     }
 
 }

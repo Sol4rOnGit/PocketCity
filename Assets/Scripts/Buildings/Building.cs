@@ -15,6 +15,9 @@ public class Building : MonoBehaviour
     public int waterGenerated = 0;
     public int waterConsumed = 0;
 
+    [Header("Crime")]
+    public bool isCrimeScene = false;
+
     [Header("Fire")]
     public bool isOnFire = false;
     public bool isSpreadingFire = false;

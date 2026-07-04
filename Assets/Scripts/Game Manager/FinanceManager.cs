@@ -45,6 +45,7 @@ public class FinanceManager : MonoBehaviour
 
     public float serviceChargeFire = 900f;
     public float serviceChargeHospital = 400f;
+    public float serviceChargePoliceTrip = 200f;
 
     [Header("Base Costs")]
     private float baseCostRoad;
@@ -55,6 +56,7 @@ public class FinanceManager : MonoBehaviour
 
     private float baseServiceChargeFire;
     private float baseServiceChargeHospital;
+    private float baseServiceChargePoliceTrip;
 
     [Header("Actions")]
     public Action<long> OnMoneyChanged;
@@ -74,11 +76,16 @@ public class FinanceManager : MonoBehaviour
 
         baseServiceChargeFire = serviceChargeFire;
         baseServiceChargeHospital = serviceChargeHospital;
+        baseServiceChargePoliceTrip = serviceChargePoliceTrip;
     }
 
     public bool Purchase(float amount)
     {
-        if (amount <= 0 || float.IsNaN(amount)) return false;
+        if (amount <= 0 || float.IsNaN(amount))
+        {
+            Debug.LogError($"Purchase rejected! Amount passed: {amount}. IsNan: {float.IsNaN(amount)}");
+            return false;
+        }
 
         long cost = (long)amount;
 
@@ -159,6 +166,7 @@ public class FinanceManager : MonoBehaviour
 
         serviceChargeFire = (baseServiceChargeFire * currentMultiplier);
         serviceChargeHospital = (baseServiceChargeHospital * currentMultiplier);
+        serviceChargePoliceTrip = (baseServiceChargePoliceTrip * currentMultiplier);
     }
 
     private float GetInflationForDaysPassed(int daysPassed)
