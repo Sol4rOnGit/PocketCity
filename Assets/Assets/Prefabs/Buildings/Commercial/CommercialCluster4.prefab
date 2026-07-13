@@ -56,6 +56,7 @@ MonoBehaviour:
   powerConsumed: 3
   waterGenerated: 0
   waterConsumed: 2
+  isCrimeScene: 0
   isOnFire: 0
   isSpreadingFire: 0
   fireParticles: {fileID: 2938381441238916310, guid: 3081ae8bd68b5ff4fbfb4e5fd2842a42, type: 3}
@@ -64,7 +65,7 @@ MonoBehaviour:
   isRetrofitted: 0
   maxEmployees: 20
   employees: 0
-  taxRevenue: 2394
+  taxRevenue: 5946
 --- !u!205 &7697721639080261665
 LODGroup:
   m_ObjectHideFlags: 0

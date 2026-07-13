@@ -1,0 +1,331 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &1849698262978872216
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2958932163897991202}
+  - component: {fileID: 9070601829414753257}
+  - component: {fileID: 7860926892676099564}
+  - component: {fileID: 6112223596539294354}
+  m_Layer: 0
+  m_Name: Ground
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &2958932163897991202
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1849698262978872216}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 100, y: 1, z: 100}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 6797691681574258620}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!33 &9070601829414753257
+MeshFilter:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1849698262978872216}
+  m_Mesh: {fileID: 10209, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!23 &7860926892676099564
+MeshRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1849698262978872216}
+  m_Enabled: 1
+  m_CastShadows: 1
+  m_ReceiveShadows: 1
+  m_DynamicOccludee: 1
+  m_StaticShadowCaster: 0
+  m_MotionVectors: 1
+  m_LightProbeUsage: 1
+  m_ReflectionProbeUsage: 1
+  m_RayTracingMode: 2
+  m_RayTraceProcedural: 0
+  m_RayTracingAccelStructBuildFlagsOverride: 0
+  m_RayTracingAccelStructBuildFlags: 1
+  m_SmallMeshCulling: 1
+  m_ForceMeshLod: -1
+  m_MeshLodSelectionBias: 0
+  m_RenderingLayerMask: 1
+  m_RendererPriority: 0
+  m_Materials:
+  - {fileID: 2100000, guid: c6a6d65aad62aa349a7a2f8f7d05b816, type: 2}
+  m_StaticBatchInfo:
+    firstSubMesh: 0
+    subMeshCount: 0
+  m_StaticBatchRoot: {fileID: 0}
+  m_ProbeAnchor: {fileID: 0}
+  m_LightProbeVolumeOverride: {fileID: 0}
+  m_ScaleInLightmap: 1
+  m_ReceiveGI: 1
+  m_PreserveUVs: 0
+  m_IgnoreNormalsForChartDetection: 0
+  m_ImportantGI: 0
+  m_StitchLightmapSeams: 1
+  m_SelectedEditorRenderState: 3
+  m_MinimumChartSize: 4
+  m_AutoUVMaxDistance: 0.5
+  m_AutoUVMaxAngle: 89
+  m_LightmapParameters: {fileID: 0}
+  m_GlobalIlluminationMeshLod: 0
+  m_SortingLayerID: 0
+  m_SortingLayer: 0
+  m_SortingOrder: 0
+  m_MaskInteraction: 0
+  m_AdditionalVertexStreams: {fileID: 0}
+--- !u!64 &6112223596539294354
+MeshCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1849698262978872216}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 5
+  m_Convex: 0
+  m_CookingOptions: 30
+  m_Mesh: {fileID: 10209, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!1 &5674197881002118200
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 6797691681574258620}
+  - component: {fileID: 3187915506466152432}
+  - component: {fileID: 2657489583929872117}
+  - component: {fileID: 1588965691205836430}
+  - component: {fileID: 1022619426834637478}
+  - component: {fileID: 2560675691110341928}
+  - component: {fileID: 6862424125335573105}
+  - component: {fileID: 5302223365297760585}
+  - component: {fileID: 5622939894996107424}
+  m_Layer: 0
+  m_Name: City
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &6797691681574258620
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5674197881002118200}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: -0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 2958932163897991202}
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &3187915506466152432
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5674197881002118200}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1ab75d5a1a1177c4297fae35aa0eeb3a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::GameManager
+  gridManager: {fileID: 1022619426834637478}
+  eventManager: {fileID: 0}
+  startDayDuration: 5
+  finalDayDuration: 1.5
+  daysUntilFinal: 100
+  daysPassed: 0
+  currentPopulation: 0
+  currentUnemployed: 0
+  currentVacanies: 0
+  disastersSurvived: 0
+--- !u!114 &2657489583929872117
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5674197881002118200}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 623168189e3afaa4dbeebf7dc463e403, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::EventManager
+  gracePeriodDays: 3
+  minIntervalDays: 3
+  maxIntervalDays: 4
+  isLockdownActive: 0
+  asteroidPrefab: {fileID: 3455686446006596395, guid: c869be76f7b209c43b5f9d76e2b45b9e, type: 3}
+  explosionEffectPrefab: {fileID: 2239335301164152113, guid: 81b2160e7860f6f42b2205d8d71cd62d, type: 3}
+--- !u!114 &1588965691205836430
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5674197881002118200}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 004fa146368df0f40932a8ef980cd3cf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::GameEffects
+  financeManager: {fileID: 5302223365297760585}
+  chunkManager: {fileID: 6862424125335573105}
+--- !u!114 &1022619426834637478
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5674197881002118200}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 09eae2c03f8572446840d29f34c40879, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::GridManager
+  SquareRoad: {fileID: 9163286294634809444, guid: 8b1f918e62e433241ae0e4f1b214c6bd, type: 3}
+  EndRoad: {fileID: 8636057993079516775, guid: bbc601e95a694f8449e6a767b2e947c7, type: 3}
+  StraightRoad: {fileID: 2385131893709086923, guid: aba6d4326c2987348a187b5c1aa92b89, type: 3}
+  Turn: {fileID: 3611481885029494112, guid: 70ba796f6913b644db9b1fe08bda94c5, type: 3}
+  ThreeWayIntersection: {fileID: 5136170648252553669, guid: 408b543c0df131345a059600e4d56593, type: 3}
+  FourWayIntersection: {fileID: 231981307816557759, guid: 73a43cf795695d04abf4f381a489ae9d, type: 3}
+  noBuildZonePrefab: {fileID: 4091109426626872534, guid: 49f113c01660d774da7383d3742a8945, type: 3}
+  residentialZonePrefab: {fileID: 8666186810257645959, guid: d862105dd67f3aa438a17d02eca71a26, type: 3}
+  commercialZonePrefab: {fileID: 3008303777712642824, guid: d66a5104e997b6b4f912cbd7244af5e9, type: 3}
+  industrialZonePrefab: {fileID: 4085553235442633442, guid: dc0fcd6eba40b734497a8fab82e73afd, type: 3}
+  TreePrefabs:
+  - {fileID: 3258811689147042865, guid: 9982fe5518ecfe44a9f2e06541594362, type: 3}
+  - {fileID: 8918939844464734536, guid: 37859751b54f7cb4faf598645f133d40, type: 3}
+  - {fileID: 5635334029521182944, guid: e056139cded93894195ee02810bc6105, type: 3}
+  BuildingPositions: []
+  ZonedPositions: []
+--- !u!114 &2560675691110341928
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5674197881002118200}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f8aa51cadef0e3640a823f24e36294ed, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CityGenerator
+  HousePrefabs:
+  - {fileID: 5225878184418143, guid: 4c3ac41e87ba24d42b84528d1c7f13e0, type: 3}
+  - {fileID: 6404664160496043645, guid: 2eb7b416a095fd3478047d7ef22be355, type: 3}
+  - {fileID: 5776058818241402444, guid: b5ecdfc7f0867a740a97d3439fe6e6c3, type: 3}
+  - {fileID: 6043534623582716293, guid: dca2a14716645a548a92e0c742f2dbb2, type: 3}
+  - {fileID: 1652694972280370394, guid: 8558c488bc2095741b4ffcf234f83134, type: 3}
+  - {fileID: 1471625931599799090, guid: 687e3e3af94cc894db4cadc49a856904, type: 3}
+  IndustryPrefabs:
+  - {fileID: 3969565168751297975, guid: 0d35a97e4728924448de572e51f92f04, type: 3}
+  - {fileID: 889178708851502702, guid: 093dc5d5528788748831a8c37335dc27, type: 3}
+  - {fileID: 937284903415459409, guid: 799f10bfd38aec747b518b5588a6f983, type: 3}
+  - {fileID: 1277260577904704550, guid: b4bf2800669fd1d449773f6decce0f71, type: 3}
+  CommercialPrefabs:
+  - {fileID: 6617339851586591609, guid: 9ac09ab4fc3170c4c97855188576bdef, type: 3}
+  - {fileID: 6961261451679189254, guid: b712ba4c287fa6145b270b76e2baf561, type: 3}
+  - {fileID: 5471148619715125314, guid: 7a053381343ee634c8176b0d32817d78, type: 3}
+  - {fileID: 110557285708301487, guid: f77cc9bcf58d83941a3b32e0ddbbe0f7, type: 3}
+  - {fileID: 3508074244206658138, guid: 5c3396a7276455441b683235abf06e89, type: 3}
+  - {fileID: 4495368410415221046, guid: 798646b9e39c48c499298b88ac5ece5e, type: 3}
+  - {fileID: 415091982772643828, guid: 63ba0d27e5ac9214290270f51e45141e, type: 3}
+  gridManager: {fileID: 1022619426834637478}
+  startWaitTimeSeconds: 6
+  finalWaitTimeSeconds: 2
+  realTimeUntilFinalTimeSeconds: 10
+--- !u!114 &6862424125335573105
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5674197881002118200}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 425c8c480ba1896409443e8c476c6f6d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ChunkManager
+  gridManager: {fileID: 1022619426834637478}
+  playerTransform: {fileID: 0}
+  showTrees: 1
+  baselineHappiness: 0
+  chunkSize: 16
+  viewDistance: 3
+--- !u!114 &5302223365297760585
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5674197881002118200}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1cfa05c30682f6243bdcf6848f38531a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FinanceManager
+  initialMoney: 400000
+  prevMoney: 0
+  taxMultiplier: 1
+  inflationRate: 1.02
+  maxDebtLimit: -50000
+  costRoad: 245
+  costRoadDemolition: 445
+  costZoning: 1033
+  roadMaintainanceCost: 20
+  serviceChargeFire: 900
+  serviceChargeHospital: 400
+  serviceChargePoliceTrip: 200
+--- !u!114 &5622939894996107424
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5674197881002118200}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c5465bf78b8337b42ac64dfae5409c8e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ServiceManager
+  gridManager: {fileID: 1022619426834637478}
+  firetruckPrefab: {fileID: 756839036580273433, guid: f0edcb040d0e4c947ac88dec390a362f, type: 3}
+  policecarPrefab: {fileID: 4226115298065616907, guid: eaf1a5df140b6384c99cafc922e14c98, type: 3}
+  ambulancePrefab: {fileID: 4763909408681192049, guid: c278bd89ae6cd8145b9c4bf4e1822b64, type: 3}

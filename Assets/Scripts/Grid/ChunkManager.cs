@@ -27,6 +27,8 @@ public class ChunkManager : MonoBehaviour
 
     public IEnumerator IncreasePowerDemandTemporarily(int power, float seconds)
     {
+        if (generatedChunks.Count == 0) { yield break; }
+
         List<ChunkData> affectedChunks = new List<ChunkData>();
         List<Vector2Int> allChunkKeys = new List<Vector2Int>(generatedChunks.Keys);
 
@@ -38,8 +40,11 @@ public class ChunkManager : MonoBehaviour
 
         for (int i = 0; i <  chunksToAffect; i++)
         {
+            if (allChunkKeys.Count == 0) break;
+
             int randomIndex = UnityEngine.Random.Range(0, allChunkKeys.Count);
             Vector2Int key = allChunkKeys[randomIndex];
+            allChunkKeys.RemoveAt(randomIndex);
 
             ChunkData chunk = generatedChunks[key];
 
@@ -62,6 +67,45 @@ public class ChunkManager : MonoBehaviour
         DistributeUtilitiesAcrossCity();
 
         Debug.Log($"Demand is now {GlobalPowerDemand}, should be normalised due to end of surge");
+    }
+
+    public IEnumerator IncreaseWaterAndPowerSupplyTemporarily(int perChunkValue, float seconds)
+    {
+        if (generatedChunks.Count == 0) { yield break; }
+
+        List<ChunkData> affectedChunks = new List<ChunkData>();
+        List<Vector2Int> allChunkKeys = new List<Vector2Int>(generatedChunks.Keys);
+
+        if (perChunkValue <= 100000) { perChunkValue = 100000; }
+
+        int count = allChunkKeys.Count;
+        for (int i = 0; i < allChunkKeys.Count; i++)
+        {
+            if (allChunkKeys.Count == 0) break;
+
+            int randomIndex = UnityEngine.Random.Range(0, allChunkKeys.Count);
+            Vector2Int key = allChunkKeys[randomIndex];
+            allChunkKeys.RemoveAt(randomIndex);
+
+            ChunkData chunk = generatedChunks[key];
+
+            chunk.powerGenerated += perChunkValue;
+            chunk.waterGenerated += perChunkValue;
+
+            affectedChunks.Add(chunk);
+        }
+
+        DistributeUtilitiesAcrossCity();
+
+        yield return new WaitForSeconds(seconds);
+
+        foreach (ChunkData chunk in affectedChunks)
+        {
+            chunk.powerGenerated -= perChunkValue;
+            chunk.waterGenerated -= perChunkValue;
+        }
+
+        DistributeUtilitiesAcrossCity();
     }
 
     [Header("Toggle")]
@@ -101,7 +145,6 @@ public class ChunkManager : MonoBehaviour
         public bool HasEnoughWater => waterGenerated + waterImported >= waterConsumed;
 
         public float averageHappiness = 50f;
-        public int treeCount = 0;
 
         public ChunkData(Vector2Int cords)
         {
@@ -181,19 +224,23 @@ public class ChunkManager : MonoBehaviour
                 Quaternion randomRotation = Quaternion.Euler(0f, UnityEngine.Random.Range(0, 4) * 90, 0f);
 
                 gridManager.SpawnTreeInChunk(tilePos, worldpos, randomRotation);
-
-                chunk.treeCount++; //NEED TO GO AND UPDATE GRIDMANAGER TO DECREMENT THIS NUMBER
             }
         }
     }
 
     public void DistributeUtilitiesAcrossCity()
     {
+        int globalPowerSurplusPool = 0;
+        int globalWaterSurplusPool = 0;
+
         int totalGlobalPower = 0;
         int totalGlobalWater = 0;
 
         int totalGlobalPowerDemand = 0;
         int totalGlobalWaterDemand = 0;
+
+        List<ChunkData> powerDeficitChunks = new List<ChunkData>();
+        List<ChunkData> waterDeficitChunks = new List<ChunkData>();
 
         foreach (var kvp in generatedChunks)
         {
@@ -207,6 +254,14 @@ public class ChunkManager : MonoBehaviour
 
             totalGlobalPowerDemand += chunk.powerConsumed;
             totalGlobalWaterDemand += chunk.waterConsumed;
+
+            int localPowerBalance = chunk.powerGenerated - chunk.powerConsumed;
+            if (localPowerBalance > 0) globalPowerSurplusPool += localPowerBalance;
+            else if (localPowerBalance < 0) powerDeficitChunks.Add(chunk);
+
+            int localWaterBalance = chunk.waterGenerated - chunk.waterConsumed;
+            if (localWaterBalance > 0) globalWaterSurplusPool += localWaterBalance;
+            else if (localWaterBalance < 0) waterDeficitChunks.Add(chunk);
         }
 
         GlobalPowerCapacity = totalGlobalPower;
@@ -215,43 +270,44 @@ public class ChunkManager : MonoBehaviour
         GlobalPowerDemand = totalGlobalPowerDemand;
         GlobalWaterDemand = totalGlobalWaterDemand;
 
-        foreach (var kvp in generatedChunks)
-        {
-            ChunkData chunk = kvp.Value;
+        powerDeficitChunks.Sort((a, b) => (b.powerConsumed - b.powerGenerated).CompareTo(a.powerConsumed -  a.powerGenerated));
+        waterDeficitChunks.Sort((a, b) => (b.waterConsumed - b.waterGenerated).CompareTo(a.waterConsumed -  a.waterGenerated));
 
+        foreach (ChunkData chunk in powerDeficitChunks)
+        {
             //Power
             int powerDeficit = chunk.powerConsumed - chunk.powerGenerated;
-            if (powerDeficit > 0)
-            {
-                if (totalGlobalPower >= powerDeficit)
-                {
-                    chunk.powerImported = powerDeficit;
-                    totalGlobalPower -= powerDeficit;
-                }
-                else
-                {
-                    chunk.powerImported = totalGlobalPower;
-                    totalGlobalPower = 0;
-                }
-            }
 
+            if (globalPowerSurplusPool >= powerDeficit)
+            {
+                chunk.powerImported = powerDeficit;
+                globalPowerSurplusPool -= powerDeficit;
+            }
+            else
+            {
+                chunk.powerImported = 0;
+            }
+        }
+
+        foreach (ChunkData chunk in waterDeficitChunks)
+        {
             //Water
             int waterDefecit = chunk.waterConsumed - chunk.waterGenerated;
-            if (waterDefecit > 0)
+
+            if (globalWaterSurplusPool >= waterDefecit)
+
             {
-                if (totalGlobalWater >= waterDefecit)
-
-                {
-                    chunk.waterImported = waterDefecit;
-                    totalGlobalWater -= waterDefecit;
-                } else
-                {
-                    chunk.waterImported = totalGlobalWater;
-                    totalGlobalWater = 0;
-                }
+                chunk.waterImported = waterDefecit;
+                globalWaterSurplusPool -= waterDefecit;
+            } else
+            {
+                chunk.waterImported = 0;
             }
+        }
 
-            calculateHappiness(chunk);
+        foreach (var kvp in generatedChunks)
+        {
+            calculateHappiness(kvp.Value);
         }
 
         BuildingUtilitiesUpdated?.Invoke();
@@ -262,8 +318,8 @@ public class ChunkManager : MonoBehaviour
 
     public ChunkData GetChunkFromGridTile(Vector2Int gridPos)
     {
-        int chunkX = Mathf.FloorToInt((float)gridPos.x / chunkSize);
-        int chunkY = Mathf.FloorToInt((float)gridPos.y / chunkSize);
+        int chunkX = gridPos.x >= 0 ? gridPos.x / chunkSize : (gridPos.x - chunkSize + 1) / chunkSize;
+        int chunkY = gridPos.y >= 0 ? gridPos.y / chunkSize : (gridPos.y - chunkSize + 1) / chunkSize;
         Vector2Int chunkcord = new Vector2Int(chunkX, chunkY);
 
         if (generatedChunks.TryGetValue(chunkcord, out ChunkData chunkData))
@@ -274,6 +330,7 @@ public class ChunkManager : MonoBehaviour
         //Create new chunk if failed to find
         ChunkData newChunk = new ChunkData(chunkcord);
         generatedChunks.Add(chunkcord, newChunk);
+        GenerateChunkEnvironemnt(newChunk);
         return newChunk;
     }
 
@@ -284,10 +341,9 @@ public class ChunkManager : MonoBehaviour
         if (!chunk.HasEnoughPower) { currentHappiness -= 30f; }
         if (!chunk.HasEnoughWater) { currentHappiness -= 30f; }
 
-        //Nature bonus
-        currentHappiness += (chunk.treeCount / 5f) * 2f;
-
         chunk.averageHappiness = Mathf.Clamp(currentHappiness, 0f, 100f);
+
+        //Debug.Log($"Chunk happiness: {chunk.averageHappiness} from {chunk.HasEnoughWater} & {chunk.HasEnoughPower}. with {baselineHappiness} baseline");
     }
 
     private Vector2Int GetChunkFromPosition(Vector3 worldPos)
@@ -295,8 +351,8 @@ public class ChunkManager : MonoBehaviour
         int gridX = Mathf.RoundToInt(worldPos.x / scale);
         int gridY = Mathf.RoundToInt(worldPos.z / scale);
 
-        int chunkX = Mathf.FloorToInt((float)gridX / chunkSize);
-        int chunkY = Mathf.FloorToInt((float)gridY / chunkSize);
+        int chunkX = gridX >= 0 ? gridX / chunkSize : (gridX - chunkSize + 1) / chunkSize;
+        int chunkY = gridY >= 0 ? gridY / chunkSize : (gridY - chunkSize + 1) / chunkSize;
 
         return new Vector2Int(chunkX, chunkY);
     }
@@ -311,7 +367,7 @@ public class ChunkManager : MonoBehaviour
         chunk.waterGenerated += waterGen;
         chunk.waterConsumed += waterCons;
 
-        //DistributeUtilitiesAcrossCity(); infinite loop fixed?
+        //DistributeUtilitiesAcrossCity(); //infinite loop fixed?
     }
 
     public void RemoveBuildingFromChunk(Vector2Int gridPos, int powerGen, int powerCons, int waterGen, int waterCons)
@@ -324,6 +380,6 @@ public class ChunkManager : MonoBehaviour
         chunk.waterGenerated -= waterGen;
         chunk.waterConsumed -= waterCons;
 
-        //DistributeUtilitiesAcrossCity(); infinite loop fixed?
+        //DistributeUtilitiesAcrossCity(); //infinite loop fixed?
     }
 }

@@ -1,6 +1,4 @@
-using UnityEditor.Build;
 using UnityEngine;
-using UnityEngine.Rendering;
 
 public class House : Building
 {
@@ -10,7 +8,7 @@ public class House : Building
     public int residents;
     public float happiness; //0-100
 
-    private int daysWithLowHappiness = 10000;
+    [HideInInspector] public int daysWithLowHappiness = 0;
 
     [Header("Infected")]
     public bool isInfected = false;
@@ -28,11 +26,6 @@ public class House : Building
         if (ChunkManager.instance != null) { ChunkManager.instance.BuildingUtilitiesUpdated -= OnUtilities; }
     }
 
-    public void Start()
-    {
-        OnUtilities(); //Destroy if bad neighbourhood
-    }
-
     public void OnUtilities()
     {
         if (ChunkManager.instance == null) return;
@@ -40,14 +33,16 @@ public class House : Building
         ChunkManager.ChunkData chunk = ChunkManager.instance.GetChunkFromGridTile(gridPos);
         if (chunk == null) return;
 
-        this.happiness = chunk.averageHappiness;
+        happiness = chunk.averageHappiness;
 
-        if (this.happiness < 20f)
+        if (happiness < 20f)
         {
             daysWithLowHappiness++;
 
             if (daysWithLowHappiness >= 3)
             {
+                Debug.LogError($"[HOUSE DEATH] at ({gridPos.x}, {gridPos.y}) which is {chunk.chunkCord}. Chunk average happiness: {chunk.averageHappiness}, house local happiness {this.happiness}, days with low {daysWithLowHappiness}, chunk power: {chunk.HasEnoughPower} chunk water: {chunk.HasEnoughWater}");
+
                 GameManager.instance.gridManager.forceRemoveElement(gridPos);
             }
         }

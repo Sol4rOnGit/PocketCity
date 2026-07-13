@@ -3,8 +3,6 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using UnityEngine;
-using UnityEngine.Tilemaps;
-using static UnityEngine.EventSystems.EventTrigger;
 
 public class EventManager : MonoBehaviour
 {
@@ -151,11 +149,14 @@ public class EventManager : MonoBehaviour
         float lerp = Mathf.Lerp(0f, 1f, Mathf.Clamp01(gameManager.daysPassed / 200f));
         float chanceOfDouble = chanceForDoubleEvent * lerp;
 
+        gameManager.disastersSurvived++;
+
         string currentEventType = playRandomEvent();
 
         if (UnityEngine.Random.value < chanceOfDouble) { 
             yield return new WaitForSeconds(2.5f); 
-            playRandomEvent(currentEventType); 
+            playRandomEvent(currentEventType);
+            gameManager.disastersSurvived++;
         }
     }
     private string playRandomEvent(string prevEventName = "non-existant-event")
@@ -281,6 +282,16 @@ public class EventManager : MonoBehaviour
                 tile.buildingScript.isSpreadingFire = true;
 
                 StartCoroutine(SpreadFire(buildingPos, mapGrid));
+
+                //Send fire truck if one not already on the way
+                if (!tile.buildingScript.isFiretruckOnRoute)
+                {
+                    if (ServiceManager.instance != null)
+                    {
+                        ServiceManager.instance.DispatchFiretruck(tile.buildingScript);
+                    }
+                    else { Debug.LogError("Service Manager not found!"); }
+                }
             }
         }
 
@@ -329,6 +340,14 @@ public class EventManager : MonoBehaviour
 
             tile.buildingScript.IgniteFire();
 
+            //Call services
+
+            if (ServiceManager.instance != null)
+            {
+                ServiceManager.instance.DispatchFiretruck(tile.buildingScript);
+            }
+            else { Debug.LogError("Service Manager not found!"); }
+
             StartCoroutine(BurnBuilding(tile.buildingScript.gridPos, tile.buildingScript));
 
             sourceTile.buildingScript.isSpreadingFire = false;
@@ -342,32 +361,39 @@ public class EventManager : MonoBehaviour
     //HEALTH
     private void TriggerVirusOutbreak(bool newVirus = true)
     {
-        if (gridManager.BuildingPositions.Count == 0) { return; }
+        if (gridManager.BuildingPositions.Count == 0 || GameManager.instance.isImmuneToViruses) return;
 
-        Vector2Int randomPos = gridManager.BuildingPositions[UnityEngine.Random.Range(0, gridManager.BuildingPositions.Count)];
-        Dictionary<Vector2Int, GridManager.GridTile> mapGrid = gridManager.GetMapGrid();
+        bool foundInfected = false;
+        int tries = 0;
 
-        if (mapGrid.TryGetValue(randomPos, out GridManager.GridTile tile) && tile.buildingScript != null)
+        while (!foundInfected && tries < 50)
         {
-            if (tile.buildingScript is House houseScript && !houseScript.isInfected)
+            Vector2Int randomPos = gridManager.BuildingPositions[UnityEngine.Random.Range(0, gridManager.BuildingPositions.Count)];
+            Dictionary<Vector2Int, GridManager.GridTile> mapGrid = gridManager.GetMapGrid();
+
+            if (mapGrid.TryGetValue(randomPos, out GridManager.GridTile tile) && tile.buildingScript != null)
             {
-                houseScript.Infect();
-
-                infectedPopulation += houseScript.residents;
-                if (newVirus) { gameManager.UserNotification?.Invoke("A virus outbreak has occured!", true); }
-                else { gameManager.UserNotification?.Invoke("Another house has been infected!", true); }
-
-
-                //Timer
-                StartCoroutine(KillBuilding(randomPos, houseScript));
-
-                //Call ambulances
-                if (ServiceManager.instance != null)
+                if (tile.buildingScript is House houseScript && !houseScript.isInfected)
                 {
-                    bool served = ServiceManager.instance.DispatchAmbulance(tile.buildingScript);
-                    if (served) houseScript.isAmbulanceOnRoute = true;
+                    foundInfected = true;
+
+                    houseScript.Infect();
+
+                    infectedPopulation += houseScript.residents;
+                    if (newVirus) { gameManager.UserNotification?.Invoke("A virus outbreak has occured!", true); }
+                    else { gameManager.UserNotification?.Invoke("Another house has been infected!", true); }
+
+                    //Timer
+                    StartCoroutine(KillBuilding(randomPos, houseScript));
+
+                    //Call ambulances
+                    if (ServiceManager.instance != null)
+                    {
+                        bool served = ServiceManager.instance.DispatchAmbulance(tile.buildingScript);
+                        if (served) houseScript.isAmbulanceOnRoute = true;
+                    }
+                    else { Debug.LogError("Service Manager not found!"); }
                 }
-                else { Debug.LogError("Service Manager not found!"); }
             }
         }
     }
@@ -375,11 +401,21 @@ public class EventManager : MonoBehaviour
     {
         yield return new WaitForSeconds(10f);
 
-        if (houseScript == null || !houseScript.isInfected) yield break;
+        if (houseScript == null || !houseScript.isInfected || GameManager.instance.isImmuneToViruses) yield break;
 
-        for (int i = 0; i < houseScript.residents; i++)
+        if (houseScript.residents < 2) {
+            //Spread atleast Once
+            yield return null;
+            TriggerVirusOutbreak(false); 
+        } 
+        else
         {
-            TriggerVirusOutbreak(false);
+            int random = UnityEngine.Random.Range(1, 5); //anywhere between 1 to 5 residents
+            for (int i = 1; i < random; i++)
+            {
+                yield return null; 
+                TriggerVirusOutbreak(false); //Spread!
+            }
         }
 
         gridManager.forceRemoveElement(randomPos);
@@ -388,7 +424,7 @@ public class EventManager : MonoBehaviour
 
     public void CheckForInfections()
     {
-        if (gridManager.BuildingPositions.Count == 0) { return; }
+        if (gridManager.BuildingPositions.Count == 0 || GameManager.instance.isImmuneToViruses) return;
 
         var serviceManager = ServiceManager.instance;
         if (serviceManager == null)
@@ -403,7 +439,6 @@ public class EventManager : MonoBehaviour
         {
             if (mapGrid.TryGetValue(buildingPos, out GridManager.GridTile tile) && tile.buildingScript is House houseScript)
             {
-
                 if (!houseScript.isInfected) continue;
 
                 if (houseScript.isAmbulanceOnRoute) continue;
@@ -544,14 +579,14 @@ public class EventManager : MonoBehaviour
         onQueueChanged?.Invoke();
 
         bool userChoice = await currentQuestion.TaskCompletionSource.Task;
-        Debug.Log($"User Choice Received: {userChoice}");
+        //Debug.Log($"User Choice Received: {userChoice}");
 
         //Pop
         PendingQuestions.Remove(currentQuestion);
 
         //Process request
         if (userChoice) { currentQuestion.onAccept?.Invoke(); }
-        else { Debug.Log("Not invoked!"); }
+        //else { Debug.Log("Not invoked!"); }
     }
 
     //Helper functions for Weights

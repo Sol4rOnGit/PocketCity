@@ -149,7 +149,8 @@ MonoBehaviour:
   isDestroying: 0
   RetroFitCost: 45000
   isRetrofitted: 0
-  _maxEmployees: 15
+  maxEmployees: 3
   employees: 0
+  taxRevenue: 200
   dailyCost: 0
   maxFireTrucks: 2

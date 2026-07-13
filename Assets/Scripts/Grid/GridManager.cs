@@ -81,39 +81,34 @@ public class GridManager : MonoBehaviour
     //Creation/Deletion Methods
 
     //Creation
-    public void createRoadOnGrid(Vector2Int pos, bool isFree = false)
+    public void createRoadOnGrid(Vector2Int pos, bool isFree = false) //GameManager.instance.freeGridExpansion passed into isFree unless forced true
     {
-        bool charged = false;
+        GridTile tile = null;
 
-        if (mapGrid.TryGetValue(pos, out GridTile tile))
+        if (mapGrid.TryGetValue(pos, out tile))
         {
-            if (!isFree)
+            if (tile.isRoad || tile.buildingType != null)
             {
-                bool success = financeManager.Purchase(financeManager.costRoad);
-                if (!success) return;
-                charged = true;
-            }
-
-            if (!tile.isRoad && tile.buildingType == null)
-            {
-                if (tile.instance != null) { Destroy(tile.instance); }
-                mapGrid.Remove(pos);
-            }
-            else
-            {
-                Debug.Log($"The grid point at {pos.x}, {pos.y} already has an element!");
+                GameManager.instance.UserNotification?.Invoke($"The grid point at {pos.x}, {pos.y} already has an element!", false);
                 return; //Already exists, should notify the user here later
             }
         }
 
         //Cost
-        if (!isFree && !charged)
+        if (!isFree)
         {
             bool success = financeManager.Purchase(financeManager.costRoad);
             if (!success) return;
         }
 
+        if (tile != null)
+        {
+            Destroy(tile.instance);
+            mapGrid.Remove(pos);
+        }
+
         ClearTreeAtPos(pos);
+        GameManager.instance.GainExperience(1);
 
         //Figure out which ones to do
         (int rotationDegrees, GameObject prefab) = DecideOnPrefab(pos);
@@ -251,8 +246,6 @@ public class GridManager : MonoBehaviour
     }
     public void zoneTileOnGrid(Vector2Int pos, ZoneType zoneType)
     {
-        bool success = false;
-
         if (mapGrid.TryGetValue(pos, out GridTile tile))
         {
             if (tile.isRoad || tile.buildingType != null)
@@ -263,8 +256,7 @@ public class GridManager : MonoBehaviour
 
             if (tile.zoneType != zoneType)
             {
-                success = financeManager.Purchase(financeManager.costZoning);
-                if (!success) return;
+                if (!TryPurchaseZoning()) { GameManager.instance.UserNotification?.Invoke("Not enough money!", false); return; }
 
                 if (tile.instance != null) { Destroy(tile.instance); }
                 tile.zoneType = zoneType;
@@ -274,10 +266,9 @@ public class GridManager : MonoBehaviour
             return;
         }
 
-        success = financeManager.Purchase(financeManager.costZoning);
-        if (!success) return;
+        if (!TryPurchaseZoning()) { GameManager.instance.UserNotification?.Invoke("Not enough money!", false); return; }
 
-        GameManager.instance.GainExperience(1);
+        GameManager.instance.GainExperience(10);
 
         GameObject currentInstance = InstantiateZonePrefab(pos, zoneType);
 
@@ -396,15 +387,10 @@ public class GridManager : MonoBehaviour
                     {
                         GameManager.instance.LosePopulation(houseScript.residents);
                     }
-                    else if (tile.buildingScript is Commercial commercialScript)
+                    else if (tile.buildingScript is Employer employer)
                     {
-                        GameManager.instance.LoseJobs(commercialScript.GetMaxEmployees(), commercialScript.employees);
-                        commercialScript.employees = 0;
-                    }
-                    else if (tile.buildingScript is Industrial industrialScript)
-                    {
-                        GameManager.instance.LoseJobs(industrialScript.GetMaxEmployees(), industrialScript.employees);
-                        industrialScript.employees = 0;
+                        GameManager.instance.LoseJobs(employer.GetMaxEmployees(), employer.employees);
+                        employer.employees = 0;
                     }
                 }
             }
@@ -453,7 +439,6 @@ public class GridManager : MonoBehaviour
                 Destroy(treeInstance);
             }
             TreeGrid.Remove(pos);
-            if (ChunkManager.instance != null) ChunkManager.instance.GetChunkFromGridTile(pos).treeCount--;
         }
     }
     //Helper functions
@@ -588,6 +573,13 @@ public class GridManager : MonoBehaviour
         GameObject zone = Instantiate(currentPrefab, worldPos, Quaternion.identity, this.transform);
         zone.name = $"{zoneType} Overlay ({pos.x}, {pos.y})";
         return zone;
+    }
+
+    private bool TryPurchaseZoning()
+    {
+        if (GameManager.instance.freeGridExpansion) return true;
+
+        return financeManager.Purchase(financeManager.costZoning);
     }
 
     private Building InitialiseBuildingScript(GameObject buildingInstance)

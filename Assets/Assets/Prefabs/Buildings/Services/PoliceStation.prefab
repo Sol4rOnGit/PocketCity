@@ -59,8 +59,9 @@ MonoBehaviour:
   isDestroying: 0
   RetroFitCost: 35000
   isRetrofitted: 0
-  _maxEmployees: 3
+  maxEmployees: 3
   employees: 0
+  taxRevenue: 500
   dailyCost: 0
   maxPolice: 10
 --- !u!1001 &5596445490828920229

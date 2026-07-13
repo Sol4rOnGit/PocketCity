@@ -8,36 +8,63 @@ public abstract class Employer : Building
     public int employees = 0;
 
     [Header("Revenue")]
+    protected float baseRevenue;
     [SerializeField] protected float taxRevenue = 1500f;
+    public float GetTaxRevenue() => taxRevenue;
     protected float energySupplyHealthiness = 1; //0-1
 
-    protected int badDays = 0;
-    protected int lowEmployeeDays = 0;
+    public int badDays = 0;
+    public int lowEmployeeDays = 0;
 
-    private void OnEnable()
+    private void Awake()
+    {
+        baseRevenue = taxRevenue;
+    }
+
+    protected virtual void OnEnable()
     {
         if (GameManager.instance != null)
         {
             GameManager.instance.OnDayEnd += TryToHire;
             GameManager.instance.OnDayEnd += CheckForEmployees;
             GameManager.instance.OnDayEnd += GenerateWealth;
+
+            GameManager.instance.OnTaxRevenueChanged += UpdateRevenue;
         }
 
         if (ChunkManager.instance != null) ChunkManager.instance.BuildingUtilitiesUpdated += OnUtilities;
     }
 
-    public void OnDisable()
+    protected virtual void OnDisable()
     {
         if (GameManager.instance != null)
         {
             GameManager.instance.OnDayEnd -= TryToHire;
             GameManager.instance.OnDayEnd -= CheckForEmployees;
             GameManager.instance.OnDayEnd -= GenerateWealth;
+
+            GameManager.instance.OnTaxRevenueChanged -= UpdateRevenue;
         }
 
         if (ChunkManager.instance != null) ChunkManager.instance.BuildingUtilitiesUpdated -= OnUtilities;
     }
 
+    public void TryToMassHire()
+    {
+        if (GameManager.instance.currentUnemployed <= 0) return;
+
+        int spaceAvailable = maxEmployees - employees;
+        int availableWorkers = GameManager.instance.currentUnemployed;
+
+        int totalToHire = Mathf.Min(spaceAvailable, availableWorkers);
+
+        if (totalToHire > 0)
+        {
+            employees += totalToHire;
+            GameManager.instance.AdjustUnemployed(-totalToHire);
+            GameManager.instance.AdjustVacanices(-totalToHire);
+        }
+    }
     protected void TryToHire()
     {
         if (employees < maxEmployees && GameManager.instance.currentUnemployed > 0)
@@ -66,6 +93,11 @@ public abstract class Employer : Building
         {
             badDays = 0;
         }
+    }
+
+    protected void UpdateRevenue()
+    {
+        taxRevenue = baseRevenue * GameManager.instance.taxRevenueMultiplier;
     }
 
     public abstract void GenerateWealth();

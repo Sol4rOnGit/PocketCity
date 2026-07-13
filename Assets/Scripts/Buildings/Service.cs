@@ -1,11 +1,7 @@
 using UnityEngine;
 
-public class Service : Building
+public class Service : Employer
 {
-    [SerializeField] private int _maxEmployees = 3;
-    public int maxEmployees => _maxEmployees;
-    public int employees = 0;
-
     public float dailyCost; //To be implemented -> currently does nothing
     private float baseDailyCost;
 
@@ -15,37 +11,25 @@ public class Service : Building
         baseDailyCost = dailyCost;
     }
 
-    public void OnEnable()
+    protected override void OnEnable()
     {
+        base.OnEnable();
+
         if (GameManager.instance != null)
         {
-            GameManager.instance.OnDayEnd += TryToHire;
             GameManager.instance.OnDayEnd += MaintenanceCosts;
         }
     }
 
-    public void OnDisable()
+    protected override void OnDisable()
     {
+        base.OnDisable();
+
         if (GameManager.instance != null)
         {
-            GameManager.instance.OnDayEnd -= TryToHire;
             GameManager.instance.OnDayEnd -= MaintenanceCosts;
         }
     }
-
-    public void TryToHire()
-    {
-        if (employees < maxEmployees)
-        {
-            if (GameManager.instance.currentUnemployed > 0)
-            {
-                employees += 1;
-                GameManager.instance.currentUnemployed -= 1;
-                GameManager.instance.currentVacanies -= 1;
-            }
-        }
-    }
-
     public void MaintenanceCosts()
     {
         FinanceManager.instance.ForcePurchase(dailyCost);
@@ -55,5 +39,20 @@ public class Service : Building
     public void Inflate()
     {
         dailyCost += 0.04f * baseDailyCost;
+    }
+
+    public override void GenerateWealth()
+    {
+        return;
+    }
+
+    protected override void CheckForEmployees()
+    {
+        return;
+    }
+
+    public override void OnUtilities()
+    {
+        return;
     }
 }

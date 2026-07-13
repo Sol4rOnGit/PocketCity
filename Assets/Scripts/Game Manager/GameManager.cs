@@ -31,17 +31,28 @@ public class GameManager : MonoBehaviour
     public int currentVacanies = 0;
     public int disastersSurvived = 0;
 
-    private int experience = 0;
+    private int experience = 0; //should start a 0
     private int experienceLevel = 1;
 
     [Header("Actions")]
     public Action OnDayEnd;
+    public Action OnDayEndUI;
+
     public Action<string, bool> UserNotification;
+
     public Action<float> OnDayProgress;
+
     public Action<int, int> OnXPChanged; //XPPoints, maxXPpoints,
     public Action<int> OnNewXPLevel; //XPLevel
 
+    public Action OnTaxRevenueChanged;
+
     public readonly Vector2Int[] directions = { Vector2Int.up, Vector2Int.down, Vector2Int.left, Vector2Int.right };
+
+    [Header("Game State Global Vars")]
+    public bool freeGridExpansion = false;
+    public bool isImmuneToViruses = false;
+    public float taxRevenueMultiplier = 1f;
 
     private void Start()
     {
@@ -72,9 +83,10 @@ public class GameManager : MonoBehaviour
 
             //Day functions
             if (!eventManager.isLockdownActive) { OnDayEnd?.Invoke(); }
-            else { UserNotification?.Invoke("Lockdown Active! Day passed", false); }
+            else { UserNotification?.Invoke("Lockdown Active! Day Skipped!", false); }
 
-            GainExperience(10);
+            GainExperience(50);
+            OnDayEndUI?.Invoke();
 
             DayEndFunctions();
 
@@ -97,7 +109,7 @@ public class GameManager : MonoBehaviour
 
     private void DayEndFunctions()
     {
-        financeManager.MaintainancePurchase(gridManager.RoadPositions.Count);
+        financeManager.RoadMaintainancePurchase(gridManager.RoadPositions.Count);
         financeManager.Inflate(currentPopulation, daysPassed);
 
         eventManager.CheckForFires();
@@ -119,16 +131,22 @@ public class GameManager : MonoBehaviour
     //Employment game mechanics
     public void AdjustUnemployed(int amount)
     {
-        if (currentUnemployed + amount < 0) { Debug.LogError("Invalid current employment adjustment."); return; }
+        if (currentUnemployed + amount < 0) { 
+            Debug.LogError("Invalid current employment adjustment."); 
+            return; 
+        }
 
-        currentUnemployed = Mathf.Max(0, currentUnemployed + amount);
+        currentUnemployed += amount;
     }
 
     public void AdjustVacanices(int amount)
     {
-        if (currentVacanies + amount < 0) { Debug.LogError("Invalid current vacancies adjustment."); return; }
+        if (currentVacanies + amount < 0) { 
+            Debug.LogError("Invalid current vacancies adjustment."); 
+            return; 
+        }
 
-        currentVacanies = Mathf.Max(0, currentVacanies + amount);
+        currentVacanies += amount;
     }
 
     public void LosePopulation(int populationLeaving)
@@ -225,7 +243,7 @@ public class GameManager : MonoBehaviour
 
     public void OnBuildingSpawned(Building buildingScript)
     {
-        GainExperience(1);
+        GainExperience(3);
 
         if (buildingScript == null) return;
 
@@ -286,5 +304,13 @@ public class GameManager : MonoBehaviour
         if (experienceLevel < 0) return 0;
 
         return GetXPRequiredForLevel(experienceLevel + 1) - GetXPRequiredForLevel(experienceLevel);
+    }
+
+    //Game State
+
+    public void UpdateTaxRevenueMultiplier(float newMultiplier)
+    {
+        taxRevenueMultiplier = newMultiplier;
+        OnTaxRevenueChanged?.Invoke();
     }
 }

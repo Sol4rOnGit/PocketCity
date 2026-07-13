@@ -12,7 +12,7 @@ public class RoadTool : IBuildTool
     }
     public void OnPlaced(Vector2Int gridPos, GridManager gridManager)
     {
-        gridManager.createRoadOnGrid(gridPos);
+        gridManager.createRoadOnGrid(gridPos, GameManager.instance.freeGridExpansion);
     }
     public void CycleCategory() { }
     public void CycleType() { }
@@ -127,6 +127,7 @@ public class BuildingTool : IBuildTool
         if (GridManager.instance.createSpecialBuildingOnGrid(gridPos, prefabToPlace))
         {
             GameManager.instance.GainExperience(50);
+
             FinanceManager.instance.Purchase(buildCost);
             return;
         }

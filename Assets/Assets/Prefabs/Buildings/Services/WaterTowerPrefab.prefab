@@ -142,12 +142,14 @@ MonoBehaviour:
   powerConsumed: 3
   waterGenerated: 1000
   waterConsumed: 0
+  isCrimeScene: 0
   isOnFire: 0
   isSpreadingFire: 0
   fireParticles: {fileID: 2938381441238916310, guid: 3081ae8bd68b5ff4fbfb4e5fd2842a42, type: 3}
   isDestroying: 0
   RetroFitCost: 4000
   isRetrofitted: 0
-  _maxEmployees: 1
+  maxEmployees: 3
   employees: 0
+  taxRevenue: 10
   dailyCost: 0

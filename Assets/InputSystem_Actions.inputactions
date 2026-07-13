@@ -532,6 +532,15 @@
                     "initialStateCheck": false
                 },
                 {
+                    "name": "ToggleCouncilFX",
+                    "type": "Button",
+                    "id": "195cd8a7-026e-4305-a51c-c7061e287835",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
                     "name": "Accept",
                     "type": "Button",
                     "id": "4708d8c6-8046-45c4-bff2-6ae7a763d6eb",
@@ -848,17 +857,6 @@
                 },
                 {
                     "name": "",
-                    "id": "c9a307a4-5c69-4cd5-8e48-45435ecf25d2",
-                    "path": "<Keyboard>/escape",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "Deny",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
                     "id": "068957f4-f0e3-4de3-a87f-403939f64c52",
                     "path": "<Keyboard>/y",
                     "interactions": "",
@@ -1052,6 +1050,17 @@
                     "processors": "",
                     "groups": "",
                     "action": "ToggleStatsPanel",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "15b0b1e0-33f2-4ad1-bfd5-f21b75fc5a6a",
+                    "path": "<Keyboard>/e",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "ToggleCouncilFX",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

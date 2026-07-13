@@ -48,6 +48,9 @@ public class FinanceManager : MonoBehaviour
     public float serviceChargePoliceTrip = 200f;
 
     [Header("Base Costs")]
+    private bool flagMaintenance = false;
+    private int maintenanceResetDays = 0;
+
     private float baseCostRoad;
     private float baseCostRoadDemolition;
     private float baseCostZoning;
@@ -60,6 +63,11 @@ public class FinanceManager : MonoBehaviour
 
     [Header("Actions")]
     public Action<long> OnMoneyChanged;
+
+    [Header("Emergency Borrow Settings")]
+    public long currentDebt { get; private set; } = 0;
+    public bool hasActiveDebt { get; private set; } = false;
+    public int debtPaymentDaysLeft { get; private set; } = 0;
 
     void Start()
     {
@@ -119,7 +127,7 @@ public class FinanceManager : MonoBehaviour
             GameManager.instance.GameOver();
         }
     }
-    public void MaintainancePurchase(int numRoads)
+    public void RoadMaintainancePurchase(int numRoads)
     {
         ForcePurchase(roadMaintainanceCost * numRoads);
     }
@@ -143,6 +151,8 @@ public class FinanceManager : MonoBehaviour
 
     public void DoDailyReport()
     {
+        ProcessDailyDebtInflation();
+
         lastFinancialReport.totalIncome = dayIncomeTracker;
         lastFinancialReport.playerCosts = dayPlayerCostTracker;
         lastFinancialReport.maintenanceCosts = dayMaintenanceTracker;
@@ -151,6 +161,11 @@ public class FinanceManager : MonoBehaviour
         dayIncomeTracker = 0;
         dayMaintenanceTracker = 0;
         dayPlayerCostTracker = 0;
+    }
+
+    public void ResetMaintenance()
+    {
+        flagMaintenance = true;
     }
 
     public void Inflate(int population, int daysPassed)
@@ -171,11 +186,63 @@ public class FinanceManager : MonoBehaviour
 
     private float GetInflationForDaysPassed(int daysPassed)
     {
-        if (daysPassed > 130)
+        if (flagMaintenance) { maintenanceResetDays = daysPassed; flagMaintenance = false; }
+        int adjustedDaysPassed = daysPassed - maintenanceResetDays;
+
+        if (adjustedDaysPassed > 130)
         {
-            return 3f + (0.03f * (daysPassed - 100)); //increase more after day 130
+            return 3f + (0.03f * (adjustedDaysPassed - 100)); //increase more after day 130
         }
 
-        return 1f + (0.02f * (daysPassed)); //3f at 100 days hence 3f above
+        return 1f + (0.02f * (adjustedDaysPassed)); //3f at 100 days hence 3f above
+    }
+
+    //Loan
+    public void ProcessEmergencyLoan(int amount, int paybackTimeDays)
+    {
+        if (!hasActiveDebt)
+        {
+            //Take on a loan
+            currentMoney += amount;
+            currentDebt = amount;
+            hasActiveDebt = true;
+            debtPaymentDaysLeft = paybackTimeDays;
+
+            OnMoneyChanged?.Invoke(currentMoney);
+        } else
+        {
+            //Try pay back loan
+            if (currentMoney >= currentDebt)
+            {
+                currentMoney -= currentDebt;
+                dayPlayerCostTracker += currentDebt;
+
+                currentDebt = 0;
+                hasActiveDebt = false;
+
+                OnMoneyChanged?.Invoke(currentMoney);
+            } else { GameManager.instance.UserNotification?.Invoke("Not enough money to pay back loan!", true); }
+        }
+    }
+
+    private void ProcessDailyDebtInflation()
+    {
+        if (hasActiveDebt && currentDebt > 0)
+        {
+            currentDebt = (long)(currentDebt * 1.01f);
+
+            debtPaymentDaysLeft--;
+
+            if (debtPaymentDaysLeft <= 0)
+            {
+                GameManager.instance.UserNotification?.Invoke("Loan term expired! Debt being collected...", true);
+
+                ForcePurchase(currentDebt);
+
+                currentDebt = 0;
+                debtPaymentDaysLeft = 0;
+                hasActiveDebt = false;
+            }
+        }
     }
 }

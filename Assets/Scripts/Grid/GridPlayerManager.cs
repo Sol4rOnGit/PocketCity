@@ -14,6 +14,7 @@ public class GridPlayerManager : MonoBehaviour
 
     [Header("Input")]
     [SerializeField] private InputActionAsset inputActions;
+    [HideInInspector] public bool gridEditEnabled = true;
     InputActionMap playerActionMap;
     InputAction placeAction;
     InputAction destroyAction;
@@ -139,12 +140,12 @@ public class GridPlayerManager : MonoBehaviour
             OnToolChanged?.Invoke(activeTool);
         }
 
-        if (placeAction.WasPressedThisFrame())
+        if (placeAction.WasPressedThisFrame() && gridEditEnabled)
         {
             activeTool.OnPlaced(currentGridPosHovering, gridManager);
         }
 
-        if (destroyAction.WasPressedThisFrame())
+        if (destroyAction.WasPressedThisFrame() && gridEditEnabled)
         {
             activeTool.OnErased(currentGridPosHovering, gridManager);
         }
@@ -162,8 +163,8 @@ public class GridPlayerManager : MonoBehaviour
         newCursorPosition?.Invoke(gridPos);
 
         //Dragging to draw roads continuously
-        if (placeAction.IsPressed()) { activeTool.OnPlaced(currentGridPosHovering, gridManager); }
-        else if (destroyAction.IsPressed()) { activeTool.OnErased(currentGridPosHovering, gridManager); }
+        if (placeAction.IsPressed() && gridEditEnabled) { activeTool.OnPlaced(currentGridPosHovering, gridManager); }
+        else if (destroyAction.IsPressed() && gridEditEnabled) { activeTool.OnErased(currentGridPosHovering, gridManager); }
 
         oldPos = gridPos;
     }

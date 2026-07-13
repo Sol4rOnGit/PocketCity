@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -27,10 +28,31 @@ public class CityGenerator : MonoBehaviour
     [SerializeField] private float finalWaitTimeSeconds = 5.0f;
     [SerializeField] private float realTimeUntilFinalTimeSeconds = 900.0f; //15 minutes
 
+    [Header("Boost")]
+    public bool isBoosted;
+
     public void IncreaseSpawningRate(int factor)
     {
         startWaitTimeSeconds = startWaitTimeSeconds / (factor / 2f);
         finalWaitTimeSeconds = finalWaitTimeSeconds / (factor / 1.5f);
+    }
+
+    public IEnumerator TemporarilyBoostSpawningRate(int factor, float growthBoostDuration)
+    {
+        isBoosted = true;
+
+        float cacheStartWaitTimeSeconds = startWaitTimeSeconds;
+        float cacheFinalWaitTimeSeconds = finalWaitTimeSeconds;
+
+        startWaitTimeSeconds = startWaitTimeSeconds / factor;
+        finalWaitTimeSeconds = finalWaitTimeSeconds / factor;
+
+        yield return new WaitForSeconds(growthBoostDuration);
+
+        isBoosted = false;
+
+        startWaitTimeSeconds = cacheStartWaitTimeSeconds;
+        finalWaitTimeSeconds = cacheFinalWaitTimeSeconds;
     }
 
     private float spawnTimer = 0.0f;
@@ -63,7 +85,6 @@ public class CityGenerator : MonoBehaviour
             spawnTimer = currentSpawnInterval;
         }
     }
-
     private void GenerateBuilding()
     {
         //Grid manager dictionary

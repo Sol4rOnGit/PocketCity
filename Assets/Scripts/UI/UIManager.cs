@@ -1,4 +1,3 @@
-using System;
 using System.Collections;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -6,6 +5,20 @@ using UnityEngine.UI;
 
 public class UIManager : MonoBehaviour
 {
+    //Managers
+    GameManager gameManager;
+    GridPlayerManager gridPlayerManager;
+    FinanceManager financeManager;
+    EventManager eventManager;
+
+    //Input actions
+    public InputActionAsset inputActions;
+    InputAction toggleZoningUI;
+    InputAction toggleStatsPanelUI;
+    InputAction toggleCouncilFXUI;
+    InputAction accept;
+    InputAction deny;
+
     [Header("Hotbar & Mode UI")]
     [SerializeField] private TMPro.TextMeshProUGUI playerModeShowText;
     [SerializeField] private Image roadImg;
@@ -52,16 +65,15 @@ public class UIManager : MonoBehaviour
     [Header("ZoningVars")]
     [SerializeField] private Camera playerCamera;
     [SerializeField] private string zoningLayerName = "ZoningVisual";
-    public InputActionAsset inputActions;
-    InputAction toggleZoningUI;
-    InputAction toggleStatsPanelUI;
-    InputAction accept;
-    InputAction deny;
 
     [Header("SpecialFx")]
     [SerializeField] private GameObject SpecialFxContainer;
     [SerializeField] private TMPro.TextMeshProUGUI specialFxTitle;
     [SerializeField] private TMPro.TextMeshProUGUI option1;
+    [SerializeField] private TMPro.TextMeshProUGUI buildingInfo1;
+    [SerializeField] private TMPro.TextMeshProUGUI buildingInfo2;
+    [SerializeField] private TMPro.TextMeshProUGUI buildingInfo3;
+    [SerializeField] private TMPro.TextMeshProUGUI buildingInfo4;
     InputAction optionOneKey;
     private Building targetBuilding;
 
@@ -69,12 +81,13 @@ public class UIManager : MonoBehaviour
     [SerializeField] private Slider experienceSlider;
     [SerializeField] private TMPro.TextMeshProUGUI experienceLevelDisplay;
 
-    GridPlayerManager gridPlayerManager;
-    FinanceManager financeManager;
-    EventManager eventManager;
+    [Header("Council FX")]
+    [SerializeField] private CouncilFX councilFXManager;
+    private bool councilFXPanelActive = false;
 
     private void Awake()
     {
+        gameManager = GameManager.instance;
         financeManager = FinanceManager.instance;
         eventManager = EventManager.instance;
         gridPlayerManager = GridPlayerManager.instance;
@@ -90,9 +103,12 @@ public class UIManager : MonoBehaviour
         UIMap.Enable();
         toggleZoningUI = UIMap.FindAction("ToggleZoningUI");
         toggleStatsPanelUI = UIMap.FindAction("ToggleStatsPanel");
+        toggleCouncilFXUI = UIMap.FindAction("ToggleCouncilFX");
         accept = UIMap.FindAction("Accept");
         deny = UIMap.FindAction("Deny");
         optionOneKey = UIMap.FindAction("OptionOneKey");
+
+        toggleZoningUI.Enable(); toggleStatsPanelUI.Enable(); toggleCouncilFXUI.Enable();
 
         accept.Enable(); deny.Enable(); optionOneKey.Enable();
 
@@ -111,13 +127,14 @@ public class UIManager : MonoBehaviour
     private void OnEnable()
     {
         //Subscriptions
-        if (GameManager.instance != null)
+        if (gameManager != null)
         {
-            GameManager.instance.OnDayEnd += UpdateDaysPassed;
-            GameManager.instance.UserNotification += NotifyUser;
-            GameManager.instance.OnDayProgress += UpdateDayProgressBar;
-            GameManager.instance.OnXPChanged += UpdateXP;
-            GameManager.instance.OnNewXPLevel += UpdateXPLevel;
+            gameManager.OnDayEndUI += UpdateDaysPassed;
+            gameManager.OnDayEndUI += DayEndCouncilFXPanel;
+            gameManager.UserNotification += NotifyUser;
+            gameManager.OnDayProgress += UpdateDayProgressBar;
+            gameManager.OnXPChanged += UpdateXP;
+            gameManager.OnNewXPLevel += UpdateXPLevel;
 
         } else { Debug.LogError("No game manager!"); }
 
@@ -139,13 +156,14 @@ public class UIManager : MonoBehaviour
     private void OnDisable()
     {
         //Unsub
-        if (GameManager.instance != null)
+        if (gameManager != null)
         {
-            GameManager.instance.OnDayEnd -= UpdateDaysPassed;
-            GameManager.instance.UserNotification -= NotifyUser;
-            GameManager.instance.OnDayProgress -= UpdateDayProgressBar;
-            GameManager.instance.OnXPChanged -= UpdateXP;
-            GameManager.instance.OnNewXPLevel -= UpdateXPLevel;
+            gameManager.OnDayEndUI -= UpdateDaysPassed;
+            gameManager.OnDayEndUI -= DayEndCouncilFXPanel;
+            gameManager.UserNotification -= NotifyUser;
+            gameManager.OnDayProgress -= UpdateDayProgressBar;
+            gameManager.OnXPChanged -= UpdateXP;
+            gameManager.OnNewXPLevel -= UpdateXPLevel;
 
         }
         else { Debug.LogError("No game manager!"); }
@@ -163,25 +181,32 @@ public class UIManager : MonoBehaviour
         if (eventManager != null) eventManager.onQueueChanged -= CheckForPendingQuestions; else Debug.LogError("No event manager!");
 
         //UI
-        accept.Enable(); deny.Enable(); optionOneKey.Enable();
+
+        toggleZoningUI.Disable(); toggleStatsPanelUI.Disable(); toggleCouncilFXUI.Disable();
+
+        accept.Disable(); deny.Disable(); optionOneKey.Disable();
+
     }
 
     private void HandleUserInput()
     {
         if (accept == null) Debug.Log("sumting wong.");
 
-        if (toggleZoningUI.WasPressedThisFrame()) { ToggleZoningLayer(); }
-        if (toggleStatsPanelUI.WasPressedThisFrame()) { ToggleStatsPanel(); }
+        if (toggleZoningUI.WasPressedThisFrame()) { ToggleZoningLayer(); CloseSpecialFx(); }
+        if (toggleStatsPanelUI.WasPressedThisFrame()) { ToggleStatsPanel(); CloseSpecialFx(); }
+        if (toggleCouncilFXUI.WasPressedThisFrame()) { ToggleCouncilFXPanel(); CloseSpecialFx(); }
 
         if (QuestionContainer.activeSelf)
         {
             if (accept.WasPressedThisFrame()) {
                 Debug.Log("Accept Input Pressed");  
-                RespondToQuestion(true); 
+                RespondToQuestion(true);
+                CloseSpecialFx();
             }
             if (deny.WasPressedThisFrame()) {
                 Debug.Log("Deny Input Pressed");
-                RespondToQuestion(false); 
+                RespondToQuestion(false);
+                CloseSpecialFx();
             }
         }
 
@@ -190,6 +215,7 @@ public class UIManager : MonoBehaviour
             if (optionOneKey.WasPressedThisFrame())
             {
                 DoBuildingSpecialFx();
+                CloseSpecialFx();
             }
         }
     }
@@ -377,8 +403,36 @@ public class UIManager : MonoBehaviour
             //Labelling
             if (tile.buildingScript is Service serviceScript) { specialFxTitle.text = $"{targetBuilding.buildingName} functions"; }
             else { specialFxTitle.text = $"{targetBuilding.type} functions"; }
-              
+
+            //Info
+            var chunk = ChunkManager.instance.GetChunkFromGridTile(gridPos);
+            buildingInfo1.text = $"Chunk Power: {chunk.powerGenerated + chunk.powerImported}MW In with {chunk.powerConsumed}MW Out. (Enough: {chunk.HasEnoughPower})";
+            buildingInfo2.text = $"Chunk Water: {chunk.waterGenerated + chunk.waterImported}MW In with {chunk.waterConsumed}MW Out. (Enough: {chunk.HasEnoughWater})";
+
+            if (tile.buildingScript is House houseScript)
+            {
+                buildingInfo3.text = $"Happiness: {Mathf.Round(houseScript.happiness)}, Residents: {houseScript.residents} of {houseScript.maxResidents} maximum.";
+                buildingInfo4.text = $"Days with Low Happiness: {houseScript.daysWithLowHappiness}";
+            } else if (tile.buildingScript is Employer employer)
+            {
+                buildingInfo3.text = $"Tax Revenue: {Mathf.Round(employer.GetTaxRevenue())}, Employers: {employer.employees} of {employer.GetMaxEmployees()} maximum.";
+                buildingInfo4.text = $"Bad Emergy/Water Days: {employer.badDays}, Low Employee Days: {employer.lowEmployeeDays}";
+            }
+
             option1.text = $"[F1] Earthquake Retrofit : £{targetBuilding.RetroFitCost}"; //[OptionOneKey] !!!! Update here if ever changed
+        } else
+        {
+            SpecialFxContainer.SetActive(true);
+
+            specialFxTitle.text = "Chunk Info";
+            option1.text = "No actions to carry out.";
+            buildingInfo4.text = "";
+
+            //Info
+            var chunk = ChunkManager.instance.GetChunkFromGridTile(gridPos);
+            buildingInfo1.text = $"Chunk Power: {chunk.powerGenerated + chunk.powerImported}MW Supplied with {chunk.powerConsumed}MW Used. (Enough: {chunk.HasEnoughPower})";
+            buildingInfo2.text = $"Chunk Water: {chunk.waterGenerated + chunk.waterImported}MW Supplied with {chunk.waterConsumed}MW Used. (Enough: {chunk.HasEnoughWater})";
+            buildingInfo3.text = $"Chunk Happiness: {chunk.averageHappiness}";
         }
     }
 
@@ -390,7 +444,7 @@ public class UIManager : MonoBehaviour
         SpecialFxContainer.SetActive(false);
     }
 
-    private void CloseSpecialFx()
+    public void CloseSpecialFx()
     {
         SpecialFxContainer.SetActive(false);
         targetBuilding = null;
@@ -413,6 +467,22 @@ public class UIManager : MonoBehaviour
     {
         experienceLevelDisplay.text = $"{experienceLevel}";
     }
+
+    //Council
+    private void ToggleCouncilFXPanel()
+    {
+        councilFXPanelActive = !councilFXPanelActive;
+        councilFXManager.TogglePanel(councilFXPanelActive);
+
+        if (gridPlayerManager != null)
+        {
+            gridPlayerManager.gridEditEnabled = !councilFXPanelActive;
+        }
+        
+        CloseSpecialFx();
+    }
+
+    private void DayEndCouncilFXPanel() => councilFXManager.PanelOnDayEnd();
 
     //Helper functions
     private string ReturnTextFromMoney(long amount)

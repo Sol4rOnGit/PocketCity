@@ -59,8 +59,9 @@ MonoBehaviour:
   isDestroying: 0
   RetroFitCost: 45000
   isRetrofitted: 0
-  _maxEmployees: 30
+  maxEmployees: 25
   employees: 0
+  taxRevenue: 3000
   dailyCost: 0
   maxAmbulances: 3
 --- !u!1001 &3809553440757541343

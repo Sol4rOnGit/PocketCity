@@ -65,6 +65,7 @@ public class ServiceManager : MonoBehaviour
             Debug.LogError("ServiceMananger: Fire station not a fire station.");
         }
 
+        burningBuilding.isFiretruckOnRoute = true;
 
         Vector2Int spawnGridPos = route[0];
         float scale = gridManager.getGridScale();
