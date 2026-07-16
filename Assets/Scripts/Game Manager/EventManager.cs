@@ -479,7 +479,7 @@ public class EventManager : MonoBehaviour
     private IEnumerator ArsonTimer(Vector2Int gridPos, Building buildingScript)
     {
         buildingScript.isCrimeScene = true;
-        GameObject timerCube = CreateTimerCube(gridPos);
+        GameObject timerCube = CreateTimerCube(gridPos, new Color(0.01f, 4f, 4f, 0.67f));
 
         float totalTime = 25f;
         float timeRemaining = totalTime;
@@ -513,8 +513,70 @@ public class EventManager : MonoBehaviour
         }
 
     }
-    
-    private GameObject CreateTimerCube(Vector2Int gridPos)
+
+    // ROBBERY
+
+    private void TriggerRobbery()
+    {
+        if (gridManager.BuildingPositions.Count == 0) { return; }
+
+        Vector2Int randomPos = gridManager.BuildingPositions[UnityEngine.Random.Range(0, gridManager.BuildingPositions.Count)];
+        var mapGrid = gridManager.GetMapGrid();
+
+        if (mapGrid.TryGetValue(randomPos, out GridManager.GridTile gridTile))
+        {
+            if (!gridTile.buildingScript.isOnFire)
+            {
+                gameManager.UserNotification?.Invoke($"Robbery Threat Declared at {randomPos.x}, {randomPos.y}", true);
+
+                StartCoroutine(RobberyTimer(randomPos, gridTile.buildingScript));
+
+                if (ServiceManager.instance == null) { return; }
+                ServiceManager.instance.DispatchPolice(gridTile.buildingScript);
+            }
+        }
+    }
+
+    private IEnumerator RobberyTimer(Vector2Int gridPos, Building buildingScript)
+    {
+        buildingScript.isCrimeScene = true;
+        GameObject timerCube = CreateTimerCube(gridPos, new Color(12f, 0f, 0f, 0.3f));
+
+        float totalTime = 20f;
+        float timeRemaining = totalTime;
+
+        while (timeRemaining > 0)
+        {
+            if (buildingScript == null || !buildingScript.isCrimeScene)
+            {
+                Destroy(timerCube);
+                yield break;
+            }
+
+            float currentSize = timeRemaining / totalTime;
+            timerCube.transform.localScale = new Vector3(currentSize, currentSize, currentSize);
+
+            timeRemaining -= Time.deltaTime;
+            yield return null;
+        }
+
+        Destroy(timerCube);
+
+        if (buildingScript != null && buildingScript.isCrimeScene)
+        {
+            buildingScript.isCrimeScene = false;
+            int payout = buildingScript is Employer employerScript ? (int)(employerScript.GetTaxRevenue() * 400f) : Mathf.Min((int)(FinanceManager.instance.currentMoney / 5f), 150_000); 
+            gameManager.UserNotification?.Invoke($"Bank robbery succesful! Insurance payout of {payout}. Affected Pos: ({gridPos.x}, {gridPos.y})", true);
+
+            buildingScript.IgniteFire();
+            StartCoroutine(BurnBuilding(gridPos, buildingScript));
+
+            if (ServiceManager.instance != null) { ServiceManager.instance.DispatchFiretruck(buildingScript); }
+        }
+    }
+
+    // Helper [CRIME]
+    private GameObject CreateTimerCube(Vector2Int gridPos, Color color)
     {
         float scale = gridManager.getGridScale();
 
@@ -528,7 +590,7 @@ public class EventManager : MonoBehaviour
         Renderer cubeRenderer = timerCube.GetComponent<Renderer>();
 
         cubeRenderer.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
-        cubeRenderer.material.color = new Color(0.01f, 4f, 4f, 0.67f);
+        cubeRenderer.material.color = color;
 
         return timerCube;
     }
@@ -597,6 +659,7 @@ public class EventManager : MonoBehaviour
         weightedEvents.Add(new WeightedEvent("Fire", 40, SetBuildingOnFire));
         weightedEvents.Add(new WeightedEvent("Virus", 20, () => { TriggerVirusOutbreak(); }));
         weightedEvents.Add(new WeightedEvent("Arson", 15, TriggerArson));
+        weightedEvents.Add(new WeightedEvent("Robbery", 10, TriggerRobbery));
         weightedEvents.Add(new WeightedEvent("PoliticalQuestion", 30, () => { _ = TriggerUserPoliticalEvent(); }));
         weightedEvents.Add(new WeightedEvent("AsteroidStrike", 0, AsteroidStrike));
 
@@ -607,17 +670,17 @@ public class EventManager : MonoBehaviour
     {
         int daysPassed = gameManager.daysPassed;
 
-        //SetWeights(nothing, earthquake, fire, virus, arson, polquest, asteroidStrike, arson);
+        //SetWeights(nothing, earthquake, fire, virus, arson, robbery, polquest, asteroidStrike);
 
-        if (daysPassed >= 300) { SetWeights(0, 10, 20, 40, 15, 20, 1); return; }
-        if (daysPassed >= 200) { SetWeights(5, 9, 10, 30, 20, 15, 1); return; }
-        if (daysPassed >= 100) { SetWeights(10, 7, 10, 20, 40, 25, 1); return; }
-        SetWeights(20, 5, 40, 20, 20, 30, 0);
+        if (daysPassed >= 300) { SetWeights(0, 10, 20, 40, 15, 6, 20, 2); return; }
+        if (daysPassed >= 200) { SetWeights(5, 9, 10, 30, 20, 8, 15, 1); return; }
+        if (daysPassed >= 100) { SetWeights(10, 7, 10, 20, 40, 10, 25, 1); return; }
+        SetWeights(20, 5, 40, 20, 20, 10, 30, 0);
 
         UpdateTotalWeight();
     }
 
-    private void SetWeights(int nothing, int earthquake, int fire, int virus, int arson, int polquest, int asteroidStrike)
+    private void SetWeights(int nothing, int earthquake, int fire, int virus, int arson, int robbery, int polquest, int asteroidStrike)
     {
         UpdateWeight("Nothing", nothing);
 
@@ -628,6 +691,7 @@ public class EventManager : MonoBehaviour
 
         //Crime
         UpdateWeight("Arson", arson + crimeWeightingIncrease);
+        UpdateWeight("Robbery", robbery + crimeWeightingIncrease);
 
         //Other
         UpdateWeight("PoliticalQuestion", polquest);

@@ -317,7 +317,7 @@ public class CouncilFX : MonoBehaviour
             if (gridTile.buildingScript is Employer employer)
             {
                 GameManager.instance.UpdateTaxRevenueMultiplier(temp);
-                employer.TryToMassHire();
+                //employer.TryToMassHire();
             }
         }
 
@@ -347,7 +347,7 @@ public class CouncilFX : MonoBehaviour
 
     public void OnCorporateHavenClicked(bool free = false)
     {
-        if (!free && !financeManager.Purchase(500_000)) return;
+        //if (!free && !financeManager.Purchase(500_000)) return;
 
         //14 day
         //Double tax revenue
