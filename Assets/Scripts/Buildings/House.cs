@@ -41,8 +41,6 @@ public class House : Building
 
             if (daysWithLowHappiness >= 3)
             {
-                Debug.LogError($"[HOUSE DEATH] at ({gridPos.x}, {gridPos.y}) which is {chunk.chunkCord}. Chunk average happiness: {chunk.averageHappiness}, house local happiness {this.happiness}, days with low {daysWithLowHappiness}, chunk power: {chunk.HasEnoughPower} chunk water: {chunk.HasEnoughWater}");
-
                 GameManager.instance.gridManager.forceRemoveElement(gridPos);
             }
         }

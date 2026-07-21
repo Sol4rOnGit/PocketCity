@@ -53,6 +53,7 @@ public class GameManager : MonoBehaviour
     public bool freeGridExpansion = false;
     public bool isImmuneToViruses = false;
     public float taxRevenueMultiplier = 1f;
+    public float tempRevenueMultiplier = 1f;
 
     private void Start()
     {
@@ -311,6 +312,12 @@ public class GameManager : MonoBehaviour
     public void UpdateTaxRevenueMultiplier(float newMultiplier)
     {
         taxRevenueMultiplier = newMultiplier;
+        OnTaxRevenueChanged?.Invoke();
+    }
+
+    public void TempChangeTaxRevenueMultiplier(float newTempMultiplier)
+    {
+        tempRevenueMultiplier = newTempMultiplier;
         OnTaxRevenueChanged?.Invoke();
     }
 }

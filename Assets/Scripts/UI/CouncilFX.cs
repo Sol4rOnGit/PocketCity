@@ -349,13 +349,14 @@ public class CouncilFX : MonoBehaviour
     {
         //if (!free && !financeManager.Purchase(500_000)) return;
 
+
         //14 day
         //Double tax revenue
         //All negative disasters are resolved
         //Zoning costs 25%
         //Maintenance costs cut
     }
-
+    
     public void OnPanicClicked()
     {
         if (hasPanicked) return;
@@ -394,6 +395,15 @@ public class CouncilFX : MonoBehaviour
         isOverclockActive = false;
         
         if (gameObject.activeSelf) UpdateButtonState();
+    }
+
+    private IEnumerator CorporateHavenCoroutine(int days)
+    {
+        GameManager.instance.TempChangeTaxRevenueMultiplier(2f);
+
+        yield return new WaitForSeconds(days);
+
+        GameManager.instance.TempChangeTaxRevenueMultiplier(1f);
     }
 
     private IEnumerator GrantVirusImmunity(int seconds)

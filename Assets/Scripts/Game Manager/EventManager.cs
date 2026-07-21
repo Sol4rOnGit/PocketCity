@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using UnityEngine;
+using static UnityEngine.EventSystems.EventTrigger;
 
 public class EventManager : MonoBehaviour
 {
@@ -88,6 +89,7 @@ public class EventManager : MonoBehaviour
     [Header("Rare Events")]
     [SerializeField] private GameObject asteroidPrefab;
     [SerializeField] private GameObject explosionEffectPrefab;
+    [SerializeField] private GameObject _UFOPrefab;
 
     private static void TemporaryFx()
     {
@@ -606,6 +608,8 @@ public class EventManager : MonoBehaviour
             new PoliticalScenario("City grows faster", () => { gameEffects.IncreaseCityGrowthSpeed(2); }),
             new PoliticalScenario("City grows a lot faster", () => { gameEffects.IncreaseCityGrowthSpeed(3); }),
             new PoliticalScenario("City grows MUCH faster", () => { gameEffects.IncreaseCityGrowthSpeed(4); }),
+            new PoliticalScenario("Get 10k", () => { FinanceManager.instance.Gain(10_000); }),
+            new PoliticalScenario("Get 100k", () => { FinanceManager.instance.Gain(100_000); })
 };
 
         badFeatures = new PoliticalScenario[]
@@ -614,7 +618,9 @@ public class EventManager : MonoBehaviour
             new PoliticalScenario("sudden power surge", () => { gameEffects.SuddenPowerSurge(); }),
             new PoliticalScenario("increase in crime", () => { crimeWeightingIncrease += 3; }),
             new PoliticalScenario("50% increase in rare events", () => { rareEventMultiplier += 0.5f; }),
-            new PoliticalScenario("get an asteroid bombing", () => { gameEffects.AsteroidBombing(); })
+            new PoliticalScenario("get an asteroid bombing", () => { gameEffects.AsteroidBombing(); }),
+            new PoliticalScenario("get an alien invasion", () => { TriggerAlienInvasion(); }), 
+            new PoliticalScenario("lose 200k", () => { FinanceManager.instance.ForcePurchase(50_000); })
         };
     }
 
@@ -658,10 +664,15 @@ public class EventManager : MonoBehaviour
         weightedEvents.Add(new WeightedEvent("Earthquake", 5, Earthquake));
         weightedEvents.Add(new WeightedEvent("Fire", 40, SetBuildingOnFire));
         weightedEvents.Add(new WeightedEvent("Virus", 20, () => { TriggerVirusOutbreak(); }));
+        weightedEvents.Add(new WeightedEvent("PoliticalQuestion", 30, () => { _ = TriggerUserPoliticalEvent(); }));
+
+        //Crime
         weightedEvents.Add(new WeightedEvent("Arson", 15, TriggerArson));
         weightedEvents.Add(new WeightedEvent("Robbery", 10, TriggerRobbery));
-        weightedEvents.Add(new WeightedEvent("PoliticalQuestion", 30, () => { _ = TriggerUserPoliticalEvent(); }));
+
+        //Rare
         weightedEvents.Add(new WeightedEvent("AsteroidStrike", 0, AsteroidStrike));
+        weightedEvents.Add(new WeightedEvent("AlienInvasion", 0, TriggerAlienInvasion));
 
         UpdateTotalWeight();
     }
@@ -670,17 +681,17 @@ public class EventManager : MonoBehaviour
     {
         int daysPassed = gameManager.daysPassed;
 
-        //SetWeights(nothing, earthquake, fire, virus, arson, robbery, polquest, asteroidStrike);
+        //SetWeights(nothing, earthquake, fire, virus, arson, robbery, polquest, asteroidStrike, alienInvasion);
 
-        if (daysPassed >= 300) { SetWeights(0, 10, 20, 40, 15, 6, 20, 2); return; }
-        if (daysPassed >= 200) { SetWeights(5, 9, 10, 30, 20, 8, 15, 1); return; }
-        if (daysPassed >= 100) { SetWeights(10, 7, 10, 20, 40, 10, 25, 1); return; }
-        SetWeights(20, 5, 40, 20, 20, 10, 30, 0);
+        if (daysPassed >= 300) { SetWeights(0, 10, 20, 40, 15, 6, 20, 2, 2); return; }
+        if (daysPassed >= 200) { SetWeights(5, 9, 10, 30, 20, 8, 15, 1, 1); return; }
+        if (daysPassed >= 100) { SetWeights(10, 7, 10, 20, 40, 10, 25, 1, 1); return; }
+        SetWeights(20, 5, 40, 20, 20, 10, 30, 0, 1000000);
 
         UpdateTotalWeight();
     }
 
-    private void SetWeights(int nothing, int earthquake, int fire, int virus, int arson, int robbery, int polquest, int asteroidStrike)
+    private void SetWeights(int nothing, int earthquake, int fire, int virus, int arson, int robbery, int polquest, int asteroidStrike, int alienInvasion)
     {
         UpdateWeight("Nothing", nothing);
 
@@ -698,6 +709,7 @@ public class EventManager : MonoBehaviour
 
         //Rare events
         UpdateWeight("AsteroidStrike", (int)(asteroidStrike * rareEventMultiplier));
+        UpdateWeight("AlienInvasion", (int)(alienInvasion * rareEventMultiplier));
     }
 
     private void UpdateWeight(string name, int newWeight)
@@ -805,6 +817,79 @@ public class EventManager : MonoBehaviour
 
         Destroy(explosionEffect);
     }
+
+    //Alien Invastion (UFO)
+
+    private void TriggerAlienInvasion()
+    {
+        if (gridManager.BuildingPositions.Count == 0) return;
+
+        Vector2Int centre = gridManager.BuildingPositions[UnityEngine.Random.Range(0, gridManager.BuildingPositions.Count)];
+
+        float scale = gridManager.getGridScale();
+        Vector3 centrePos = new Vector3(centre.x * scale, 0f, centre.y * scale);
+
+        GameObject _UFOObj = Instantiate(_UFOPrefab, centrePos, Quaternion.identity);
+        UFOMain _UFOScript = _UFOObj.GetComponent<UFOMain>();
+        _UFOScript.StartInvasion(() => { AlienInvasionConsequences(centre); });
+    }
+
+    private void AlienInvasionConsequences(Vector2Int centre)
+    {
+        var mapGrid = gridManager.GetMapGrid();
+
+        gridManager.forceRemoveElement(centre);
+
+        int radius = 25;
+        int innerRadius = 3;
+
+        for (int i = centre.x - radius; i <= centre.x + radius; i++)
+        {
+            for (int j = centre.y - radius; j <= centre.y + radius; j++)
+            {
+                Vector2Int pos = new Vector2Int(i, j);
+                float distance = Vector2Int.Distance(centre, pos);
+
+                if (distance < innerRadius)
+                {
+                    //Abduct all residents
+                    if (mapGrid.TryGetValue(pos, out var gridTile)){
+
+                        if (gridTile.buildingScript && gridTile.buildingScript is House houseScript)
+                        {
+                            gameManager.LosePopulation(houseScript.residents);
+                            houseScript.residents = 0;
+                        }
+                    }
+                }
+                else if (distance < radius)
+                {
+                    if (mapGrid.TryGetValue(pos, out var tile))
+                    {
+                        if (tile.buildingScript && tile.buildingScript is House houseScript)
+                        {
+                            //Aduct 50% of residents
+                            int abductedPop = Mathf.RoundToInt(houseScript.residents / 2f);
+                            houseScript.residents -= abductedPop;
+                            gameManager.LosePopulation(abductedPop);
+                        }
+                    }
+                }
+
+            }
+        }
+    }
+
+
+
+
+
+
+
+
+
+
+
 
     //RUBBISH
 

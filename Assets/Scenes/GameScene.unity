@@ -8593,10 +8593,6 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
-    - target: {fileID: 5302223365297760585, guid: 0aa29b7bcf1442c4c83cf302bc6a36b9, type: 3}
-      propertyPath: initialMoney
-      value: 400000
-      objectReference: {fileID: 0}
     - target: {fileID: 5674197881002118200, guid: 0aa29b7bcf1442c4c83cf302bc6a36b9, type: 3}
       propertyPath: m_Name
       value: City
