@@ -1,5 +1,15 @@
 using UnityEngine;
 
+/*
+ * Adding a new Category:
+ * Add it to BuildingCategory
+ * Add the SpecialBuildingType(s) (Ensure everything is a/has a Building script!)
+ * Update OnPlaced()
+ * Update CycleType()
+ * Update ResetTypeSelection();
+ * Update GetCurrentBuildPrice();
+ */
+
 public class RoadTool : IBuildTool
 {
     public string GetMainCategoryName() => "Road Building";
@@ -21,13 +31,15 @@ public class RoadTool : IBuildTool
 public enum SpecialBuildingTypes
 {
     WaterTower,
+    CoalStation,
+    NuclearStation,
+
     Fire,
     Police,
     Hospital,
-    CoalStation,
-    NuclearStation,
-}
 
+    Turret
+}
 public class ZoningTool : IBuildTool
 {
     private ZoneType currentZone = ZoneType.Residential;
@@ -63,7 +75,8 @@ public class BuildingTool : IBuildTool
     private enum BuildingCategory
     {
         Utilities,
-        Emergency
+        Emergency,
+        Military
     }
 
     private BuildingCategory activeCategory = BuildingCategory.Utilities;
@@ -83,37 +96,41 @@ public class BuildingTool : IBuildTool
     public void OnPlaced(Vector2Int gridPos, GridManager gridManager)
     {
         GameObject prefabToPlace = null;
-        int buildCost = 0;
 
         switch (activeBuilding)
         {
+            //Utilities
             case SpecialBuildingTypes.WaterTower:
                 prefabToPlace = GridPlayerManager.instance.waterTowerPrefab;
-                buildCost = 3000;
-                break;
-            case SpecialBuildingTypes.Fire:
-                prefabToPlace = GridPlayerManager.instance.fireStationPrefab;
-                buildCost = 80_000;
-                break;
-            case SpecialBuildingTypes.Police:
-                prefabToPlace = GridPlayerManager.instance.policeStationPrefab;
-                buildCost = 40_000;
-                break;
-            case SpecialBuildingTypes.Hospital:
-                prefabToPlace = GridPlayerManager.instance.hospitalPrefab;
-                buildCost = 50_000;
                 break;
             case SpecialBuildingTypes.CoalStation:
                 prefabToPlace = GridPlayerManager.instance.coalPowerStationPrefab;
-                buildCost = 80_000;
                 break;
             case SpecialBuildingTypes.NuclearStation:
                 prefabToPlace = GridPlayerManager.instance.nuclearPowerStationPrefab;
-                buildCost = 1_000_000;
+                break;
+
+            //Emergency
+            case SpecialBuildingTypes.Fire:
+                prefabToPlace = GridPlayerManager.instance.fireStationPrefab;
+                break;
+            case SpecialBuildingTypes.Police:
+                prefabToPlace = GridPlayerManager.instance.policeStationPrefab;
+                break;
+            case SpecialBuildingTypes.Hospital:
+                prefabToPlace = GridPlayerManager.instance.hospitalPrefab;
+                break;
+
+
+            //Military
+            case SpecialBuildingTypes.Turret:
+                prefabToPlace = MilitaryManager.instance.turretPrefab;
                 break;
             default:
                 break;
         }
+
+        int buildCost = GetCurrentBuildPrice();
 
         if (prefabToPlace == null) { Debug.LogError("Couldn't find a prefab to place!"); return; }
         if (FinanceManager.instance == null) { Debug.LogError("Couldn't find Finance Manager!"); return; }
@@ -172,13 +189,23 @@ public class BuildingTool : IBuildTool
                 }
                 break;
 
+            case BuildingCategory.Military:
+                switch (activeBuilding)
+                {
+                    case SpecialBuildingTypes.Turret:
+                        activeBuilding = SpecialBuildingTypes.Turret;
+                        break;
+                    default:
+                        activeBuilding = SpecialBuildingTypes.Turret;
+                        break;
+                }
+                break;
+
             default:
                 activeCategory = BuildingCategory.Utilities;
                 Debug.LogError("How did we get here? Invalid activeCategory");
                 break;
         }
-
-
     }
 
     private void ResetTypeSelection()
@@ -187,7 +214,37 @@ public class BuildingTool : IBuildTool
         {
             case BuildingCategory.Utilities: activeBuilding = SpecialBuildingTypes.WaterTower; break;
             case BuildingCategory.Emergency: activeBuilding = SpecialBuildingTypes.Hospital; break;
+            case BuildingCategory.Military: activeBuilding = SpecialBuildingTypes.Turret; break;
             default: Debug.LogError("How did we get here? Invalid activeCategory ResetTypeSelection()"); break;
+        }
+    }
+
+    public int GetCurrentBuildPrice()
+    {
+        switch (activeBuilding)
+        {
+            //Utilities
+            case SpecialBuildingTypes.WaterTower:
+                return 3000;
+            case SpecialBuildingTypes.CoalStation:
+                return 80_000;
+            case SpecialBuildingTypes.NuclearStation:
+                return 80_000;//fix when add later
+
+            //Emergency
+            case SpecialBuildingTypes.Fire:
+                return 80_000;
+            case SpecialBuildingTypes.Police:
+                return 40_000;
+            case SpecialBuildingTypes.Hospital:
+                return 50_000;
+
+
+            //Military
+            case SpecialBuildingTypes.Turret:
+                return 150_000;
+            default:
+                return 0;
         }
     }
 }

@@ -309,7 +309,7 @@ public class GridManager : MonoBehaviour
         if (!tileData.isRoad) { return; } //can only remove roads
 
         //Take money
-        bool success = financeManager.Purchase(financeManager.costRoadDemolition);
+        bool success = financeManager.Purchase(financeManager.costRoad);
         if (!success) { return; }
 
         //Destroy instance

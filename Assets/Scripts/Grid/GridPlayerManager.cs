@@ -54,6 +54,7 @@ public class GridPlayerManager : MonoBehaviour
 
     [Header("Tools")]
     private IBuildTool activeTool;
+    public IBuildTool GetActiveTool() { return activeTool; }
     private IBuildTool roadTool = new RoadTool();
     private IBuildTool zoneTool = new ZoningTool();
     private IBuildTool buildingTool = new BuildingTool();

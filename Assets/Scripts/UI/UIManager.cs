@@ -21,6 +21,7 @@ public class UIManager : MonoBehaviour
 
     [Header("Hotbar & Mode UI")]
     [SerializeField] private TMPro.TextMeshProUGUI playerModeShowText;
+    [SerializeField] private TMPro.TextMeshProUGUI priceShowText;
     [SerializeField] private Image roadImg;
     [SerializeField] private Image zoningImg;
     [SerializeField] private Image buildingImg;
@@ -114,7 +115,7 @@ public class UIManager : MonoBehaviour
 
         statsPanelActive = CityStatsPanel.activeSelf;
 
-        updateCurrentMoneyUI(financeManager.currentMoney);
+        UpdateCurrentMoneyUI(financeManager.currentMoney);
     }
 
     private void Update()
@@ -146,7 +147,12 @@ public class UIManager : MonoBehaviour
         }
         else { Debug.LogError("No grid player manager!"); }
 
-        if (financeManager != null) financeManager.OnMoneyChanged += updateCurrentMoneyUI; else Debug.LogError("No finance manager!");
+        if (financeManager != null)
+        {
+            financeManager.OnMoneyChanged += UpdateCurrentMoneyUI;
+            financeManager.OnInflationCompleted += InflationPriceUpdate;
+        }
+        else Debug.LogError("No finance manager!");
 
         if (eventManager != null) eventManager.onQueueChanged += CheckForPendingQuestions; else Debug.LogError("No event manager!");
 
@@ -176,7 +182,10 @@ public class UIManager : MonoBehaviour
         }
         else { Debug.LogError("No grid player manager!"); }
 
-        if (financeManager != null) financeManager.OnMoneyChanged -= updateCurrentMoneyUI;
+        if (financeManager != null) { 
+            financeManager.OnMoneyChanged -= UpdateCurrentMoneyUI;
+            financeManager.OnInflationCompleted -= InflationPriceUpdate;
+        }
 
         if (eventManager != null) eventManager.onQueueChanged -= CheckForPendingQuestions; else Debug.LogError("No event manager!");
 
@@ -239,6 +248,8 @@ public class UIManager : MonoBehaviour
         roadImg.color = (activeTool is RoadTool) ? activeColour : inactiveColour;
         zoningImg.color = (activeTool is ZoningTool) ? activeColour : inactiveColour;
         buildingImg.color = (activeTool is BuildingTool) ? activeColour : inactiveColour;
+
+        UpdatePriceText(activeTool);
     }
 
     //Stats
@@ -301,10 +312,12 @@ public class UIManager : MonoBehaviour
         int daysPassed = GameManager.instance.daysPassed; 
 
         daysPassedUIText.text = $"Day {daysPassed.ToString()}";
+
+        UpdatePriceText();
     }
 
     //Simple functions
-    public void updateCurrentMoneyUI(long currentMoney)
+    public void UpdateCurrentMoneyUI(long currentMoney)
     {
         if (currentMoneyUIText == null) { Debug.LogError("Missing UI reference."); return; }
 
@@ -315,6 +328,20 @@ public class UIManager : MonoBehaviour
 
         currentMoneyUIText.text = formattedMoney;
         addedMoneyUIText.text = deltaMoney;
+    }
+
+    private void InflationPriceUpdate() { UpdatePriceText(); }
+    private void UpdatePriceText(IBuildTool activeTool = null)
+    {
+        int currentPrice = 0;
+
+        if (activeTool == null) { activeTool = gridPlayerManager.GetActiveTool(); }
+
+        if (activeTool is RoadTool) { currentPrice = Mathf.RoundToInt(financeManager.costRoad); } //Demolishion??
+        if (activeTool is ZoningTool) { currentPrice = Mathf.RoundToInt(financeManager.costZoning); }
+        if (activeTool is BuildingTool buildingTool) { currentPrice = buildingTool.GetCurrentBuildPrice(); }
+
+        priceShowText.text = $"£{currentPrice:N0}";
     }
 
     private void ToggleZoningLayer()
@@ -476,7 +503,7 @@ public class UIManager : MonoBehaviour
 
         if (gridPlayerManager != null)
         {
-            gridPlayerManager.gridEditEnabled = !councilFXPanelActive;
+            gridPlayerManager.gridEditEnabled = !councilFXManager.gameObject.activeSelf;
         }
         
         CloseSpecialFx();

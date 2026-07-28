@@ -38,7 +38,6 @@ public class FinanceManager : MonoBehaviour
     
     [Header("Costs")]
     public float costRoad = 245f;
-    public float costRoadDemolition = 445f;
     public float costZoning = 550;
 
     public float roadMaintainanceCost = 20f;
@@ -52,7 +51,6 @@ public class FinanceManager : MonoBehaviour
     private int maintenanceResetDays = 0;
 
     private float baseCostRoad;
-    private float baseCostRoadDemolition;
     private float baseCostZoning;
 
     private float baseRoadMaintainanceCost;
@@ -63,6 +61,7 @@ public class FinanceManager : MonoBehaviour
 
     [Header("Actions")]
     public Action<long> OnMoneyChanged;
+    public Action OnInflationCompleted;
 
     [Header("Emergency Borrow Settings")]
     public long currentDebt { get; private set; } = 0;
@@ -77,7 +76,6 @@ public class FinanceManager : MonoBehaviour
 
         //Set base
         baseCostRoad = costRoad;
-        baseCostRoadDemolition = costRoadDemolition;
         baseCostZoning = costZoning;
 
         baseRoadMaintainanceCost = roadMaintainanceCost;
@@ -174,7 +172,6 @@ public class FinanceManager : MonoBehaviour
 
         //Update the costs
         costRoad = (baseCostRoad * currentMultiplier);
-        costRoadDemolition = (baseCostRoadDemolition * currentMultiplier);
         costZoning = (baseCostZoning * currentMultiplier);
 
         roadMaintainanceCost = (baseRoadMaintainanceCost * currentMultiplier);
@@ -182,6 +179,8 @@ public class FinanceManager : MonoBehaviour
         serviceChargeFire = (baseServiceChargeFire * currentMultiplier);
         serviceChargeHospital = (baseServiceChargeHospital * currentMultiplier);
         serviceChargePoliceTrip = (baseServiceChargePoliceTrip * currentMultiplier);
+
+        OnInflationCompleted?.Invoke();
     }
 
     private float GetInflationForDaysPassed(int daysPassed)

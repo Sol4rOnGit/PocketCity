@@ -3,7 +3,6 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using UnityEngine;
-using static UnityEngine.EventSystems.EventTrigger;
 
 public class EventManager : MonoBehaviour
 {
@@ -18,35 +17,55 @@ public class EventManager : MonoBehaviour
     private GameManager gameManager;
     private GridManager gridManager;
     private GameEffects gameEffects;
+    [SerializeField] private E_RareEvents rareEventsScript;
 
+    [Header("Fire")]
+    private readonly float secondsToBurnBuilding = 10f;
+
+    [Header("Health Statistics")]
+    private int infectedPopulation;
+    public bool isLockdownActive = false;
 
     [Header("Event Rolling")]
     [SerializeField] private int gracePeriodDays = 3;
     [SerializeField] private int minIntervalDays = 3;
     [SerializeField] private int maxIntervalDays = 6; 
     private int daysLeft;
-    private float chanceForDoubleEvent = 0.75f;
+    private int currentPhase = -1;
+    private readonly float chanceForDoubleEvent = 0.75f;
 
     private float rareEventMultiplier = 1f;
     private int crimeWeightingIncrease = 0;
 
-    private float secondsToBurnBuilding = 10f;
-
-    [Header("Health Statistics")]
-    private int infectedPopulation;
-    public bool isLockdownActive = false; //Let user use later
-
     //Weighted Events
+    List<WeightedEvent> weightedEvents = new List<WeightedEvent>();
+    Dictionary<EventType, int> phaseWeights = new Dictionary<EventType, int>();
+    private int totalWeight;
+
+    public enum EventType
+    {
+        Nothing,
+        PoliticalQuestion,
+        DIS_Earthquake,
+        DIS_Fire,
+        DIS_Virus,
+        CRIME_Arson,
+        CRIME_Robbery,
+        RARE_AsteroidStrike,
+        RARE_AlienInvasion,
+        RARE_AttackHelicopter
+    }
+
     [Serializable]
     public class WeightedEvent
     {
-        public string name;
+        public EventType eventType;
         public int weight;
         public Action weightedEvent;
 
-        public WeightedEvent(string name, int weight, Action weightedEvent)
+        public WeightedEvent(EventType eventType, int weight, Action weightedEvent)
         {
-            this.name = name;
+            this.eventType = eventType;
             this.weight = weight;
             this.weightedEvent = weightedEvent;
         }
@@ -145,7 +164,6 @@ public class EventManager : MonoBehaviour
     }
 
     //Event player
-
     private IEnumerator rollEvents()
     {
         float lerp = Mathf.Lerp(0f, 1f, Mathf.Clamp01(gameManager.daysPassed / 200f));
@@ -153,7 +171,7 @@ public class EventManager : MonoBehaviour
 
         gameManager.disastersSurvived++;
 
-        string currentEventType = playRandomEvent();
+        EventType currentEventType = playRandomEvent();
 
         if (UnityEngine.Random.value < chanceOfDouble) { 
             yield return new WaitForSeconds(2.5f); 
@@ -161,7 +179,7 @@ public class EventManager : MonoBehaviour
             gameManager.disastersSurvived++;
         }
     }
-    private string playRandomEvent(string prevEventName = "non-existant-event")
+    private EventType playRandomEvent(EventType prevEventName = EventType.Nothing)
     {
         WeightedEvent selectedEvent = null;
 
@@ -177,7 +195,7 @@ public class EventManager : MonoBehaviour
                 cursor += _event.weight;
                 if (cursor >= randInt)
                 {
-                    if (_event.name != prevEventName)
+                    if (_event.eventType != prevEventName)
                     {
                         selectedEvent = _event;
                     }
@@ -190,11 +208,11 @@ public class EventManager : MonoBehaviour
         //Rejection handling
         if (selectedEvent == null) { 
             Debug.Log("Couldn't find a valid event to play in 5 iterations"); 
-            return "non-existant-event"; 
+            return EventType.Nothing; 
         }
 
         selectedEvent.weightedEvent?.Invoke();
-        return selectedEvent.name;
+        return selectedEvent.eventType;
     }
 
     //Natural disasters
@@ -405,19 +423,12 @@ public class EventManager : MonoBehaviour
 
         if (houseScript == null || !houseScript.isInfected || GameManager.instance.isImmuneToViruses) yield break;
 
-        if (houseScript.residents < 2) {
-            //Spread atleast Once
-            yield return null;
-            TriggerVirusOutbreak(false); 
-        } 
-        else
+        int spreadNum = (houseScript.residents < 2) ? 1 : UnityEngine.Random.Range(1, 4);
+
+        for (int i = 1; i < spreadNum; i++)
         {
-            int random = UnityEngine.Random.Range(1, 5); //anywhere between 1 to 5 residents
-            for (int i = 1; i < random; i++)
-            {
-                yield return null; 
-                TriggerVirusOutbreak(false); //Spread!
-            }
+            yield return new WaitForSeconds(0.1f); 
+            TriggerVirusOutbreak(false); //Spread!
         }
 
         gridManager.forceRemoveElement(randomPos);
@@ -616,8 +627,8 @@ public class EventManager : MonoBehaviour
         {
             new PoliticalScenario("corruption steals 20% of your net worth", () => { gameEffects.Take20PercentNetWorth(); }),
             new PoliticalScenario("sudden power surge", () => { gameEffects.SuddenPowerSurge(); }),
-            new PoliticalScenario("increase in crime", () => { crimeWeightingIncrease += 3; }),
-            new PoliticalScenario("50% increase in rare events", () => { rareEventMultiplier += 0.5f; }),
+            new PoliticalScenario("increase in crime", () => { crimeWeightingIncrease += 3; UpdateWeights(); }),
+            new PoliticalScenario("50% increase in rare events", () => { rareEventMultiplier += 0.5f; UpdateWeights(); }),
             new PoliticalScenario("get an asteroid bombing", () => { gameEffects.AsteroidBombing(); }),
             new PoliticalScenario("get an alien invasion", () => { TriggerAlienInvasion(); }), 
             new PoliticalScenario("lose 200k", () => { FinanceManager.instance.ForcePurchase(50_000); })
@@ -628,7 +639,7 @@ public class EventManager : MonoBehaviour
     {
         if (goodFeatures == null || goodFeatures.Length == 0 || badFeatures == null || badFeatures.Length == 0) { Debug.LogError("No good/bad feautres!"); return; }
 
-        //Select raddom good/bad feature
+        //Select random good/bad feature
         PoliticalScenario goodFeature = goodFeatures[UnityEngine.Random.Range(0, goodFeatures.Length)];
         PoliticalScenario badFeature = badFeatures[UnityEngine.Random.Range(0, badFeatures.Length)];
 
@@ -660,64 +671,145 @@ public class EventManager : MonoBehaviour
     //Helper functions for Weights
     private void InitialiseWeights()
     {
-        weightedEvents.Add(new WeightedEvent("Nothing", 20, () => { }));
-        weightedEvents.Add(new WeightedEvent("Earthquake", 5, Earthquake));
-        weightedEvents.Add(new WeightedEvent("Fire", 40, SetBuildingOnFire));
-        weightedEvents.Add(new WeightedEvent("Virus", 20, () => { TriggerVirusOutbreak(); }));
-        weightedEvents.Add(new WeightedEvent("PoliticalQuestion", 30, () => { _ = TriggerUserPoliticalEvent(); }));
+        RegisterEvent(EventType.Nothing, () => { });
+        RegisterEvent(EventType.PoliticalQuestion, () => { _ = TriggerUserPoliticalEvent(); });
+
+        //Disasters
+        RegisterEvent(EventType.DIS_Earthquake, Earthquake);
+        RegisterEvent(EventType.DIS_Fire, SetBuildingOnFire);
+        RegisterEvent(EventType.DIS_Virus, () => { TriggerVirusOutbreak(); });
 
         //Crime
-        weightedEvents.Add(new WeightedEvent("Arson", 15, TriggerArson));
-        weightedEvents.Add(new WeightedEvent("Robbery", 10, TriggerRobbery));
+        RegisterEvent(EventType.CRIME_Arson, TriggerArson);
+        RegisterEvent(EventType.CRIME_Robbery, TriggerRobbery);
 
         //Rare
-        weightedEvents.Add(new WeightedEvent("AsteroidStrike", 0, AsteroidStrike));
-        weightedEvents.Add(new WeightedEvent("AlienInvasion", 0, TriggerAlienInvasion));
+        RegisterEvent(EventType.RARE_AsteroidStrike, AsteroidStrike);
+        RegisterEvent(EventType.RARE_AlienInvasion, TriggerAlienInvasion);
+        RegisterEvent(EventType.RARE_AttackHelicopter, () => { rareEventsScript.SummonAttackHelicopter(); });
 
         UpdateTotalWeight();
     }
-    
+
+    private void RegisterEvent(EventType eventType, Action action)
+    {
+        weightedEvents.Add(new WeightedEvent(eventType, 0, action));
+    }
+
+    private void LoadPhase(int phase)
+    {
+        phaseWeights.Clear();
+
+        switch (phase)
+        {
+            default: //Day 0-99
+                SetWeight(EventType.Nothing, 20);
+                SetWeight(EventType.PoliticalQuestion, 20);
+
+                SetWeight(EventType.DIS_Earthquake, 5);
+                SetWeight(EventType.DIS_Fire, 40);
+                SetWeight(EventType.DIS_Virus, 20);
+
+                SetWeight(EventType.CRIME_Arson, 20);
+                SetWeight(EventType.CRIME_Robbery, 10);
+
+                SetWeight(EventType.RARE_AlienInvasion, 0);
+                SetWeight(EventType.RARE_AsteroidStrike, 0);
+                SetWeight(EventType.RARE_AttackHelicopter, 0);
+
+                break;
+            case 1: //Day 100-199
+                SetWeight(EventType.Nothing, 10); 
+                SetWeight(EventType.PoliticalQuestion, 25);
+
+                SetWeight(EventType.DIS_Earthquake, 17);
+                SetWeight(EventType.DIS_Fire, 15);
+                SetWeight(EventType.DIS_Virus, 20);
+
+                SetWeight(EventType.CRIME_Arson, 15);
+                SetWeight(EventType.CRIME_Robbery, 15);
+
+                SetWeight(EventType.RARE_AsteroidStrike, 1);
+                SetWeight(EventType.RARE_AlienInvasion, 1);
+                SetWeight(EventType.RARE_AttackHelicopter, 1);
+
+                break;
+            case 2: //Day 200-299
+                SetWeight(EventType.Nothing, 6);
+                SetWeight(EventType.PoliticalQuestion, 15);
+
+                SetWeight(EventType.DIS_Earthquake, 10);
+                SetWeight(EventType.DIS_Fire, 25);
+                SetWeight(EventType.DIS_Virus, 21);
+
+                SetWeight(EventType.CRIME_Arson, 10);
+                SetWeight(EventType.CRIME_Robbery, 10);
+
+                SetWeight(EventType.RARE_AsteroidStrike, 2);
+                SetWeight(EventType.RARE_AlienInvasion, 2);
+                SetWeight(EventType.RARE_AttackHelicopter, 1);
+
+                break;
+            case 3: //Day 300-399
+                SetWeight(EventType.Nothing, 3);
+                SetWeight(EventType.PoliticalQuestion, 10);
+
+                SetWeight(EventType.DIS_Earthquake, 18);
+                SetWeight(EventType.DIS_Fire, 22);
+                SetWeight(EventType.DIS_Virus, 20);
+
+                SetWeight(EventType.CRIME_Arson, 10);
+                SetWeight(EventType.CRIME_Robbery, 10);
+
+                SetWeight(EventType.RARE_AsteroidStrike, 3);
+                SetWeight(EventType.RARE_AlienInvasion, 3);
+                SetWeight(EventType.RARE_AttackHelicopter, 4);
+
+                break;
+        }
+    }
+
     private void UpdateWeights()
     {
         int daysPassed = gameManager.daysPassed;
+        int newPhase = GetPhaseFromDay(daysPassed);
 
-        //SetWeights(nothing, earthquake, fire, virus, arson, robbery, polquest, asteroidStrike, alienInvasion);
-
-        if (daysPassed >= 300) { SetWeights(0, 10, 20, 40, 15, 6, 20, 2, 2); return; }
-        if (daysPassed >= 200) { SetWeights(5, 9, 10, 30, 20, 8, 15, 1, 1); return; }
-        if (daysPassed >= 100) { SetWeights(10, 7, 10, 20, 40, 10, 25, 1, 1); return; }
-        SetWeights(20, 5, 40, 20, 20, 10, 30, 0, 1000000);
+        if (newPhase != currentPhase)
+        {
+            currentPhase = newPhase;
+            LoadPhase(currentPhase);
+        }
 
         UpdateTotalWeight();
     }
 
-    private void SetWeights(int nothing, int earthquake, int fire, int virus, int arson, int robbery, int polquest, int asteroidStrike, int alienInvasion)
+    private void SetWeight(EventType eventType, int baseWeight)
     {
-        UpdateWeight("Nothing", nothing);
-
-        //"Natural" disasters
-        UpdateWeight("Earthquake", earthquake);
-        UpdateWeight("Fire", fire);
-        UpdateWeight("Virus", virus);
+        int finalWeight = baseWeight;
 
         //Crime
-        UpdateWeight("Arson", arson + crimeWeightingIncrease);
-        UpdateWeight("Robbery", robbery + crimeWeightingIncrease);
+        if (eventType == EventType.CRIME_Arson || eventType == EventType.CRIME_Robbery)
+        {
+            finalWeight += crimeWeightingIncrease;
+        }
 
-        //Other
-        UpdateWeight("PoliticalQuestion", polquest);
+        //Rare
+        if (eventType == EventType.RARE_AsteroidStrike || eventType == EventType.RARE_AlienInvasion)
+        {
+            finalWeight = Mathf.RoundToInt(baseWeight * rareEventMultiplier);
+        }
 
-        //Rare events
-        UpdateWeight("AsteroidStrike", (int)(asteroidStrike * rareEventMultiplier));
-        UpdateWeight("AlienInvasion", (int)(alienInvasion * rareEventMultiplier));
+        phaseWeights[eventType] = finalWeight;
+        var matchingEvent = weightedEvents.Find(e => e.eventType == eventType);
+        if (matchingEvent != null) matchingEvent.weight = finalWeight;
     }
 
-    private void UpdateWeight(string name, int newWeight)
+    private int GetPhaseFromDay(int daysPassed)
     {
-        var evnt = weightedEvents.Find(e => e.name == name);
-        if (evnt != null) evnt.weight = newWeight;
-
-        UpdateTotalWeight();
+        if (daysPassed >= 300) { return 3; }
+        if (daysPassed >= 200) { return 2; }
+        if (daysPassed >= 100) { return 1; }
+        return 0;
     }
 
     private void UpdateTotalWeight()
@@ -726,13 +818,9 @@ public class EventManager : MonoBehaviour
         foreach (var weightedEvent in weightedEvents) totalWeight += weightedEvent.weight;
     }
 
-    List<WeightedEvent> weightedEvents = new List<WeightedEvent>();
-    private int totalWeight;
-
     //Rare Events -----!!
 
     //Asteroid Strike
-
     public void AsteroidStrike()
     {
         if (gridManager.BuildingPositions.Count == 0) { return; }
@@ -811,7 +899,7 @@ public class EventManager : MonoBehaviour
 
     private IEnumerator DoExplosionEffect(Vector3 centreWorldPos)
     {
-        GameObject explosionEffect = Instantiate(explosionEffectPrefab, centreWorldPos, Quaternion.identity);
+        GameObject explosionEffect = Instantiate(explosionEffectPrefab, centreWorldPos, Quaternion.identity, MilitaryManager.instance.transform);
 
         yield return new WaitForSeconds(3.0f);
 
@@ -880,17 +968,6 @@ public class EventManager : MonoBehaviour
         }
     }
 
-
-
-
-
-
-
-
-
-
-
-
     //RUBBISH
 
     //Create a: destroyed house, commercial and industrail assets.
@@ -901,9 +978,13 @@ public class EventManager : MonoBehaviour
 
     //-- Nuclear fallout
 
-    //CRIME
+    //Weather Events
 
-    //Robberies
+    //Tornado
+
+    //Thunderstorm
+
+    //CRIME
 
     //-- Terrorism
 
@@ -916,18 +997,9 @@ public class EventManager : MonoBehaviour
 
     //-- Country declares war on you 
 
-    //HEALTH!!
-
-    //Viruses
-
-    //Lockdowns
-
-    //Hospitals
-
 
     //Super rare ones:
 
-    //asteroid attack
+    //kaiju invasion
 
-    //Alien invasion
 }

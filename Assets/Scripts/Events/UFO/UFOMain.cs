@@ -14,7 +14,6 @@ public class UFOMain : MonoBehaviour
     [SerializeField] private GameObject _UFOPulseObj;
 
     private UFOPulseProjection _UFOPulseProjectionScript;
-    private Action isPulseProjectionComplete;
     private Action lclHasInvasionStarted;
 
     void Start()
