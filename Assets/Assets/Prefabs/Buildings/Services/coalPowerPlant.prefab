@@ -101,7 +101,7 @@ GameObject:
   - component: {fileID: 2361325401460148150}
   - component: {fileID: 2481163871753519769}
   m_Layer: 0
-  m_Name: coalPowerPlant
+  m_Name: CoalPowerPlant
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

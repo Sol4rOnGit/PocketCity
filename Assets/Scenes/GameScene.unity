@@ -7304,10 +7304,11 @@ MonoBehaviour:
   gridManager: {fileID: 1273503028}
   cursor: {fileID: 6217331903252028676, guid: eb77da6927c7ad849968b57b19ab6aef, type: 3}
   waterTowerPrefab: {fileID: 4287405775398340856, guid: 2d26b16dea4f14344b8353267b8bb05d, type: 3}
+  generatorPrefab: {fileID: 7932367754261995911, guid: 795ac47889f0b374ea42a36be1b9a999, type: 3}
+  coalPowerStationPrefab: {fileID: 3738098178782129888, guid: 45a565d9e09660e45b3a9f1983d1154f, type: 3}
+  nuclearPowerStationPrefab: {fileID: 8565096168645549516, guid: 828063ffdf3ea174699a3d89829f8714, type: 3}
   fireStationPrefab: {fileID: 3738098178782129888, guid: 89a0078372063f04ba5f7562d61f8c66, type: 3}
   policeStationPrefab: {fileID: 221019354706932507, guid: 4fa35c5d2a13f4e478b2e179f408b714, type: 3}
-  coalPowerStationPrefab: {fileID: 3738098178782129888, guid: 45a565d9e09660e45b3a9f1983d1154f, type: 3}
-  nuclearPowerStationPrefab: {fileID: 3738098178782129888, guid: 45a565d9e09660e45b3a9f1983d1154f, type: 3}
   hospitalPrefab: {fileID: 3738098178782129888, guid: bcc9bef6ab700034d9ff7189c02eaf31, type: 3}
   PlayerModeUIText: {fileID: 1929140831}
 --- !u!1 &1898236487
@@ -8732,6 +8733,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 5302223365297760585, guid: 0aa29b7bcf1442c4c83cf302bc6a36b9, type: 3}
+      propertyPath: initialMoney
+      value: 4000000
+      objectReference: {fileID: 0}
     - target: {fileID: 5674197881002118200, guid: 0aa29b7bcf1442c4c83cf302bc6a36b9, type: 3}
       propertyPath: m_Name
       value: City

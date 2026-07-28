@@ -31,6 +31,7 @@ public class RoadTool : IBuildTool
 public enum SpecialBuildingTypes
 {
     WaterTower,
+    Generator,
     CoalStation,
     NuclearStation,
 
@@ -103,6 +104,9 @@ public class BuildingTool : IBuildTool
             case SpecialBuildingTypes.WaterTower:
                 prefabToPlace = GridPlayerManager.instance.waterTowerPrefab;
                 break;
+            case SpecialBuildingTypes.Generator:
+                prefabToPlace = GridPlayerManager.instance.generatorPrefab;
+                break;
             case SpecialBuildingTypes.CoalStation:
                 prefabToPlace = GridPlayerManager.instance.coalPowerStationPrefab;
                 break;
@@ -163,6 +167,9 @@ public class BuildingTool : IBuildTool
                 switch (activeBuilding)
                 {
                     case SpecialBuildingTypes.WaterTower:
+                        activeBuilding = SpecialBuildingTypes.Generator;
+                        break;
+                    case SpecialBuildingTypes.Generator:
                         activeBuilding = SpecialBuildingTypes.CoalStation;
                         break;
                     case SpecialBuildingTypes.CoalStation:
@@ -226,10 +233,12 @@ public class BuildingTool : IBuildTool
             //Utilities
             case SpecialBuildingTypes.WaterTower:
                 return 3000;
+            case SpecialBuildingTypes.Generator:
+                return 10_000;
             case SpecialBuildingTypes.CoalStation:
                 return 80_000;
             case SpecialBuildingTypes.NuclearStation:
-                return 80_000;//fix when add later
+                return 1_000_000;
 
             //Emergency
             case SpecialBuildingTypes.Fire:

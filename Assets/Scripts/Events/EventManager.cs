@@ -719,12 +719,12 @@ public class EventManager : MonoBehaviour
 
                 break;
             case 1: //Day 100-199
-                SetWeight(EventType.Nothing, 10); 
-                SetWeight(EventType.PoliticalQuestion, 25);
+                SetWeight(EventType.Nothing, 7); 
+                SetWeight(EventType.PoliticalQuestion, 15);
 
                 SetWeight(EventType.DIS_Earthquake, 17);
-                SetWeight(EventType.DIS_Fire, 15);
-                SetWeight(EventType.DIS_Virus, 20);
+                SetWeight(EventType.DIS_Fire, 35);
+                SetWeight(EventType.DIS_Virus, 25);
 
                 SetWeight(EventType.CRIME_Arson, 15);
                 SetWeight(EventType.CRIME_Robbery, 15);
@@ -974,6 +974,10 @@ public class EventManager : MonoBehaviour
     //Create rubbish manager
     //Similar to fire/ambulance after but with a rubbish truck and landfill -> will have to buy!
 
+    //Less bad events
+
+    //
+
     //-- Tornado
 
     //-- Nuclear fallout
@@ -990,13 +994,11 @@ public class EventManager : MonoBehaviour
 
     //Gang wars
 
-
     //Political unrest -> people start rioting (become unemployed, set stuff on fire)
 
     //Strikes & burnout 
 
     //-- Country declares war on you 
-
 
     //Super rare ones:
 

@@ -40,10 +40,12 @@ public class GridPlayerManager : MonoBehaviour
 
     [Header("Special Buildings")]
     public GameObject waterTowerPrefab;
-    public GameObject fireStationPrefab;
-    public GameObject policeStationPrefab;
+    public GameObject generatorPrefab;
     public GameObject coalPowerStationPrefab;
     public GameObject nuclearPowerStationPrefab;
+
+    public GameObject fireStationPrefab;
+    public GameObject policeStationPrefab;
     public GameObject hospitalPrefab;
 
     [Header("UI")]
