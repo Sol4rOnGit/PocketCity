@@ -84,7 +84,6 @@ public class UIManager : MonoBehaviour
 
     [Header("Council FX")]
     [SerializeField] private CouncilFX councilFXManager;
-    private bool councilFXPanelActive = false;
 
     private void Awake()
     {
@@ -498,8 +497,7 @@ public class UIManager : MonoBehaviour
     //Council
     private void ToggleCouncilFXPanel()
     {
-        councilFXPanelActive = !councilFXPanelActive;
-        councilFXManager.TogglePanel(councilFXPanelActive);
+        councilFXManager.TogglePanel();
 
         if (gridPlayerManager != null)
         {

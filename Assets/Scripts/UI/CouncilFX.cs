@@ -10,10 +10,6 @@ public class CouncilFX : MonoBehaviour
     FinanceManager financeManager;
     EventManager eventManager;
 
-    [Header("Council FX Vars")]
-    [SerializeField] private GameObject CouncilFXPanel;
-    private bool councilFxPanelActive = false;
-
     // --different things--
 
     //Emergency Borrow
@@ -69,16 +65,13 @@ public class CouncilFX : MonoBehaviour
     [SerializeField] private Button panicButton;
     [SerializeField] private TMPro.TextMeshProUGUI panicTextUGUI;
 
-    private void Start()
+    private void Awake()
     {
         gridManager = GridManager.instance;
         financeManager = FinanceManager.instance;
         eventManager = EventManager.instance;
 
         if (GameManager.instance != null) GameManager.instance.OnNewXPLevel += HandleXPLevelChanged;
-
-        CouncilFXPanel.SetActive(false);
-        councilFxPanelActive = CouncilFXPanel.activeSelf;
     }
 
     private void OnDestroy()
@@ -86,10 +79,11 @@ public class CouncilFX : MonoBehaviour
         if(GameManager.instance != null) GameManager.instance.OnNewXPLevel -= HandleXPLevelChanged;
     }
 
-    public void TogglePanel(bool active)
+    public void TogglePanel()
     {
-        gameObject.SetActive(active);
-        if (active) UpdateButtonState();
+        bool newState = !gameObject.activeSelf;
+        gameObject.SetActive(newState);
+        if (newState) UpdateButtonState();
     }
 
     public void PanelOnDayEnd()

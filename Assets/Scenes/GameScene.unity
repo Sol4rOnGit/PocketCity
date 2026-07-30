@@ -8432,7 +8432,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 37a0f425e2ca19b479eca97785ea4586, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CouncilFX
-  CouncilFXPanel: {fileID: 2092144956}
   emergencyBorrowButton: {fileID: 1740091072}
   emergencyBorrowButtonUGUI: {fileID: 392242780}
   lockdownButton: {fileID: 91071148}
@@ -8733,6 +8732,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 4405425173492461664, guid: 0aa29b7bcf1442c4c83cf302bc6a36b9, type: 3}
+      propertyPath: B2BomberPrefab
+      value: 
+      objectReference: {fileID: 5881250969232297351, guid: 134de3f4fe1356e40b9fd58afee16978, type: 3}
     - target: {fileID: 5302223365297760585, guid: 0aa29b7bcf1442c4c83cf302bc6a36b9, type: 3}
       propertyPath: initialMoney
       value: 4000000

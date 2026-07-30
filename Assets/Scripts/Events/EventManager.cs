@@ -27,7 +27,7 @@ public class EventManager : MonoBehaviour
     public bool isLockdownActive = false;
 
     [Header("Event Rolling")]
-    [SerializeField] private int gracePeriodDays = 3;
+    [SerializeField] private int gracePeriodDays = 10;
     [SerializeField] private int minIntervalDays = 3;
     [SerializeField] private int maxIntervalDays = 6; 
     private int daysLeft;
@@ -53,7 +53,9 @@ public class EventManager : MonoBehaviour
         CRIME_Robbery,
         RARE_AsteroidStrike,
         RARE_AlienInvasion,
-        RARE_AttackHelicopter
+        RARE_AttackHelicopter,
+        RARE_B2Bomber,
+        RARE_MilitaryInvasion
     }
 
     [Serializable]
@@ -132,7 +134,7 @@ public class EventManager : MonoBehaviour
         gameManager.OnDayEnd += UpdateWeights;
 
         //Set grace period
-        daysLeft = gracePeriodDays + minIntervalDays;
+        daysLeft = gracePeriodDays;
 
         //Ad the weights
         InitialiseWeights();
@@ -183,11 +185,10 @@ public class EventManager : MonoBehaviour
     {
         WeightedEvent selectedEvent = null;
 
-
         int safety = 0;
         while (selectedEvent == null && safety < 5)
         {
-            int randInt = UnityEngine.Random.Range(0, totalWeight);
+            int randInt = UnityEngine.Random.Range(1, totalWeight);
             int cursor = 0;
 
             foreach (var _event in weightedEvents)
@@ -318,7 +319,7 @@ public class EventManager : MonoBehaviour
         return;
     }
 
-    private IEnumerator BurnBuilding(Vector2Int pos, Building buildingScript)
+    public IEnumerator BurnBuilding(Vector2Int pos, Building buildingScript)
     {
         yield return new WaitForSeconds(secondsToBurnBuilding);
 
@@ -528,7 +529,6 @@ public class EventManager : MonoBehaviour
     }
 
     // ROBBERY
-
     private void TriggerRobbery()
     {
         if (gridManager.BuildingPositions.Count == 0) { return; }
@@ -609,7 +609,6 @@ public class EventManager : MonoBehaviour
     }
 
     //"POLITICAL" QUESTIONS
-
     private void InitialisePoliticalQuestions()
     {
         goodFeatures = new PoliticalScenario[]
@@ -631,7 +630,7 @@ public class EventManager : MonoBehaviour
             new PoliticalScenario("50% increase in rare events", () => { rareEventMultiplier += 0.5f; UpdateWeights(); }),
             new PoliticalScenario("get an asteroid bombing", () => { gameEffects.AsteroidBombing(); }),
             new PoliticalScenario("get an alien invasion", () => { TriggerAlienInvasion(); }), 
-            new PoliticalScenario("lose 200k", () => { FinanceManager.instance.ForcePurchase(50_000); })
+            new PoliticalScenario("lose 200k", () => { FinanceManager.instance.ForcePurchase(200_000); })
         };
     }
 
@@ -687,6 +686,8 @@ public class EventManager : MonoBehaviour
         RegisterEvent(EventType.RARE_AsteroidStrike, AsteroidStrike);
         RegisterEvent(EventType.RARE_AlienInvasion, TriggerAlienInvasion);
         RegisterEvent(EventType.RARE_AttackHelicopter, () => { rareEventsScript.SummonAttackHelicopter(); });
+        RegisterEvent(EventType.RARE_B2Bomber, () => { rareEventsScript.SummonB2Bomber(); });
+        RegisterEvent(EventType.RARE_MilitaryInvasion, () => { rareEventsScript.MilitaryInvasion(); });
 
         UpdateTotalWeight();
     }
@@ -694,6 +695,14 @@ public class EventManager : MonoBehaviour
     private void RegisterEvent(EventType eventType, Action action)
     {
         weightedEvents.Add(new WeightedEvent(eventType, 0, action));
+    }
+    private int GetPhaseFromDay(int daysPassed)
+    {
+        if (daysPassed >= 400) { return 4; }
+        if (daysPassed >= 300) { return 3; }
+        if (daysPassed >= 200) { return 2; }
+        if (daysPassed >= 100) { return 1; }
+        return 0;
     }
 
     private void LoadPhase(int phase)
@@ -704,7 +713,7 @@ public class EventManager : MonoBehaviour
         {
             default: //Day 0-99
                 SetWeight(EventType.Nothing, 20);
-                SetWeight(EventType.PoliticalQuestion, 20);
+                SetWeight(EventType.PoliticalQuestion, 30);
 
                 SetWeight(EventType.DIS_Earthquake, 5);
                 SetWeight(EventType.DIS_Fire, 40);
@@ -716,11 +725,13 @@ public class EventManager : MonoBehaviour
                 SetWeight(EventType.RARE_AlienInvasion, 0);
                 SetWeight(EventType.RARE_AsteroidStrike, 0);
                 SetWeight(EventType.RARE_AttackHelicopter, 0);
+                SetWeight(EventType.RARE_B2Bomber, 0);
+                SetWeight(EventType.RARE_MilitaryInvasion, 0);
 
                 break;
             case 1: //Day 100-199
                 SetWeight(EventType.Nothing, 7); 
-                SetWeight(EventType.PoliticalQuestion, 15);
+                SetWeight(EventType.PoliticalQuestion, 25);
 
                 SetWeight(EventType.DIS_Earthquake, 17);
                 SetWeight(EventType.DIS_Fire, 35);
@@ -729,14 +740,16 @@ public class EventManager : MonoBehaviour
                 SetWeight(EventType.CRIME_Arson, 15);
                 SetWeight(EventType.CRIME_Robbery, 15);
 
-                SetWeight(EventType.RARE_AsteroidStrike, 1);
-                SetWeight(EventType.RARE_AlienInvasion, 1);
-                SetWeight(EventType.RARE_AttackHelicopter, 1);
+                SetWeight(EventType.RARE_AsteroidStrike, 0);
+                SetWeight(EventType.RARE_AlienInvasion, 3);
+                SetWeight(EventType.RARE_AttackHelicopter, 4);
+                SetWeight(EventType.RARE_B2Bomber, 0);
+                SetWeight(EventType.RARE_MilitaryInvasion, 0);
 
                 break;
             case 2: //Day 200-299
                 SetWeight(EventType.Nothing, 6);
-                SetWeight(EventType.PoliticalQuestion, 15);
+                SetWeight(EventType.PoliticalQuestion, 20);
 
                 SetWeight(EventType.DIS_Earthquake, 10);
                 SetWeight(EventType.DIS_Fire, 25);
@@ -745,9 +758,11 @@ public class EventManager : MonoBehaviour
                 SetWeight(EventType.CRIME_Arson, 10);
                 SetWeight(EventType.CRIME_Robbery, 10);
 
-                SetWeight(EventType.RARE_AsteroidStrike, 2);
-                SetWeight(EventType.RARE_AlienInvasion, 2);
-                SetWeight(EventType.RARE_AttackHelicopter, 1);
+                SetWeight(EventType.RARE_AsteroidStrike, 1);
+                SetWeight(EventType.RARE_AlienInvasion, 3);
+                SetWeight(EventType.RARE_AttackHelicopter, 4);
+                SetWeight(EventType.RARE_B2Bomber, 0);
+                SetWeight(EventType.RARE_MilitaryInvasion, 1);
 
                 break;
             case 3: //Day 300-399
@@ -763,7 +778,27 @@ public class EventManager : MonoBehaviour
 
                 SetWeight(EventType.RARE_AsteroidStrike, 3);
                 SetWeight(EventType.RARE_AlienInvasion, 3);
-                SetWeight(EventType.RARE_AttackHelicopter, 4);
+                SetWeight(EventType.RARE_AttackHelicopter, 1);
+                SetWeight(EventType.RARE_B2Bomber, 0);
+                SetWeight(EventType.RARE_MilitaryInvasion, 3);
+
+                break;
+            case 4:
+                SetWeight(EventType.Nothing, 0);
+                SetWeight(EventType.PoliticalQuestion, 5);
+
+                SetWeight(EventType.DIS_Earthquake, 20);
+                SetWeight(EventType.DIS_Fire, 20);
+                SetWeight(EventType.DIS_Virus, 30);
+
+                SetWeight(EventType.CRIME_Arson, 1);
+                SetWeight(EventType.CRIME_Robbery, 1);
+
+                SetWeight(EventType.RARE_AsteroidStrike, 3);
+                SetWeight(EventType.RARE_AlienInvasion, 4);
+                SetWeight(EventType.RARE_AttackHelicopter, 10);
+                SetWeight(EventType.RARE_B2Bomber, 2);
+                SetWeight(EventType.RARE_AttackHelicopter, 5);
 
                 break;
         }
@@ -777,8 +812,9 @@ public class EventManager : MonoBehaviour
         if (newPhase != currentPhase)
         {
             currentPhase = newPhase;
-            LoadPhase(currentPhase);
         }
+
+        LoadPhase(currentPhase);
 
         UpdateTotalWeight();
     }
@@ -794,7 +830,10 @@ public class EventManager : MonoBehaviour
         }
 
         //Rare
-        if (eventType == EventType.RARE_AsteroidStrike || eventType == EventType.RARE_AlienInvasion)
+        if (eventType == EventType.RARE_AsteroidStrike || 
+            eventType == EventType.RARE_AlienInvasion || 
+            eventType == EventType.RARE_AttackHelicopter || 
+            eventType == EventType.RARE_MilitaryInvasion)
         {
             finalWeight = Mathf.RoundToInt(baseWeight * rareEventMultiplier);
         }
@@ -802,14 +841,6 @@ public class EventManager : MonoBehaviour
         phaseWeights[eventType] = finalWeight;
         var matchingEvent = weightedEvents.Find(e => e.eventType == eventType);
         if (matchingEvent != null) matchingEvent.weight = finalWeight;
-    }
-
-    private int GetPhaseFromDay(int daysPassed)
-    {
-        if (daysPassed >= 300) { return 3; }
-        if (daysPassed >= 200) { return 2; }
-        if (daysPassed >= 100) { return 1; }
-        return 0;
     }
 
     private void UpdateTotalWeight()
@@ -976,7 +1007,12 @@ public class EventManager : MonoBehaviour
 
     //Less bad events
 
-    //
+    /*
+     * Lightning storm sets 8 houses on fire.
+     * Flash flood cuts energy generation to 0 and auto triggers lock down for 3 days. 
+     * I'll make gas explosion set 4 buildings around it on fire as well as exploding the central building.
+     * EMP Burst to disable turrets for 10 seconds.
+     */
 
     //-- Tornado
 

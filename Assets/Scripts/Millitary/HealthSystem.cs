@@ -11,7 +11,19 @@ public class HealthSystem : MonoBehaviour
 
     public void Awake()
     {
-        Health = MaxHealth;
+        SetInitialHealth();
+    }
+
+    private void SetInitialHealth()
+    {
+        if (GetComponent<Missile>() == null) { Health = MaxHealth; }
+        else
+        {
+            if (GameManager.instance != null)
+            {
+                Health = Mathf.Max(100, GameManager.instance.daysPassed);
+            }
+        }
     }
 
     public float GetHealth() { return Health; }

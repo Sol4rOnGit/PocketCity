@@ -12,16 +12,30 @@ public class UFOMain : MonoBehaviour
     [SerializeField] private GameObject _UFOObj;
     [SerializeField] private GameObject _UFOBeamObj;
     [SerializeField] private GameObject _UFOPulseObj;
+    [SerializeField] private HealthSystem healthSystem;
 
     private UFOPulseProjection _UFOPulseProjectionScript;
     private Action lclHasInvasionStarted;
 
-    void Start()
+    private void Awake()
     {
-        _UFOObj.transform.position = new Vector3(_UFOBeamObj.transform.position.x, 100f, _UFOBeamObj.transform.position.z);
+        if (healthSystem == null) { Debug.LogError("Health System not set!"); }
+        healthSystem.onDeath += DestroyUFO;
 
         _UFOPulseProjectionScript = GetComponent<UFOPulseProjection>();
         if (_UFOPulseProjectionScript == null) Debug.LogError("No UFO Pulse Projection Script Found!");
+
+        StartInvasion(() => { });
+    }
+
+    private void OnDestroy()
+    {
+        healthSystem.onDeath -= DestroyUFO;
+    }
+
+    void Start()
+    {
+        _UFOObj.transform.position = new Vector3(_UFOBeamObj.transform.position.x, 100f, _UFOBeamObj.transform.position.z);
     }
 
     public void StartInvasion(Action hasInvasionStarted)
@@ -72,6 +86,11 @@ public class UFOMain : MonoBehaviour
             yield return null;
         }
 
+        DestroyUFO();
+    }
+
+    private void DestroyUFO()
+    {
         Destroy(gameObject);
     }
 }

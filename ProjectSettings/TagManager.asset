@@ -6,6 +6,7 @@ TagManager:
   tags:
   - zoning
   - ZoningVisual
+  - Ground
   layers:
   - Default
   - TransparentFX
