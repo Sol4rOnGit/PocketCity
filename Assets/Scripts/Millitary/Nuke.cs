@@ -45,16 +45,20 @@ public class Nuke : MovingAttacker
         Instantiate(bigExplosionObj, transform.position, Quaternion.identity, MilitaryManager.instance.transform);
 
         Blast(radius, innerRadius);
+
+        Destroy(gameObject);
     }
 
     private void SmallExplosion()
     {
-        int radius = Mathf.RoundToInt(Mathf.Lerp(2, 6, 1/transform.position.y));
-        int innerRadius = 4;
+        int radius = Mathf.RoundToInt(Mathf.Lerp(2, 5, 1/transform.position.y));
+        int innerRadius = 6;
 
         Instantiate(smallExplosionObj, transform.position, Quaternion.identity, MilitaryManager.instance.transform);
 
         Blast(radius, innerRadius);
+
+        Destroy(gameObject);
     }
 
     private void Blast(int radius, int innerRadius)
