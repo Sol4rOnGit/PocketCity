@@ -445,7 +445,7 @@ public class UIManager : MonoBehaviour
                 buildingInfo4.text = $"Bad Emergy/Water Days: {employer.badDays}, Low Employee Days: {employer.lowEmployeeDays}";
             }
 
-            option1.text = $"[F1] Earthquake Retrofit : £{targetBuilding.RetroFitCost}"; //[OptionOneKey] !!!! Update here if ever changed
+            option1.text = $"[F1/A] Earthquake Retrofit : £{targetBuilding.RetroFitCost}"; //[OptionOneKey] !!!! Update here if ever changed
         } else
         {
             SpecialFxContainer.SetActive(true);

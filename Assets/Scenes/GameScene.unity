@@ -1493,6 +1493,7 @@ MonoBehaviour:
   sprintMultiplier: 3
   minHeight: 6
   maxHeight: 100
+  bounds: {x: 100, y: 100}
   InputActions: {fileID: -944628639613478452, guid: 052faaac586de48259a63d0c4782560b, type: 3}
 --- !u!1 &392242778
 GameObject:
@@ -8732,10 +8733,6 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
-    - target: {fileID: 5302223365297760585, guid: 0aa29b7bcf1442c4c83cf302bc6a36b9, type: 3}
-      propertyPath: initialMoney
-      value: 40000000
-      objectReference: {fileID: 0}
     - target: {fileID: 5674197881002118200, guid: 0aa29b7bcf1442c4c83cf302bc6a36b9, type: 3}
       propertyPath: m_Name
       value: City
@@ -8781,8 +8778,7 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
-    m_RemovedGameObjects:
-    - {fileID: 5406852035004762675, guid: 0aa29b7bcf1442c4c83cf302bc6a36b9, type: 3}
+    m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 0aa29b7bcf1442c4c83cf302bc6a36b9, type: 3}

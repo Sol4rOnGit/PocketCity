@@ -65,6 +65,12 @@ public class Missile : MovingAttacker
 
     private void StrikeTarget()
     {
+        if (EventManager.instance.isFlooded)
+        {
+            Destroy(gameObject);
+            return;
+        }
+
         if (GridManager.instance.GetMapGrid().TryGetValue(targetGridPos, out var tile) && tile.buildingScript != null)
         {
             GridManager.instance.forceRemoveElement(targetGridPos);

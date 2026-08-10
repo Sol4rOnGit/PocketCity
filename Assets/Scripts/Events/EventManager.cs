@@ -37,11 +37,15 @@ public partial class EventManager : MonoBehaviour
     {
         Nothing,
         PoliticalQuestion,
+
         DIS_Earthquake,
         DIS_Fire,
         DIS_Virus,
+        DIS_Flood,
+
         CRIME_Arson,
         CRIME_Robbery,
+
         RARE_AsteroidStrike,
         RARE_AlienInvasion,
         RARE_AttackHelicopter,
@@ -175,19 +179,20 @@ public partial class EventManager : MonoBehaviour
         RegisterEvent(EventType.PoliticalQuestion, () => { _ = TriggerUserPoliticalEvent(); });
 
         //Disasters
-        RegisterEvent(EventType.DIS_Earthquake, Earthquake);
-        RegisterEvent(EventType.DIS_Fire, SetBuildingOnFire);
+        RegisterEvent(EventType.DIS_Earthquake, TriggerEarthquake);
+        RegisterEvent(EventType.DIS_Fire, TriggerBuildingOnFire);
         RegisterEvent(EventType.DIS_Virus, () => { TriggerVirusOutbreak(); });
+        RegisterEvent(EventType.DIS_Flood, TriggerFlood);
 
         //Crime
         RegisterEvent(EventType.CRIME_Arson, TriggerArson);
         RegisterEvent(EventType.CRIME_Robbery, TriggerRobbery);
 
         //Rare
-        RegisterEvent(EventType.RARE_AsteroidStrike, AsteroidStrike);
+        RegisterEvent(EventType.RARE_AsteroidStrike, TriggerAsteroidStrike);
         RegisterEvent(EventType.RARE_AlienInvasion, TriggerAlienInvasion);
         RegisterEvent(EventType.RARE_AttackHelicopter, () => { SummonAttackHelicopter(); });
-        RegisterEvent(EventType.RARE_MilitaryInvasion, () => { MilitaryInvasion(); });
+        RegisterEvent(EventType.RARE_MilitaryInvasion, () => { TriggerMilitaryInvasion(); });
 
         UpdateTotalWeight();
     }
@@ -219,6 +224,7 @@ public partial class EventManager : MonoBehaviour
                 SetWeight(EventType.DIS_Earthquake, 5);
                 SetWeight(EventType.DIS_Fire, 40);
                 SetWeight(EventType.DIS_Virus, 20);
+                SetWeight(EventType.DIS_Flood, 0);
 
                 SetWeight(EventType.CRIME_Arson, 20);
                 SetWeight(EventType.CRIME_Robbery, 10);
@@ -236,6 +242,7 @@ public partial class EventManager : MonoBehaviour
                 SetWeight(EventType.DIS_Earthquake, 17);
                 SetWeight(EventType.DIS_Fire, 35);
                 SetWeight(EventType.DIS_Virus, 25);
+                SetWeight(EventType.DIS_Flood, 3);
 
                 SetWeight(EventType.CRIME_Arson, 15);
                 SetWeight(EventType.CRIME_Robbery, 15);
@@ -253,6 +260,7 @@ public partial class EventManager : MonoBehaviour
                 SetWeight(EventType.DIS_Earthquake, 10);
                 SetWeight(EventType.DIS_Fire, 25);
                 SetWeight(EventType.DIS_Virus, 21);
+                SetWeight(EventType.DIS_Flood, 5);
 
                 SetWeight(EventType.CRIME_Arson, 10);
                 SetWeight(EventType.CRIME_Robbery, 10);
@@ -270,11 +278,12 @@ public partial class EventManager : MonoBehaviour
                 SetWeight(EventType.DIS_Earthquake, 18);
                 SetWeight(EventType.DIS_Fire, 22);
                 SetWeight(EventType.DIS_Virus, 20);
+                SetWeight(EventType.DIS_Flood, 20);
 
                 SetWeight(EventType.CRIME_Arson, 10);
                 SetWeight(EventType.CRIME_Robbery, 10);
 
-                SetWeight(EventType.RARE_AsteroidStrike, 3);
+                SetWeight(EventType.RARE_AsteroidStrike, 2);
                 SetWeight(EventType.RARE_AlienInvasion, 3);
                 SetWeight(EventType.RARE_AttackHelicopter, 1);
                 SetWeight(EventType.RARE_MilitaryInvasion, 3);
@@ -287,11 +296,12 @@ public partial class EventManager : MonoBehaviour
                 SetWeight(EventType.DIS_Earthquake, 20);
                 SetWeight(EventType.DIS_Fire, 20);
                 SetWeight(EventType.DIS_Virus, 30);
+                SetWeight(EventType.DIS_Flood, 1);
 
                 SetWeight(EventType.CRIME_Arson, 1);
                 SetWeight(EventType.CRIME_Robbery, 1);
 
-                SetWeight(EventType.RARE_AsteroidStrike, 3);
+                SetWeight(EventType.RARE_AsteroidStrike, 2);
                 SetWeight(EventType.RARE_AlienInvasion, 4);
                 SetWeight(EventType.RARE_AttackHelicopter, 10);
                 SetWeight(EventType.RARE_AttackHelicopter, 5);

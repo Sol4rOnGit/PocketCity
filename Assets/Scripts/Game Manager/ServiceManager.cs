@@ -6,14 +6,6 @@ public class ServiceManager : MonoBehaviour
 {
     public static ServiceManager instance { get; private set; }
 
-    public void Awake()
-    {
-        if (instance != null && instance != this) { Destroy(gameObject); }
-        instance = this;
-
-        gridPathfinder = new GridPathfinder();
-    }
-
     [Header("Dependencies")]
     [SerializeField] private GridManager gridManager;
 
@@ -23,6 +15,13 @@ public class ServiceManager : MonoBehaviour
     [SerializeField] private GameObject ambulancePrefab;
 
     private GridPathfinder gridPathfinder;
+    public void Awake()
+    {
+        if (instance != null && instance != this) { Destroy(gameObject); }
+        instance = this;
+
+        gridPathfinder = new GridPathfinder();
+    }
 
     public void Start()
     {
@@ -32,6 +31,7 @@ public class ServiceManager : MonoBehaviour
     //Dispatch functions
     public void DispatchFiretruck(Building burningBuilding)
     {
+        if (EventManager.instance.isFlooded) return;
         if (burningBuilding == null) return;
         if (gridPathfinder == null) { Debug.LogError("ERROR! NO GRID PATHFINDER!"); return; }
 
@@ -79,6 +79,7 @@ public class ServiceManager : MonoBehaviour
 
     public bool DispatchAmbulance(Building infectedBuilding)
     {
+        if (EventManager.instance.isFlooded) return false;
         if (infectedBuilding == null) return false;
         if (gridPathfinder == null) { Debug.LogError("ERROR! NO GRID PATHFINDER!"); return false; }
 
@@ -126,6 +127,7 @@ public class ServiceManager : MonoBehaviour
 
     public bool DispatchPolice(Building building)
     {
+        if (EventManager.instance.isFlooded) return false;
         if (building == null) return false;
         if (gridPathfinder == null) { Debug.LogError("ERROR! NO GRID PATHFINDER!"); return false; }
 

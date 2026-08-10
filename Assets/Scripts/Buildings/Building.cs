@@ -34,6 +34,7 @@ public class Building : MonoBehaviour
     public void IgniteFire()
     {
         if (this is FireStation) { return; }
+        if (EventManager.instance.isFlooded) { return; }
 
         if (isOnFire) { return; }
         isOnFire = true;

@@ -75,7 +75,7 @@ public class GameEffects : MonoBehaviour
         {
             yield return new WaitForSeconds(1.5f);
 
-            eventManager.AsteroidStrike();
+            eventManager.TriggerAsteroidStrike();
         }
     }
 

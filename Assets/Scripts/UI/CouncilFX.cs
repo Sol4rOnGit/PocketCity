@@ -83,7 +83,7 @@ public class CouncilFX : MonoBehaviour
     {
         bool newState = !gameObject.activeSelf;
         gameObject.SetActive(newState);
-        if (newState) UpdateButtonState();
+        if (!newState) UpdateButtonState();
     }
 
     public void PanelOnDayEnd()

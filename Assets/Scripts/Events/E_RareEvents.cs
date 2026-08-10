@@ -20,7 +20,7 @@ public partial class EventManager : MonoBehaviour
     }
 
     //Asteroid Strike
-    public void AsteroidStrike()
+    public void TriggerAsteroidStrike()
     {
         if (gridManager.BuildingPositions.Count == 0) { return; }
 
@@ -181,7 +181,7 @@ public partial class EventManager : MonoBehaviour
         Instantiate(B2BomberPrefab, new Vector3(200f, 0f, 200f), Quaternion.identity, spawnTransform);
     }
 
-    public void MilitaryInvasion()
+    public void TriggerMilitaryInvasion()
     {
         Instantiate(attackHelicopterPrefab, new Vector3(100f, 10f, 100f), Quaternion.identity, spawnTransform);
         Instantiate(attackHelicopterPrefab, new Vector3(-100f, 10f, -100f), Quaternion.identity, spawnTransform);

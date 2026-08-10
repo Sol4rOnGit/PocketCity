@@ -3,12 +3,15 @@ using UnityEngine.InputSystem;
 
 public class MovementScript : MonoBehaviour
 {
-    [Header("Movement Actions")]
+    [Header("Movement Vars")]
     [SerializeField] private float moveSpeed = 5.0f;
     [SerializeField] private float zoomMultiplier = 50.0f;
     [SerializeField] private float sprintMultiplier = 3.0f;
     [SerializeField] private float minHeight = 6.0f;
     [SerializeField] private float maxHeight = 100.0f;
+    [SerializeField] private Vector2 bounds = new(100, 100);
+
+    [Header("Movement Actions")]
     public InputActionAsset InputActions;
     InputAction moveAction;
     InputAction zoomAction;
@@ -47,6 +50,14 @@ public class MovementScript : MonoBehaviour
         Vector3 moveDir = new Vector3(inputVector.x, 0f, inputVector.y).normalized;
 
         transform.Translate(moveDir * currentMoveSpeed * Time.deltaTime, Space.World);
+
+        //Clamp to bounds on xz plane
+        Vector3 clampedPos = transform.position;
+
+        clampedPos.x = Mathf.Clamp(clampedPos.x, -bounds.x, bounds.x);
+        clampedPos.z = Mathf.Clamp(clampedPos.z, -bounds.y, bounds.y);
+
+        transform.position = clampedPos;
     }
 
     private void HandleVerticalMovement()

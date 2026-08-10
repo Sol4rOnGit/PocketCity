@@ -11,15 +11,18 @@ public partial class EventManager : MonoBehaviour
     private int infectedPopulation;
     public bool isLockdownActive = false;
 
+    [Header("Flood")]
+    [SerializeField] private GameObject floodPlanePrefab;
+    public bool isFlooded;
+
     //Natural disasters
 
     private float minRatio = 0.01f; //1%
     private float maxRatio = 0.05f; //max 5%
 
-    private void Earthquake()
+    //Earthquake
+    private void TriggerEarthquake()
     {
-        Debug.Log("Earthquake!!");
-
         if (gridManager.BuildingPositions == null || gridManager.BuildingPositions.Count == 0)
         {
             Debug.LogWarning("Failed Earthquake - building pos is null or no count");
@@ -58,7 +61,7 @@ public partial class EventManager : MonoBehaviour
     }
 
     //Fire
-    private void SetBuildingOnFire()
+    private void TriggerBuildingOnFire()
     {
         if (gridManager.BuildingPositions.Count == 0) { return; }
         Vector2Int randomPos = gridManager.BuildingPositions[UnityEngine.Random.Range(0, gridManager.BuildingPositions.Count)];
@@ -262,5 +265,51 @@ public partial class EventManager : MonoBehaviour
     }
 
     //Flooding  
+
+    public void TriggerFlood()
+    {
+        GameObject floodObj = Instantiate(floodPlanePrefab, new Vector3(0, 0.1f, 0), Quaternion.identity, transform);
+        float seed = Random.Range(0, 1);
+        float floodTime = Mathf.Lerp(3, 2, Mathf.Clamp01(GameManager.instance.daysPassed/200)) + seed;
+
+        var mapGrid = GridManager.instance.GetMapGrid();
+
+        foreach (Vector2Int building in GridManager.instance.BuildingPositions)
+        {
+            if (mapGrid.TryGetValue(building, out var gridTile))
+            {
+                if (gridTile.buildingScript == null) return;
+
+                if (gridTile.buildingScript.isOnFire)
+                {
+                    gridTile.buildingScript.ExtinguishFire();
+                }
+            }
+        }
+
+        StartCoroutine(Flood(floodObj, floodTime));
+    }
+
+    private IEnumerator Flood(GameObject floodObject, float floodTime)
+    {
+        isFlooded = true;
+
+        while (floodObject.transform.position.y < 1)
+        {
+            floodObject.transform.position = floodObject.transform.position + new Vector3(0f, 0.1f * Time.deltaTime, 0f);
+            yield return null;
+        }
+
+        yield return new WaitForSeconds(floodTime);
+
+        while (floodObject.transform.position.y > -0.3)
+        {
+            floodObject.transform.position = floodObject.transform.position + new Vector3(0f, -0.2f * Time.deltaTime, 0f);
+            yield return null;
+        }
+
+        isFlooded = false;
+        Destroy(floodObject);
+    }
 
 }

@@ -39,6 +39,12 @@ public class Nuke : MovingAttacker
 
     private void Explode()
     {
+        if (EventManager.instance.isFlooded)
+        {
+            Destroy(gameObject);
+            return;
+        }
+
         int radius = 25;
         int innerRadius = 8;
 

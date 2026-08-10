@@ -211,7 +211,8 @@ public partial class EventManager : MonoBehaviour
             new PoliticalScenario("50% increase in rare events", () => { rareEventMultiplier += 0.5f; UpdateWeights(); }),
             new PoliticalScenario("get an asteroid bombing", () => { gameEffects.AsteroidBombing(); }),
             new PoliticalScenario("get an alien invasion", () => { TriggerAlienInvasion(); }),
-            new PoliticalScenario("lose 200k", () => { FinanceManager.instance.ForcePurchase(200_000); })
+            new PoliticalScenario("lose 200k", () => { FinanceManager.instance.ForcePurchase(200_000); }),
+            new PoliticalScenario("get a flash flood", TriggerFlood)
         };
     }
 

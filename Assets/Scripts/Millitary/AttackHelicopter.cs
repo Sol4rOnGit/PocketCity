@@ -218,14 +218,16 @@ public class AttackHelicopter : MovingAttacker
 
     private IEnumerator DeathRoutine()
     {
-        while (true)
+        bool dead = false;
+
+        while (!dead)
         {
             if (transform.position.y < 1)
             {
+                dead = true;
                 GameObject explosion = Instantiate(missilePrefab.GetComponent<Missile>().explosionPrefab, transform.position, Quaternion.identity, MilitaryManager.instance.transform);
                 Destroy(explosion, 10f);
                 Destroy(gameObject);
-                yield break;
             }
             yield return null;
         }
