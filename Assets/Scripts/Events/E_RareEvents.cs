@@ -186,6 +186,7 @@ public partial class EventManager : MonoBehaviour
         Instantiate(attackHelicopterPrefab, new Vector3(100f, 10f, 100f), Quaternion.identity, spawnTransform);
         Instantiate(attackHelicopterPrefab, new Vector3(-100f, 10f, -100f), Quaternion.identity, spawnTransform);
         Instantiate(attackHelicopterPrefab, new Vector3(-100f, 10f, 100f), Quaternion.identity, spawnTransform);
+        Instantiate(attackHelicopterPrefab, new Vector3(100f, 10f, -100f), Quaternion.identity, spawnTransform);
 
         float chanceOfCloseHelicopter = 0.3f;
         if (Random.value > chanceOfCloseHelicopter)
@@ -196,6 +197,6 @@ public partial class EventManager : MonoBehaviour
             Instantiate(attackHelicopterPrefab, new Vector3(0f, 10f, 0f), Quaternion.identity, spawnTransform);
         }
 
-        if (Random.value > 0.6) SummonB2Bomber(); //40% chance
+        if (Random.value > 0.2) SummonB2Bomber(); //80% chance
     }
 }

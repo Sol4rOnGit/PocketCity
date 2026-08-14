@@ -4,7 +4,7 @@ using UnityEngine.InputSystem;
 public class MovementScript : MonoBehaviour
 {
     [Header("Movement Vars")]
-    [SerializeField] private float moveSpeed = 5.0f;
+    private float moveSpeed;
     [SerializeField] private float zoomMultiplier = 50.0f;
     [SerializeField] private float sprintMultiplier = 3.0f;
     [SerializeField] private float minHeight = 6.0f;
@@ -27,9 +27,12 @@ public class MovementScript : MonoBehaviour
         moveAction = PlayerMap.FindAction("Move");
         zoomAction = PlayerMap.FindAction("Zoom");
         sprintAction = PlayerMap.FindAction("Sprint");
+
         moveAction.Enable();
         zoomAction.Enable();
         sprintAction.Enable();
+
+        moveSpeed = PlayerPrefs.GetFloat("MoveSpeed", 5f);
 
         currentMoveSpeed = moveSpeed;
         currentZoomMultiplier = zoomMultiplier;
@@ -38,11 +41,43 @@ public class MovementScript : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        HandleCursorState();
         HandlePlanarMovement();
         HandleVerticalMovement();
         HandleFasterMovement();
     }
 
+    private InputDevice lastUsedDevice;
+
+    private void HandleCursorState()
+    {
+        if (moveAction.activeControl == null) return;
+
+        InputDevice currentDevice = moveAction.activeControl.device;
+
+        if (currentDevice == lastUsedDevice) return;
+        lastUsedDevice = currentDevice;
+
+        if (currentDevice is Keyboard || currentDevice is Mouse)
+        {
+            Cursor.lockState = CursorLockMode.None;
+            Cursor.visible = true;
+        }
+
+        if (currentDevice is Gamepad)
+        {
+            Debug.Log("Switching to Controller");
+
+            if (Mouse.current != null)
+            {
+                Vector2 screenCentre = new Vector2(Screen.width / 2f, Screen.height / 2f);
+                Mouse.current.WarpCursorPosition(screenCentre);
+            }
+
+            Cursor.lockState = CursorLockMode.Locked;
+            Cursor.visible = false;
+        }
+    }
     private void HandlePlanarMovement()
     {
         Vector2 inputVector = moveAction.ReadValue<Vector2>();
@@ -82,13 +117,24 @@ public class MovementScript : MonoBehaviour
     }
 
     private bool wasPressed = false;
+    private bool isSprinting = false;
     private void HandleFasterMovement()
     {
         bool isPressed = sprintAction.IsPressed();
 
-        if (isPressed == wasPressed) { return; } //Ignore redundant
+        if (isPressed == wasPressed) { return; }
+        wasPressed = isPressed;
 
-        if (isPressed)
+        if (GameManager.instance.toggleSprintEnabled)
+        {
+            if (isPressed) isSprinting = !isSprinting;
+        } 
+        else
+        {
+            isSprinting = isPressed;
+        }
+
+        if (isSprinting)
         {
             currentMoveSpeed = sprintMultiplier * moveSpeed;
             currentZoomMultiplier = sprintMultiplier * zoomMultiplier;
@@ -98,8 +144,17 @@ public class MovementScript : MonoBehaviour
             currentMoveSpeed = moveSpeed;
             currentZoomMultiplier = zoomMultiplier;
         }
+    }
 
-        wasPressed = isPressed;
+    private void MovementSpeedChanged(float newSpeed)
+    {
+        moveSpeed = newSpeed;
+        if (!wasPressed) currentMoveSpeed = newSpeed;
+    }
+
+    private void OnEnable()
+    {
+        GameManager.instance.OnMoveSpeedChanged += MovementSpeedChanged;
     }
 
     private void OnDisable()
@@ -107,5 +162,10 @@ public class MovementScript : MonoBehaviour
         moveAction.Disable();
         zoomAction.Disable();
         sprintAction.Disable();
+
+        GameManager.instance.OnMoveSpeedChanged -= MovementSpeedChanged;
+
+        Cursor.lockState = CursorLockMode.None;
+        Cursor.visible = true;
     }
 }

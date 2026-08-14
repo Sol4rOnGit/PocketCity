@@ -106,7 +106,7 @@ public class CouncilFX : MonoBehaviour
         UpdateButtonState();
     }
 
-    private void UpdateButtonState()
+    public void UpdateButtonState()
     {
         //Emergency Borrow
         if (isEmergencyBorrowEnabled)

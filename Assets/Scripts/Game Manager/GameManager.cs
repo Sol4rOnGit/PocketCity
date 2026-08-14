@@ -10,6 +10,8 @@ public class GameManager : MonoBehaviour
     {
         if (instance != null && instance != this) { Destroy(gameObject); }
         instance = this;
+
+        toggleSprintEnabled = PlayerPrefs.GetInt("ToggleSprint", 0) == 1;
     }
 
     [Header("Dependencies")]
@@ -47,6 +49,9 @@ public class GameManager : MonoBehaviour
 
     public Action OnTaxRevenueChanged;
 
+    public Action<bool> OnTreeVisibilityChanged;
+    public Action<float> OnMoveSpeedChanged;
+
     public readonly Vector2Int[] directions = { Vector2Int.up, Vector2Int.down, Vector2Int.left, Vector2Int.right };
 
     [Header("Game State Global Vars")]
@@ -54,6 +59,9 @@ public class GameManager : MonoBehaviour
     public bool isImmuneToViruses = false;
     public float taxRevenueMultiplier = 1f;
     public float tempRevenueMultiplier = 1f;
+
+    [Header("Gameplay Settings")]
+    public bool toggleSprintEnabled;
 
     private void Start()
     {
@@ -133,7 +141,7 @@ public class GameManager : MonoBehaviour
     public void AdjustUnemployed(int amount)
     {
         if (currentUnemployed + amount < 0) { 
-            Debug.LogError("Invalid current employment adjustment."); 
+            Debug.LogWarning("Invalid current employment adjustment."); 
             return; 
         }
 
@@ -143,7 +151,7 @@ public class GameManager : MonoBehaviour
     public void AdjustVacanices(int amount)
     {
         if (currentVacanies + amount < 0) { 
-            Debug.LogError("Invalid current vacancies adjustment."); 
+            Debug.LogWarning("Invalid current vacancies adjustment."); 
             return; 
         }
 

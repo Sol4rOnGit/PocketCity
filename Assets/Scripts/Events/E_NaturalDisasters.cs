@@ -302,7 +302,7 @@ public partial class EventManager : MonoBehaviour
 
         yield return new WaitForSeconds(floodTime);
 
-        while (floodObject.transform.position.y > -0.3)
+        while (floodObject.transform.position.y > 0.1)
         {
             floodObject.transform.position = floodObject.transform.position + new Vector3(0f, -0.2f * Time.deltaTime, 0f);
             yield return null;

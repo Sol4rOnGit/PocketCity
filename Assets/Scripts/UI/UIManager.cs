@@ -498,10 +498,11 @@ public class UIManager : MonoBehaviour
     private void ToggleCouncilFXPanel()
     {
         councilFXManager.TogglePanel();
+        councilFXManager.UpdateButtonState();
 
         if (gridPlayerManager != null)
         {
-            gridPlayerManager.gridEditEnabled = !councilFXManager.gameObject.activeSelf;
+            gridPlayerManager.TrySetGridEditPermissions(!councilFXManager.gameObject.activeSelf);
         }
         
         CloseSpecialFx();

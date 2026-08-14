@@ -40,7 +40,6 @@ public class GridManager : MonoBehaviour
     [SerializeField] private GameObject[] TreePrefabs;
 
     //Grid
-
     public class GridTile
     {
         public string tileName;
@@ -441,6 +440,7 @@ public class GridManager : MonoBehaviour
             TreeGrid.Remove(pos);
         }
     }
+    
     //Helper functions
     private void PlaceInitialGrid()
     {

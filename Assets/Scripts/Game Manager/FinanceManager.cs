@@ -33,6 +33,7 @@ public class FinanceManager : MonoBehaviour
     [Header("Economics")]
     public float taxMultiplier = 1f;
     public float inflationRate = 0.01f; //1%
+    public float inflationRateMultiplier = 1f;
 
     [SerializeField] private long maxDebtLimit = -50_000;
     
@@ -168,7 +169,7 @@ public class FinanceManager : MonoBehaviour
 
     public void Inflate(int population, int daysPassed)
     {
-        float currentMultiplier = GetInflationForDaysPassed(daysPassed);
+        float currentMultiplier = GetInflationForDaysPassed(daysPassed) * inflationRateMultiplier;
 
         //Update the costs
         costRoad = (baseCostRoad * currentMultiplier);

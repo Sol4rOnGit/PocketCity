@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 9070601829414753257}
   - component: {fileID: 7860926892676099564}
   - component: {fileID: 6112223596539294354}
-  m_Layer: 8
+  m_Layer: 0
   m_Name: Ground
   m_TagString: Ground
   m_Icon: {fileID: 0}
@@ -180,6 +180,7 @@ MonoBehaviour:
   isImmuneToViruses: 0
   taxRevenueMultiplier: 1
   tempRevenueMultiplier: 1
+  toggleSprintEnabled: 0
 --- !u!114 &2657489583929872117
 MonoBehaviour:
   m_ObjectHideFlags: 0

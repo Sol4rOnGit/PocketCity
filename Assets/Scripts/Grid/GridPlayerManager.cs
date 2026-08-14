@@ -14,7 +14,21 @@ public class GridPlayerManager : MonoBehaviour
 
     [Header("Input")]
     [SerializeField] private InputActionAsset inputActions;
-    [HideInInspector] public bool gridEditEnabled = true;
+    [HideInInspector] private int gridEditLockCount = 0;
+    [HideInInspector] private bool gridEditEnabled => gridEditLockCount <= 0;
+
+    public void TrySetGridEditPermissions(bool permission)
+    {
+        if (permission)
+        {
+            gridEditLockCount = Mathf.Max(0, gridEditLockCount - 1);
+        }
+        else
+        {
+            gridEditLockCount++;
+        }
+    }
+
     InputActionMap playerActionMap;
     InputAction placeAction;
     InputAction destroyAction;

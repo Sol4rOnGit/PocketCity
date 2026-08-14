@@ -110,6 +110,24 @@ public class ChunkManager : MonoBehaviour
 
     [Header("Toggle")]
     [SerializeField] private bool showTrees;
+    private void OnEnable()
+    {
+        GameManager.instance.OnTreeVisibilityChanged += HandleTreeVisChanged;
+    }
+
+    private void OnDisable()
+    {
+        GameManager.instance.OnTreeVisibilityChanged -= HandleTreeVisChanged;
+    }
+
+    private void HandleTreeVisChanged(bool visibility)
+    {
+        showTrees = visibility;
+        if (showTrees)
+        {
+            UpdateChunks();
+        }
+    }
 
     [Header("Happiness settings")]
     [SerializeField] private float baselineHappiness = 0f;
@@ -154,6 +172,8 @@ public class ChunkManager : MonoBehaviour
 
     private void Start()
     {
+        showTrees = PlayerPrefs.GetInt("TreeVisibility", 1) == 1;
+
         //Fallback
         if (playerTransform == null) { playerTransform = Camera.main.transform; }
         scale = gridManager.getGridScale();
@@ -201,6 +221,7 @@ public class ChunkManager : MonoBehaviour
 
     private void GenerateChunkEnvironemnt(ChunkData chunk)
     {
+        if (!showTrees) return;
         //Use the code currently in GridManager(), move it all here
 
         int startGridX = chunk.chunkCord.x * chunkSize;

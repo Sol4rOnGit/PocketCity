@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.Tilemaps;
 
 public class Nuke : MovingAttacker
 {
@@ -89,7 +90,6 @@ public class Nuke : MovingAttacker
                 {
                     if (mapGrid.TryGetValue(pos, out var tile))
                     {
-                        if (tile.isRoad) { gridManager.forceRemoveElement(pos); }
                         if (tile.buildingScript)
                         {
                             //Set building on fire
