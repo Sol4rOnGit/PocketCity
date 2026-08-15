@@ -62,6 +62,7 @@ public class GameManager : MonoBehaviour
 
     [Header("Gameplay Settings")]
     public bool toggleSprintEnabled;
+    public bool hardcore;
 
     private void Start()
     {

@@ -1,6 +1,5 @@
 using System;
 using System.Collections;
-using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -19,14 +18,15 @@ public class GameSettings : MonoBehaviour
     {
         Easy,
         Normal,
-        Hard
+        Hard,
+        Nightmare
     }
 
     [Serializable]
     public struct DifficultySettings
     {
         public Difficulty difficulty; //for reference
-        public float startMoney; //higher is easier
+        public long startMoney; //higher is easier
         public float inflationRateMultiplier; //lower is easier
         public float startDayDuration; //higher is easier
         public float finalDayDuration; //higher is easier
@@ -37,9 +37,29 @@ public class GameSettings : MonoBehaviour
     public DifficultySettings easyMode;
     public DifficultySettings normalMode;
     public DifficultySettings hardMode;
+    public DifficultySettings nightmareMode;
 
-    [Header("activeSettings")]
-    private Difficulty activeDifficulty;
+    [Header("Live Settings")]
+    private DifficultySettings currentDifficulty;
+    private bool hardcoreEnabled;
+
+    private void Start()
+    {
+        //Default values
+        currentDifficulty = normalMode;
+        hardcoreEnabled = false;
+    }
+
+    //Exposed functions
+    public void SetDifficulty(DifficultySettings difficultySetting)
+    {
+        currentDifficulty = difficultySetting;
+    }
+
+    public void SetHardcore(bool newHardcoreEnabled)
+    {
+        hardcoreEnabled = newHardcoreEnabled;
+    }
 
     private void OnEnable()
     {
@@ -62,5 +82,13 @@ public class GameSettings : MonoBehaviour
     private IEnumerator PushValues()
     {
         yield return null;
+
+        GameManager.instance.startDayDuration = currentDifficulty.startDayDuration;
+        GameManager.instance.finalDayDuration = currentDifficulty.finalDayDuration;
+
+        FinanceManager.instance.SetInitialMoney(currentDifficulty.startMoney);
+        FinanceManager.instance.inflationRateMultiplier = currentDifficulty.inflationRateMultiplier;
+
+        GameManager.instance.hardcore = hardcoreEnabled;
     }
 }

@@ -20,9 +20,18 @@ public class FinanceManager : MonoBehaviour
     }
 
     [Header("Settings")]
-    [SerializeField] private long initialMoney = 400_000; //reasonable values?: 400k for normal, 150k for hard. 1 million for city builder mode.
+    [SerializeField] private long initialMoney = 404_404; //Default value given failure lmao get it 404
     public long currentMoney { get; private set; }
     public long prevMoney;
+
+    bool initialised = false;
+    public void SetInitialMoney(long amount)
+    {
+        if (initialised) return;
+
+        currentMoney = amount;
+        OnMoneyChanged?.Invoke(currentMoney);
+    }
 
     [Header("Tracker")]
     public FinancialReport lastFinancialReport = new FinancialReport();

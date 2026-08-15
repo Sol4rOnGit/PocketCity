@@ -75,7 +75,6 @@ public class SettingsMenu : MonoBehaviour
         {
             Debug.LogWarning("Clearing all Player Prefs as requested.");
             PlayerPrefs.DeleteAll();
-            Application.Quit();
         }
 
         PlayerPrefs.Save();
