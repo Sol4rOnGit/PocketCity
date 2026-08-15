@@ -8,15 +8,38 @@ public partial class EventManager : MonoBehaviour
     [SerializeField] private GameObject asteroidPrefab;
     [SerializeField] private GameObject explosionEffectPrefab;
     [SerializeField] private GameObject _UFOPrefab;
+    private float UFODivisorFactor;
 
     [Header("Millitary")]
     private Transform spawnTransform;
     [SerializeField] private GameObject attackHelicopterPrefab;
     [SerializeField] private GameObject B2BomberPrefab;
 
+
     private void RareEventStart()
     {
         spawnTransform = MilitaryManager.instance.transform;
+
+        //UFO intensity
+        switch (GameManager.instance.gameDifficulty)
+        {
+            case GameSettings.Difficulty.Easy:
+                UFODivisorFactor = 4f;
+                break;
+            case GameSettings.Difficulty.Normal:
+                UFODivisorFactor = 3f;
+                break;
+            case GameSettings.Difficulty.Hard:
+                UFODivisorFactor = 2.5f;
+                break;
+            case GameSettings.Difficulty.Nightmare:
+                UFODivisorFactor = 2f;
+                break;
+            default:
+                Debug.LogWarning("UFODivisorFactor set to default value");
+                UFODivisorFactor = 3f;
+                break;
+        }
     }
 
     //Asteroid Strike
@@ -128,8 +151,7 @@ public partial class EventManager : MonoBehaviour
 
         gridManager.forceRemoveElement(centre);
 
-        int radius = 25;
-        int innerRadius = 3;
+        int radius = 15;
 
         for (int i = centre.x - radius; i <= centre.x + radius; i++)
         {
@@ -138,27 +160,14 @@ public partial class EventManager : MonoBehaviour
                 Vector2Int pos = new Vector2Int(i, j);
                 float distance = Vector2Int.Distance(centre, pos);
 
-                if (distance < innerRadius)
-                {
-                    //Abduct all residents
-                    if (mapGrid.TryGetValue(pos, out var gridTile))
-                    {
-
-                        if (gridTile.buildingScript && gridTile.buildingScript is House houseScript)
-                        {
-                            gameManager.LosePopulation(houseScript.residents);
-                            houseScript.residents = 0;
-                        }
-                    }
-                }
-                else if (distance < radius)
+                if (distance < radius)
                 {
                     if (mapGrid.TryGetValue(pos, out var tile))
                     {
                         if (tile.buildingScript && tile.buildingScript is House houseScript)
                         {
                             //Aduct 50% of residents
-                            int abductedPop = Mathf.RoundToInt(houseScript.residents / 2f);
+                            int abductedPop = Mathf.RoundToInt(houseScript.residents / UFODivisorFactor);
                             houseScript.residents -= abductedPop;
                             gameManager.LosePopulation(abductedPop);
                         }

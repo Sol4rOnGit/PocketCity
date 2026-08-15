@@ -60,13 +60,16 @@ public class PauseMenu : MonoBehaviour
 
     public void Resume()
     {
-        Time.timeScale = 1f;
+        if (!GameManager.instance.isGameOver) {
+            Time.timeScale = 1f;
+
+            gridPlayerManager.TrySetGridEditPermissions(true);
+        }
 
         //Unpause the game
         darkeningImage.enabled = false;
         pauseMenuPanel.SetActive(false);
         settingsMenu.SetActive(false);
-        gridPlayerManager.TrySetGridEditPermissions(true);
         paused = false;
     }
 

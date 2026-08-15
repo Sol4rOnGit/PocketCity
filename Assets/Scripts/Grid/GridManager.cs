@@ -97,7 +97,11 @@ public class GridManager : MonoBehaviour
         if (!isFree)
         {
             bool success = financeManager.Purchase(financeManager.costRoad);
-            if (!success) return;
+            if (!success)
+            {
+                GameManager.instance.UserNotification?.Invoke("Not enough money!", true);
+                return;
+            }
         }
 
         if (tile != null)
@@ -255,7 +259,7 @@ public class GridManager : MonoBehaviour
 
             if (tile.zoneType != zoneType)
             {
-                if (!TryPurchaseZoning()) { GameManager.instance.UserNotification?.Invoke("Not enough money!", false); return; }
+                if (!TryPurchaseZoning()) { GameManager.instance.UserNotification?.Invoke("Not enough money!", true); return; }
 
                 if (tile.instance != null) { Destroy(tile.instance); }
                 tile.zoneType = zoneType;
@@ -265,7 +269,7 @@ public class GridManager : MonoBehaviour
             return;
         }
 
-        if (!TryPurchaseZoning()) { GameManager.instance.UserNotification?.Invoke("Not enough money!", false); return; }
+        if (!TryPurchaseZoning()) { GameManager.instance.UserNotification?.Invoke("Not enough money!", true); return; }
 
         GameManager.instance.GainExperience(10);
 
@@ -283,15 +287,17 @@ public class GridManager : MonoBehaviour
         ZonedPositions.Add(pos);
     }
 
-    public void SpawnTreeInChunk(Vector2Int gridPos, Vector3 worldPos, Quaternion randomRotation)
+    public GameObject SpawnTreeInChunk(Vector2Int gridPos, Vector3 worldPos, Quaternion randomRotation)
     {
-        if (TreePrefabs == null || TreePrefabs.Length == 0) { return; }
+        if (TreePrefabs == null || TreePrefabs.Length == 0) { return null; }
 
         GameObject treePrefab = TreePrefabs[UnityEngine.Random.Range(0, TreePrefabs.Length)];
         GameObject treeInstance = Instantiate(treePrefab, worldPos, randomRotation, this.transform);
         treeInstance.name = $"Tree ({gridPos.x}, {gridPos.y})";
 
         TreeGrid.Add(new Vector2Int(gridPos.x, gridPos.y), treeInstance);
+
+        return treeInstance;
     }
 
     //Deletions

@@ -52,6 +52,8 @@ public class GameManager : MonoBehaviour
     public Action<bool> OnTreeVisibilityChanged;
     public Action<float> OnMoveSpeedChanged;
 
+    public Action OnGameOver;
+
     public readonly Vector2Int[] directions = { Vector2Int.up, Vector2Int.down, Vector2Int.left, Vector2Int.right };
 
     [Header("Game State Global Vars")]
@@ -61,8 +63,11 @@ public class GameManager : MonoBehaviour
     public float tempRevenueMultiplier = 1f;
 
     [Header("Gameplay Settings")]
+    public GameSettings.Difficulty gameDifficulty;
     public bool toggleSprintEnabled;
     public bool hardcore;
+    public bool cheats;
+    public bool isGameOver;
 
     private void Start()
     {
@@ -131,11 +136,18 @@ public class GameManager : MonoBehaviour
 
     public void GameOver()
     {
+        isGameOver = true;
+
         StopAllCoroutines();
-        
+        FinanceManager.instance.StopAllCoroutines();
+        GridManager.instance.StopAllCoroutines();
+        ChunkManager.instance.StopAllCoroutines();
+        EventManager.instance.StopAllCoroutines();
+
         Time.timeScale = 0;
 
         UserNotification?.Invoke("Game Over!", true);
+        OnGameOver?.Invoke();
     }
 
     //Employment game mechanics

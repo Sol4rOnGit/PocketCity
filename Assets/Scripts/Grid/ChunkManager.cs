@@ -25,117 +25,11 @@ public class ChunkManager : MonoBehaviour
     public int GlobalWaterCapacity { get; private set; }
     public int GlobalWaterDemand { get; private set; }
 
-    public IEnumerator IncreasePowerDemandTemporarily(int power, float seconds)
-    {
-        if (generatedChunks.Count == 0) { yield break; }
-
-        List<ChunkData> affectedChunks = new List<ChunkData>();
-        List<Vector2Int> allChunkKeys = new List<Vector2Int>(generatedChunks.Keys);
-
-        int chunksToAffect = allChunkKeys.Count / UnityEngine.Random.Range(4, 8); //1/4 to 1/8 of all chunks
-        if (chunksToAffect == 0) { chunksToAffect = 1; } //atleast 1!
-
-        int powerPerChunk = power / chunksToAffect;
-        if (powerPerChunk <= 100) { powerPerChunk = 100; }
-
-        for (int i = 0; i <  chunksToAffect; i++)
-        {
-            if (allChunkKeys.Count == 0) break;
-
-            int randomIndex = UnityEngine.Random.Range(0, allChunkKeys.Count);
-            Vector2Int key = allChunkKeys[randomIndex];
-            allChunkKeys.RemoveAt(randomIndex);
-
-            ChunkData chunk = generatedChunks[key];
-
-            chunk.powerConsumed += powerPerChunk;
-            affectedChunks.Add(chunk);
-        }
-
-        DistributeUtilitiesAcrossCity();
-        Debug.Log($"Surge active with {chunksToAffect} chunks loaded with an additional {powerPerChunk} MW each!");
-
-        Debug.Log($"Demand is now {GlobalPowerDemand}");
-
-        yield return new WaitForSeconds(seconds);
-
-        foreach (ChunkData chunk in affectedChunks)
-        {
-            chunk.powerConsumed -= powerPerChunk;
-        }
-
-        DistributeUtilitiesAcrossCity();
-
-        Debug.Log($"Demand is now {GlobalPowerDemand}, should be normalised due to end of surge");
-    }
-
-    public IEnumerator IncreaseWaterAndPowerSupplyTemporarily(int perChunkValue, float seconds)
-    {
-        if (generatedChunks.Count == 0) { yield break; }
-
-        List<ChunkData> affectedChunks = new List<ChunkData>();
-        List<Vector2Int> allChunkKeys = new List<Vector2Int>(generatedChunks.Keys);
-
-        if (perChunkValue <= 100000) { perChunkValue = 100000; }
-
-        int count = allChunkKeys.Count;
-        for (int i = 0; i < allChunkKeys.Count; i++)
-        {
-            if (allChunkKeys.Count == 0) break;
-
-            int randomIndex = UnityEngine.Random.Range(0, allChunkKeys.Count);
-            Vector2Int key = allChunkKeys[randomIndex];
-            allChunkKeys.RemoveAt(randomIndex);
-
-            ChunkData chunk = generatedChunks[key];
-
-            chunk.powerGenerated += perChunkValue;
-            chunk.waterGenerated += perChunkValue;
-
-            affectedChunks.Add(chunk);
-        }
-
-        DistributeUtilitiesAcrossCity();
-
-        yield return new WaitForSeconds(seconds);
-
-        foreach (ChunkData chunk in affectedChunks)
-        {
-            chunk.powerGenerated -= perChunkValue;
-            chunk.waterGenerated -= perChunkValue;
-        }
-
-        DistributeUtilitiesAcrossCity();
-    }
-
     [Header("Toggle")]
     [SerializeField] private bool showTrees;
-    private void OnEnable()
-    {
-        GameManager.instance.OnTreeVisibilityChanged += HandleTreeVisChanged;
-    }
-
-    private void OnDisable()
-    {
-        GameManager.instance.OnTreeVisibilityChanged -= HandleTreeVisChanged;
-    }
-
-    private void HandleTreeVisChanged(bool visibility)
-    {
-        showTrees = visibility;
-        if (showTrees)
-        {
-            UpdateChunks();
-        }
-    }
 
     [Header("Happiness settings")]
     [SerializeField] private float baselineHappiness = 0f;
-
-    public void IncreaseBaselineHappiness(float increase)
-    {
-        baselineHappiness += increase;
-    }
 
     [Header("Chunk settings")]
     [SerializeField] private int chunkSize = 16;
@@ -150,6 +44,7 @@ public class ChunkManager : MonoBehaviour
     public class ChunkData
     {
         public Vector2Int chunkCord;
+        public List<GameObject> spawnedTrees = new List<GameObject>();
 
         public int powerGenerated;
         public int powerImported;
@@ -244,10 +139,55 @@ public class ChunkManager : MonoBehaviour
                 Vector3 worldpos = new Vector3(x * scale, 0f, y * scale);
                 Quaternion randomRotation = Quaternion.Euler(0f, UnityEngine.Random.Range(0, 4) * 90, 0f);
 
-                gridManager.SpawnTreeInChunk(tilePos, worldpos, randomRotation);
+                GameObject spawnedTree = gridManager.SpawnTreeInChunk(tilePos, worldpos, randomRotation);
+                if (spawnedTree != null)
+                {
+                    chunk.spawnedTrees.Add(spawnedTree);
+                }
             }
         }
     }
+
+    private void calculateHappiness(ChunkData chunk)
+    {
+        float currentHappiness = 50f + baselineHappiness;
+
+        if (!chunk.HasEnoughPower) { currentHappiness -= 30f; }
+        if (!chunk.HasEnoughWater) { currentHappiness -= 30f; }
+
+        chunk.averageHappiness = Mathf.Clamp(currentHappiness, 0f, 100f);
+
+        //Debug.Log($"Chunk happiness: {chunk.averageHappiness} from {chunk.HasEnoughWater} & {chunk.HasEnoughPower}. with {baselineHappiness} baseline");
+    }
+
+    //Tree
+
+    private void OnEnable()
+    {
+        GameManager.instance.OnTreeVisibilityChanged += HandleTreeVisChanged;
+    }
+
+    private void OnDisable()
+    {
+        GameManager.instance.OnTreeVisibilityChanged -= HandleTreeVisChanged;
+    }
+
+    private void HandleTreeVisChanged(bool visibility)
+    {
+        showTrees = visibility;
+
+        foreach (var kvp in generatedChunks)
+        {
+            SetChunksTreesActive(kvp.Value, showTrees);
+        }
+
+        if (showTrees)
+        {
+            UpdateChunks();
+        }
+    }
+
+    //Public functions
 
     public void DistributeUtilitiesAcrossCity()
     {
@@ -291,8 +231,8 @@ public class ChunkManager : MonoBehaviour
         GlobalPowerDemand = totalGlobalPowerDemand;
         GlobalWaterDemand = totalGlobalWaterDemand;
 
-        powerDeficitChunks.Sort((a, b) => (b.powerConsumed - b.powerGenerated).CompareTo(a.powerConsumed -  a.powerGenerated));
-        waterDeficitChunks.Sort((a, b) => (b.waterConsumed - b.waterGenerated).CompareTo(a.waterConsumed -  a.waterGenerated));
+        powerDeficitChunks.Sort((a, b) => (b.powerConsumed - b.powerGenerated).CompareTo(a.powerConsumed - a.powerGenerated));
+        waterDeficitChunks.Sort((a, b) => (b.waterConsumed - b.waterGenerated).CompareTo(a.waterConsumed - a.waterGenerated));
 
         foreach (ChunkData chunk in powerDeficitChunks)
         {
@@ -320,7 +260,8 @@ public class ChunkManager : MonoBehaviour
             {
                 chunk.waterImported = waterDefecit;
                 globalWaterSurplusPool -= waterDefecit;
-            } else
+            }
+            else
             {
                 chunk.waterImported = 0;
             }
@@ -355,29 +296,6 @@ public class ChunkManager : MonoBehaviour
         return newChunk;
     }
 
-    public void calculateHappiness(ChunkData chunk)
-    {
-        float currentHappiness = 50f + baselineHappiness;
-
-        if (!chunk.HasEnoughPower) { currentHappiness -= 30f; }
-        if (!chunk.HasEnoughWater) { currentHappiness -= 30f; }
-
-        chunk.averageHappiness = Mathf.Clamp(currentHappiness, 0f, 100f);
-
-        //Debug.Log($"Chunk happiness: {chunk.averageHappiness} from {chunk.HasEnoughWater} & {chunk.HasEnoughPower}. with {baselineHappiness} baseline");
-    }
-
-    private Vector2Int GetChunkFromPosition(Vector3 worldPos)
-    {
-        int gridX = Mathf.RoundToInt(worldPos.x / scale);
-        int gridY = Mathf.RoundToInt(worldPos.z / scale);
-
-        int chunkX = gridX >= 0 ? gridX / chunkSize : (gridX - chunkSize + 1) / chunkSize;
-        int chunkY = gridY >= 0 ? gridY / chunkSize : (gridY - chunkSize + 1) / chunkSize;
-
-        return new Vector2Int(chunkX, chunkY);
-    }
-
     public void AddBuildingToChunk(Vector2Int gridPos, int powerGen, int powerCons, int waterGen, int waterCons)
     {
         ChunkData chunk = GetChunkFromGridTile(gridPos);
@@ -402,5 +320,114 @@ public class ChunkManager : MonoBehaviour
         chunk.waterConsumed -= waterCons;
 
         //DistributeUtilitiesAcrossCity(); //infinite loop fixed?
+    }
+
+    //Public event functions
+    public void IncreaseBaselineHappiness(float increase)
+    {
+        baselineHappiness += increase;
+    }
+    public IEnumerator IncreasePowerDemandTemporarily(int power, float seconds)
+    {
+        if (generatedChunks.Count == 0) { yield break; }
+
+        List<ChunkData> affectedChunks = new List<ChunkData>();
+        List<Vector2Int> allChunkKeys = new List<Vector2Int>(generatedChunks.Keys);
+
+        int chunksToAffect = allChunkKeys.Count / UnityEngine.Random.Range(4, 8); //1/4 to 1/8 of all chunks
+        if (chunksToAffect == 0) { chunksToAffect = 1; } //atleast 1!
+
+        int powerPerChunk = power / chunksToAffect;
+        if (powerPerChunk <= 100) { powerPerChunk = 100; }
+
+        for (int i = 0; i < chunksToAffect; i++)
+        {
+            if (allChunkKeys.Count == 0) break;
+
+            int randomIndex = UnityEngine.Random.Range(0, allChunkKeys.Count);
+            Vector2Int key = allChunkKeys[randomIndex];
+            allChunkKeys.RemoveAt(randomIndex);
+
+            ChunkData chunk = generatedChunks[key];
+
+            chunk.powerConsumed += powerPerChunk;
+            affectedChunks.Add(chunk);
+        }
+
+        DistributeUtilitiesAcrossCity();
+        Debug.Log($"Surge active with {chunksToAffect} chunks loaded with an additional {powerPerChunk} MW each!");
+
+        Debug.Log($"Demand is now {GlobalPowerDemand}");
+
+        yield return new WaitForSeconds(seconds);
+
+        foreach (ChunkData chunk in affectedChunks)
+        {
+            chunk.powerConsumed -= powerPerChunk;
+        }
+
+        DistributeUtilitiesAcrossCity();
+
+        Debug.Log($"Demand is now {GlobalPowerDemand}, should be normalised due to end of surge");
+    }
+
+    public IEnumerator IncreaseWaterAndPowerSupplyTemporarily(int perChunkValue, float seconds)
+    {
+        if (generatedChunks.Count == 0) { yield break; }
+
+        List<ChunkData> affectedChunks = new List<ChunkData>();
+        List<Vector2Int> allChunkKeys = new List<Vector2Int>(generatedChunks.Keys);
+
+        if (perChunkValue <= 100000) { perChunkValue = 100000; }
+
+        int count = allChunkKeys.Count;
+        for (int i = 0; i < allChunkKeys.Count; i++)
+        {
+            if (allChunkKeys.Count == 0) break;
+
+            int randomIndex = UnityEngine.Random.Range(0, allChunkKeys.Count);
+            Vector2Int key = allChunkKeys[randomIndex];
+            allChunkKeys.RemoveAt(randomIndex);
+
+            ChunkData chunk = generatedChunks[key];
+
+            chunk.powerGenerated += perChunkValue;
+            chunk.waterGenerated += perChunkValue;
+
+            affectedChunks.Add(chunk);
+        }
+
+        DistributeUtilitiesAcrossCity();
+
+        yield return new WaitForSeconds(seconds);
+
+        foreach (ChunkData chunk in affectedChunks)
+        {
+            chunk.powerGenerated -= perChunkValue;
+            chunk.waterGenerated -= perChunkValue;
+        }
+
+        DistributeUtilitiesAcrossCity();
+    }
+
+    //Helper functions
+
+    private Vector2Int GetChunkFromPosition(Vector3 worldPos)
+    {
+        int gridX = Mathf.RoundToInt(worldPos.x / scale);
+        int gridY = Mathf.RoundToInt(worldPos.z / scale);
+
+        int chunkX = gridX >= 0 ? gridX / chunkSize : (gridX - chunkSize + 1) / chunkSize;
+        int chunkY = gridY >= 0 ? gridY / chunkSize : (gridY - chunkSize + 1) / chunkSize;
+
+        return new Vector2Int(chunkX, chunkY);
+    }
+
+    private void SetChunksTreesActive(ChunkData chunk, bool active)
+    {
+        foreach (GameObject tree in chunk.spawnedTrees)
+        {
+            if (tree != null) tree.SetActive(active);
+        }
     }
 }

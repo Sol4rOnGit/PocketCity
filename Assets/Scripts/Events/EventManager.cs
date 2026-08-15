@@ -290,6 +290,9 @@ public partial class EventManager : MonoBehaviour
 
                 break;
             case 4:
+                if (GameManager.instance.gameDifficulty == GameSettings.Difficulty.Easy
+                    || GameManager.instance.gameDifficulty == GameSettings.Difficulty.Normal) return;
+
                 SetWeight(EventType.Nothing, 0);
                 SetWeight(EventType.PoliticalQuestion, 5);
 

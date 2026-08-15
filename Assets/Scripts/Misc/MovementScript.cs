@@ -84,7 +84,7 @@ public class MovementScript : MonoBehaviour
 
         Vector3 moveDir = new Vector3(inputVector.x, 0f, inputVector.y).normalized;
 
-        transform.Translate(moveDir * currentMoveSpeed * Time.deltaTime, Space.World);
+        transform.Translate(moveDir * currentMoveSpeed * Time.unscaledDeltaTime, Space.World);
 
         //Clamp to bounds on xz plane
         Vector3 clampedPos = transform.position;
@@ -105,7 +105,7 @@ public class MovementScript : MonoBehaviour
         {
             Vector3 moveDir = new Vector3(0f, 0f, scrollValue);
 
-            transform.Translate(moveDir * currentZoomMultiplier * Time.deltaTime, Space.Self);
+            transform.Translate(moveDir * currentZoomMultiplier * Time.unscaledDeltaTime, Space.Self);
 
             //Clamp
             Vector3 clampedPosition = transform.position;

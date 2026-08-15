@@ -96,6 +96,9 @@ public class DebugMenu : MonoBehaviour
             secondTimer = 0;
             framesInCurrentSec = 0;
             lowestInCurrentSec = float.MaxValue;
+        } else
+        {
+            if (DisplayFPS != null) DisplayFPS.text = $"FPS: {Mathf.RoundToInt(currentFPS)} | Avg {Mathf.RoundToInt(averageFPS)} | Min {Mathf.RoundToInt(currentMinFPS)}";
         }
     }
 

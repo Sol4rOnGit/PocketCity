@@ -42,12 +42,14 @@ public class GameSettings : MonoBehaviour
     [Header("Live Settings")]
     private DifficultySettings currentDifficulty;
     private bool hardcoreEnabled;
+    private bool cheatsEnabled;
 
     private void Start()
     {
         //Default values
         currentDifficulty = normalMode;
         hardcoreEnabled = false;
+        cheatsEnabled = false;
     }
 
     //Exposed functions
@@ -60,6 +62,13 @@ public class GameSettings : MonoBehaviour
     {
         hardcoreEnabled = newHardcoreEnabled;
     }
+
+    public void SetCheats(bool newCheatsEnabled)
+    {
+        cheatsEnabled = newCheatsEnabled;
+    }
+
+    //Private fx
 
     private void OnEnable()
     {
@@ -77,6 +86,11 @@ public class GameSettings : MonoBehaviour
         {
             StartCoroutine(PushValues());
         }
+
+        if (scene.name == "MainMenu")
+        {
+            Destroy(gameObject);
+        }
     }
 
     private IEnumerator PushValues()
@@ -90,5 +104,8 @@ public class GameSettings : MonoBehaviour
         FinanceManager.instance.inflationRateMultiplier = currentDifficulty.inflationRateMultiplier;
 
         GameManager.instance.hardcore = hardcoreEnabled;
+        GameManager.instance.cheats = cheatsEnabled;
+
+        GameManager.instance.gameDifficulty = currentDifficulty.difficulty;
     }
 }

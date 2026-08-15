@@ -14,6 +14,7 @@ public class PlaySelectionMenu : MonoBehaviour
 
     [Header("Game Options")]
     [SerializeField] private Toggle hardcoreToggle;
+    [SerializeField] private Toggle cheatsToggle;
 
     [Header("Start")]
     [SerializeField] private TMPro.TextMeshProUGUI summaryText;
@@ -30,6 +31,8 @@ public class PlaySelectionMenu : MonoBehaviour
     public void OnEasyDifficultySelected()
     {
         GameSettings.instance.SetDifficulty(GameSettings.instance.easyMode);
+        GameSettings.instance.SetHardcore(false);
+        hardcoreToggle.SetIsOnWithoutNotify(false);
 
         currentDifficultyText = "Easy";
         UpdateSummaryDisplay();
@@ -38,6 +41,8 @@ public class PlaySelectionMenu : MonoBehaviour
     public void OnNormalDifficultySelected()
     {
         GameSettings.instance.SetDifficulty(GameSettings.instance.normalMode);
+        GameSettings.instance.SetHardcore(false);
+        hardcoreToggle.SetIsOnWithoutNotify(false);
 
         currentDifficultyText = "Normal";
         UpdateSummaryDisplay();
@@ -46,6 +51,9 @@ public class PlaySelectionMenu : MonoBehaviour
     public void OnHardDifficultySelected()
     {
         GameSettings.instance.SetDifficulty(GameSettings.instance.hardMode);
+        GameSettings.instance.SetHardcore(false);
+        hardcoreToggle.SetIsOnWithoutNotify(false);
+
 
         currentDifficultyText = "Hard";
         UpdateSummaryDisplay();
@@ -61,8 +69,25 @@ public class PlaySelectionMenu : MonoBehaviour
 
     public void OnHardcoreToggleSelected()
     {
-        GameSettings.instance.SetDifficulty(GameSettings.instance.nightmareMode);
-        GameSettings.instance.SetHardcore(hardcoreToggle.isOn);
+        bool hardcore = hardcoreToggle.isOn;
+
+        GameSettings.instance.SetHardcore(hardcore);
+
+        if (hardcore)
+        {
+            GameSettings.instance.SetDifficulty(GameSettings.instance.nightmareMode);
+            nightmareDifficultyButton.Select();
+
+            GameSettings.instance.SetCheats(false);
+            cheatsToggle.SetIsOnWithoutNotify(false);
+        }
+        
+        UpdateSummaryDisplay();
+    }
+
+    public void OnCheatsToggleSelected()
+    {
+        GameSettings.instance.SetCheats(cheatsToggle.isOn);
 
         UpdateSummaryDisplay();
     }
@@ -71,9 +96,12 @@ public class PlaySelectionMenu : MonoBehaviour
     {
         SceneManager.LoadScene("GameScene");
     }
+    
+
+    //Helper functions
 
     private void UpdateSummaryDisplay()
     {
-        summaryText.text = $"Difficulty: {currentDifficultyText} \n Hardcore: {(hardcoreToggle.isOn ? "On" : "Off")} \n Load: N/A";
+        summaryText.text = $"Difficulty: {currentDifficultyText} \n Hardcore: {(hardcoreToggle.isOn ? "On" : "Off")} \n Cheats: {(cheatsToggle.isOn ? "On" : "Off")} \n Load: N/A";
     }
 }

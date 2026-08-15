@@ -67,6 +67,8 @@ public class CityGenerator : MonoBehaviour
 
     private void Update()
     {
+        if (GameManager.instance.isGameOver) return;
+
         //Wait for everything to load
         if (GameManager.instance == null || FinanceManager.instance == null) return;
 
