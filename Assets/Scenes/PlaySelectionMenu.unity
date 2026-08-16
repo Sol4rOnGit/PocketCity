@@ -12505,6 +12505,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 5488153415394018654, guid: adaefdb332fe1e3448274f35ba9291c5, type: 3}
+      propertyPath: m_SortingOrder
+      value: 1001
+      objectReference: {fileID: 0}
     - target: {fileID: 6981686872253923973, guid: adaefdb332fe1e3448274f35ba9291c5, type: 3}
       propertyPath: m_Name
       value: DebugMenu

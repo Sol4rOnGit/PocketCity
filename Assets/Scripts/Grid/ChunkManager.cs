@@ -25,8 +25,18 @@ public class ChunkManager : MonoBehaviour
     public int GlobalWaterCapacity { get; private set; }
     public int GlobalWaterDemand { get; private set; }
 
-    [Header("Toggle")]
+    [Header("Tree Settings")]
+    [SerializeField] private Mesh[] treeMesh;
+    [SerializeField] private Material treeMaterial;
+
     [SerializeField] private bool showTrees;
+    private HashSet<Vector2Int> allTreePositions = new HashSet<Vector2Int>();
+
+    public struct TreeInstance
+    {
+        public Vector2Int gridPos;
+        public Matrix4x4 matrix;
+    }
 
     [Header("Happiness settings")]
     [SerializeField] private float baselineHappiness = 0f;
@@ -44,7 +54,7 @@ public class ChunkManager : MonoBehaviour
     public class ChunkData
     {
         public Vector2Int chunkCord;
-        public List<GameObject> spawnedTrees = new List<GameObject>();
+        public List<TreeInstance> spawnedTrees = new List<TreeInstance>();
 
         public int powerGenerated;
         public int powerImported;
@@ -80,6 +90,7 @@ public class ChunkManager : MonoBehaviour
     private void Update()
     {
         if (!showTrees) { return; }
+        DrawTreeMeshes();
         HandlePlayerChunkLoader();
     }
 
@@ -131,7 +142,7 @@ public class ChunkManager : MonoBehaviour
                 Vector2Int tilePos = new Vector2Int(x, y);
 
                 if(gridManager.GetMapGrid().ContainsKey(tilePos)) continue;
-                if(gridManager.TreeGrid.ContainsKey(tilePos)) continue;
+                if(allTreePositions.Contains(tilePos)) continue;
 
                 int roll = UnityEngine.Random.Range(0, 100);
                 if (roll <= 40) { continue; }
@@ -139,11 +150,13 @@ public class ChunkManager : MonoBehaviour
                 Vector3 worldpos = new Vector3(x * scale, 0f, y * scale);
                 Quaternion randomRotation = Quaternion.Euler(0f, UnityEngine.Random.Range(0, 4) * 90, 0f);
 
-                GameObject spawnedTree = gridManager.SpawnTreeInChunk(tilePos, worldpos, randomRotation);
-                if (spawnedTree != null)
+                TreeInstance newTree = new TreeInstance
                 {
-                    chunk.spawnedTrees.Add(spawnedTree);
-                }
+                    gridPos = tilePos,
+                    matrix = Matrix4x4.TRS(worldpos, randomRotation, Vector3.one)
+                };
+                chunk.spawnedTrees.Add(newTree);
+                allTreePositions.Add(tilePos);
             }
         }
     }
@@ -178,12 +191,54 @@ public class ChunkManager : MonoBehaviour
 
         foreach (var kvp in generatedChunks)
         {
-            SetChunksTreesActive(kvp.Value, showTrees);
+            //SetChunksTreesActive(kvp.Value, showTrees);
         }
 
         if (showTrees)
         {
             UpdateChunks();
+        }
+    }
+
+    private void DrawTreeMeshes()
+    {
+        if (treeMesh == null || treeMaterial == null) return;
+
+        foreach (var kvp in generatedChunks)
+        {
+            ChunkData chunk = kvp.Value;
+            if (chunk.spawnedTrees == null || chunk.spawnedTrees.Count == 0) continue;
+
+            int batchSize = 1023;
+            int totalTrees = chunk.spawnedTrees.Count;
+
+            for(int i = 0; i < totalTrees; i+=batchSize)
+            {
+                int length = Mathf.Min(batchSize, totalTrees - i);
+                Matrix4x4[] subMatrices = new Matrix4x4[length];
+
+                for (int j = 0; j < length; j++)
+                {
+                    subMatrices[j] = chunk.spawnedTrees[i + j].matrix;
+                }
+
+                int meshIndex = Mathf.Abs(chunk.chunkCord.GetHashCode() + i) % treeMesh.Length;
+
+                Graphics.DrawMeshInstanced(treeMesh[meshIndex], 0, treeMaterial, subMatrices, length);
+            }
+        }
+    }
+
+    public void ClearTreeAtPos(Vector2Int gridPos)
+    {
+        if (!allTreePositions.Contains(gridPos)) return;
+
+        allTreePositions.Remove(gridPos);
+
+        foreach (var kvp in generatedChunks) {
+            ChunkData chunk = kvp.Value;
+            int removedCount = chunk.spawnedTrees.RemoveAll(t => t.gridPos == gridPos);
+            if (removedCount > 0) break;
         }
     }
 
@@ -423,11 +478,11 @@ public class ChunkManager : MonoBehaviour
         return new Vector2Int(chunkX, chunkY);
     }
 
-    private void SetChunksTreesActive(ChunkData chunk, bool active)
+    /*private void SetChunksTreesActive(ChunkData chunk, bool active)
     {
         foreach (GameObject tree in chunk.spawnedTrees)
         {
             if (tree != null) tree.SetActive(active);
         }
-    }
+    }*/
 }

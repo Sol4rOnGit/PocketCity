@@ -180,7 +180,11 @@ MonoBehaviour:
   isImmuneToViruses: 0
   taxRevenueMultiplier: 1
   tempRevenueMultiplier: 1
+  gameDifficulty: 0
   toggleSprintEnabled: 0
+  hardcore: 0
+  cheats: 0
+  isGameOver: 0
 --- !u!114 &2657489583929872117
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -297,6 +301,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ChunkManager
   gridManager: {fileID: 1022619426834637478}
   playerTransform: {fileID: 0}
+  treeMesh:
+  - {fileID: 4300000, guid: 674b743d5b5f3be4bb1dd3e0bdc3f556, type: 2}
+  - {fileID: 4300000, guid: 25237a7d688fc5642bbe0146d813751b, type: 2}
+  - {fileID: 4300000, guid: 1609d19d0bd585043b74df790192c73f, type: 2}
+  treeMaterial: {fileID: 2100000, guid: adcf38caa1addf943a5c8a1c4435f265, type: 2}
   showTrees: 1
   baselineHappiness: 0
   chunkSize: 16
@@ -313,10 +322,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1cfa05c30682f6243bdcf6848f38531a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::FinanceManager
-  initialMoney: 40000000
+  initialMoney: 404
   prevMoney: 0
   taxMultiplier: 1
   inflationRate: 1.02
+  inflationRateMultiplier: 1
   maxDebtLimit: -50000
   costRoad: 245
   costZoning: 1033

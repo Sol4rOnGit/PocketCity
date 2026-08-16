@@ -52,7 +52,6 @@ public class GridManager : MonoBehaviour
     }
 
     private Dictionary<Vector2Int, GridTile> mapGrid = new Dictionary<Vector2Int, GridTile>();
-    public Dictionary<Vector2Int, GameObject> TreeGrid = new Dictionary<Vector2Int, GameObject>();
     public List<Vector2Int> RoadPositions { get; private set; } = new List<Vector2Int>();
 
     [HideInInspector] public List<Vector2Int> BuildingPositions = new List<Vector2Int>();
@@ -287,19 +286,6 @@ public class GridManager : MonoBehaviour
         ZonedPositions.Add(pos);
     }
 
-    public GameObject SpawnTreeInChunk(Vector2Int gridPos, Vector3 worldPos, Quaternion randomRotation)
-    {
-        if (TreePrefabs == null || TreePrefabs.Length == 0) { return null; }
-
-        GameObject treePrefab = TreePrefabs[UnityEngine.Random.Range(0, TreePrefabs.Length)];
-        GameObject treeInstance = Instantiate(treePrefab, worldPos, randomRotation, this.transform);
-        treeInstance.name = $"Tree ({gridPos.x}, {gridPos.y})";
-
-        TreeGrid.Add(new Vector2Int(gridPos.x, gridPos.y), treeInstance);
-
-        return treeInstance;
-    }
-
     //Deletions
     public void eraseRoadElement(Vector2Int pos)
     {
@@ -437,14 +423,7 @@ public class GridManager : MonoBehaviour
 
     private void ClearTreeAtPos(Vector2Int pos)
     {
-        if (TreeGrid.TryGetValue(pos, out GameObject treeInstance))
-        {
-            if (treeInstance != null)
-            {
-                Destroy(treeInstance);
-            }
-            TreeGrid.Remove(pos);
-        }
+        if (ChunkManager.instance != null) ChunkManager.instance.ClearTreeAtPos(pos);
     }
     
     //Helper functions

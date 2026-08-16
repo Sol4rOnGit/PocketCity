@@ -90,15 +90,12 @@ public class DebugMenu : MonoBehaviour
                 }
             }
 
-            if (DisplayFPS != null) DisplayFPS.text = $"FPS: {Mathf.RoundToInt(currentFPS)} | Avg {Mathf.RoundToInt(averageFPS)} | Min {Mathf.RoundToInt(currentMinFPS)}";
+            if (DisplayFPS != null) DisplayFPS.text = $"FPS: Avg {Mathf.RoundToInt(averageFPS)} | Current {Mathf.RoundToInt(currentFPS)} | Min {Mathf.RoundToInt(currentMinFPS)}";
             if (DisplayFrametime != null) DisplayFrametime.text = $"Latency (ms): {Mathf.RoundToInt(uDt * 1000f)}";
 
             secondTimer = 0;
             framesInCurrentSec = 0;
             lowestInCurrentSec = float.MaxValue;
-        } else
-        {
-            if (DisplayFPS != null) DisplayFPS.text = $"FPS: {Mathf.RoundToInt(currentFPS)} | Avg {Mathf.RoundToInt(averageFPS)} | Min {Mathf.RoundToInt(currentMinFPS)}";
         }
     }
 
