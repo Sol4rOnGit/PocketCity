@@ -22,6 +22,10 @@ public class ServiceManager : MonoBehaviour
 
         gridPathfinder = new GridPathfinder();
     }
+    private void OnDestroy()
+    {
+        if (instance == this) instance = null;
+    }
 
     public void Start()
     {

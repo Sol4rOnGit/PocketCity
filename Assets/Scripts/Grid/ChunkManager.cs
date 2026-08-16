@@ -14,6 +14,10 @@ public class ChunkManager : MonoBehaviour
         if (instance != null && instance != this) { Destroy(gameObject); }
         instance = this;
     }
+    private void OnDestroy()
+    {
+        if (instance == this) instance = null;
+    }
 
     [Header("Dependencies")]
     [SerializeField] private GridManager gridManager;

@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 public class MilitaryManager : MonoBehaviour
@@ -8,8 +9,12 @@ public class MilitaryManager : MonoBehaviour
         if (instance != null && instance != this) { Destroy(gameObject); }
         instance = this;
     }
+    private void OnDestroy()
+    {
+        if (instance == this) instance = null;
+    }
 
     public GameObject turretPrefab;
 
-    public Vector2Int[] turretPositions;
+    public List<Vector2Int> turretPositions = new List<Vector2Int>();
 }

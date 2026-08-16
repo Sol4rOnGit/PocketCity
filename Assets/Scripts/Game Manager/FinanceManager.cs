@@ -18,6 +18,10 @@ public class FinanceManager : MonoBehaviour
         if(instance != null && instance != this) { Destroy(gameObject); return; }
         instance = this;
     }
+    private void OnDestroy()
+    {
+        if (instance == this) instance = null;
+    }
 
     [Header("Settings")]
     [SerializeField] private long initialMoney = 404_404; //Default value given failure lmao get it 404
@@ -59,6 +63,15 @@ public class FinanceManager : MonoBehaviour
     [Header("Base Costs")]
     private bool flagMaintenance = false;
     private int maintenanceResetDays = 0;
+    public bool SetMaintenanceResetDays()
+    {
+        if (maintenanceResetDays == 0)
+        {
+            maintenanceResetDays = GameManager.instance.daysPassed;
+            return true;
+        }
+        return false;
+    }
 
     private float baseCostRoad;
     private float baseCostZoning;

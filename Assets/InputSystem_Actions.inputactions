@@ -605,6 +605,15 @@
                     "initialStateCheck": false
                 },
                 {
+                    "name": "HideUI",
+                    "type": "Button",
+                    "id": "61d21df6-aa33-4602-b9c9-cbbf83c4681c",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
                     "name": "Accept",
                     "type": "Button",
                     "id": "4708d8c6-8046-45c4-bff2-6ae7a763d6eb",
@@ -984,7 +993,7 @@
                 {
                     "name": "",
                     "id": "a5710ee4-5595-488f-92ac-864c24ffb31a",
-                    "path": "<Gamepad>/dpad/up",
+                    "path": "<Gamepad>/buttonSouth",
                     "interactions": "",
                     "processors": "",
                     "groups": "",
@@ -1275,6 +1284,17 @@
                     "processors": "",
                     "groups": "",
                     "action": "DebugMenu",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "633abc8b-50c3-4aab-b055-9b2b0ee7d1aa",
+                    "path": "<Keyboard>/f1",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "HideUI",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

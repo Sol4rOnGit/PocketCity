@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 public class CouncilFX : MonoBehaviour
@@ -83,7 +84,12 @@ public class CouncilFX : MonoBehaviour
     {
         bool newState = !gameObject.activeSelf;
         gameObject.SetActive(newState);
-        if (!newState) UpdateButtonState();
+        if (!newState)
+        {
+            EventSystem.current.SetSelectedGameObject(null);
+            EventSystem.current.SetSelectedGameObject(emergencyBorrowButton.gameObject);
+            UpdateButtonState();
+        }
     }
 
     public void PanelOnDayEnd()
@@ -341,9 +347,9 @@ public class CouncilFX : MonoBehaviour
 
     public void OnCorporateHavenClicked(bool free = false)
     {
-        //if (!free && !financeManager.Purchase(500_000)) return;
+        if (!free && !financeManager.Purchase(500_000)) return;
 
-
+        StartCoroutine(CorporateHavenCoroutine(15));
         //14 day
         //Double tax revenue
         //All negative disasters are resolved
@@ -363,12 +369,7 @@ public class CouncilFX : MonoBehaviour
         OnMaximiseHousingClicked(true);
         OnIncreaseBuildingRevenueClicked(true);
 
-        //Solve everything...
-        //Maintenance cost reset to day 0
-        //OnMedicalCure called
-        //CorporateHaven called
-        //Houses & Buildings maximised (called both functions)
-
+        FinanceManager.instance.SetMaintenanceResetDays();
         //Can only do this once
 
         UpdateButtonState();
@@ -391,11 +392,11 @@ public class CouncilFX : MonoBehaviour
         if (gameObject.activeSelf) UpdateButtonState();
     }
 
-    private IEnumerator CorporateHavenCoroutine(int days)
+    private IEnumerator CorporateHavenCoroutine(int seconds)
     {
         GameManager.instance.TempChangeTaxRevenueMultiplier(2f);
 
-        yield return new WaitForSeconds(days);
+        yield return new WaitForSeconds(seconds);
 
         GameManager.instance.TempChangeTaxRevenueMultiplier(1f);
     }

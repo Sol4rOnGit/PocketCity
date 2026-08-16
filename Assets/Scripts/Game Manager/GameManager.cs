@@ -14,6 +14,11 @@ public class GameManager : MonoBehaviour
         toggleSprintEnabled = PlayerPrefs.GetInt("ToggleSprint", 0) == 1;
     }
 
+    private void OnDestroy()
+    {
+        if (instance == this) instance = null;
+    }
+
     [Header("Dependencies")]
     [HideInInspector] private FinanceManager financeManager;
     public GridManager gridManager;

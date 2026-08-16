@@ -41,7 +41,7 @@ public partial class EventManager : MonoBehaviour
         {
             if (gridManager.BuildingPositions.Count == 0) break;
 
-            int randomInt = UnityEngine.Random.Range(0, gridManager.BuildingPositions.Count);
+            int randomInt = Random.Range(0, gridManager.BuildingPositions.Count);
             Vector2Int buildingPos = gridManager.BuildingPositions[randomInt];
 
             var mapGrid = gridManager.GetMapGrid();
@@ -131,7 +131,7 @@ public partial class EventManager : MonoBehaviour
 
     private IEnumerator SpreadFire(Vector2Int pos, Dictionary<Vector2Int, GridManager.GridTile> mapGrid)
     {
-        yield return new WaitForSeconds(UnityEngine.Random.Range(3f, 9f));
+        yield return new WaitForSeconds(Random.Range(3f, 9f));
 
         //Return if no longer on fire/existant
         if (!mapGrid.TryGetValue(pos, out GridManager.GridTile sourceTile) || sourceTile.buildingScript == null) yield break;
@@ -153,9 +153,9 @@ public partial class EventManager : MonoBehaviour
             }
         }
 
-        if (validTargets.Count > 0 && UnityEngine.Random.Range(0, 2) != 0)
+        if (validTargets.Count > 0)
         {
-            int randomIndex = UnityEngine.Random.Range(0, validTargets.Count);
+            int randomIndex = Random.Range(0, validTargets.Count);
             GridManager.GridTile tile = validTargets[randomIndex];
 
             tile.buildingScript.IgniteFire();
@@ -186,7 +186,7 @@ public partial class EventManager : MonoBehaviour
         bool foundInfected = false;
         int tries = 0;
 
-        while (!foundInfected && tries < 50)
+        while (!foundInfected && tries < (newVirus ? 5 : 50))
         {
             Vector2Int randomPos = gridManager.BuildingPositions[UnityEngine.Random.Range(0, gridManager.BuildingPositions.Count)];
             Dictionary<Vector2Int, GridManager.GridTile> mapGrid = gridManager.GetMapGrid();
@@ -223,7 +223,7 @@ public partial class EventManager : MonoBehaviour
 
         if (houseScript == null || !houseScript.isInfected || GameManager.instance.isImmuneToViruses) yield break;
 
-        int spreadNum = (houseScript.residents < 2) ? 1 : UnityEngine.Random.Range(1, 4);
+        int spreadNum = (houseScript.residents < 2) ? 2 : Random.Range(1, 5);
 
         for (int i = 1; i < spreadNum; i++)
         {

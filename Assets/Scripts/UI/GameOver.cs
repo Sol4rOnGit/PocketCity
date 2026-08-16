@@ -41,12 +41,14 @@ public class GameOver : MonoBehaviour
 
         quoteText.text = quotes[Random.Range(0, quotes.Length)];
 
-        GameManager.instance.OnGameOver += OnGameOver;
+        if (GameManager.instance != null) GameManager.instance.OnGameOver += OnGameOver;
+        else { Debug.LogError("No Game Manager found!"); }
     }
 
     private void OnDisable()
     {
-        GameManager.instance.OnGameOver -= OnGameOver;
+        if (GameManager.instance != null) GameManager.instance.OnGameOver -= OnGameOver;
+        else { Debug.LogError("No Game Manager found!"); }
     }
 
     private void OnGameOver()
@@ -61,6 +63,8 @@ public class GameOver : MonoBehaviour
     //Buttons
     public void OnTryAgainClicked()
     {
+        Time.timeScale = 1f;
+
         SceneManager.LoadScene("PlaySelectionMenu");
     }
 

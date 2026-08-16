@@ -33,9 +33,6 @@ public class PauseMenu : MonoBehaviour
 
     private void OnEnable()
     {
-        EventSystem.current.SetSelectedGameObject(null);
-        EventSystem.current.SetSelectedGameObject(startFocusObject);
-
         pauseAction.Enable();
     }
 
@@ -76,6 +73,9 @@ public class PauseMenu : MonoBehaviour
     private void Pause()
     {
         //Pause the game
+        EventSystem.current.SetSelectedGameObject(null);
+        EventSystem.current.SetSelectedGameObject(startFocusObject);
+
         paused = true;
         darkeningImage.enabled = true;
         pauseMenuPanel.SetActive(true);

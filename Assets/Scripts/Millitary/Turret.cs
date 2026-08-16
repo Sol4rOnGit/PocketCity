@@ -22,6 +22,8 @@ public class Turret : MonoBehaviour
     List<BaseEnemy> targetsInRange = new List<BaseEnemy>();
     private float nextTimeToFire = 0f;
 
+    private Vector2Int gridPos = Vector2Int.zero;
+
     private void OnTriggerEnter(Collider other)
     {
         BaseEnemy target = other.GetComponentInParent<BaseEnemy>();
@@ -44,8 +46,15 @@ public class Turret : MonoBehaviour
 
     private void Start()
     {
-        Vector2Int gridPos = new(0, 0);
-        MilitaryManager.instance.turretPositions.Append(gridPos);
+        float gridScale = GridManager.instance.getGridScale();
+        gridPos = new Vector2Int(Mathf.RoundToInt(transform.position.x / gridScale), Mathf.RoundToInt(transform.position.z / gridScale));
+        
+        MilitaryManager.instance.turretPositions.Add(gridPos);
+    }
+
+    private void OnDisable()
+    {
+        MilitaryManager.instance.turretPositions.Remove(gridPos);
     }
 
     private void Update()
@@ -63,7 +72,13 @@ public class Turret : MonoBehaviour
             return;
         }
 
-        BaseEnemy currentTarget = targetsInRange[0];
+        int turretIndex = MilitaryManager.instance.turretPositions.IndexOf(gridPos);
+        bool UseAltTarget = turretIndex % 3 == 0;
+
+        int targetIndex = UseAltTarget ? targetsInRange.Count - 1 : 0;
+        targetIndex = Mathf.Clamp(targetIndex, 0, targetsInRange.Count - 1);
+
+        BaseEnemy currentTarget = targetsInRange[targetIndex];
 
         Vector3 predictedPos = GetPredictedPosition(currentTarget);
         AimAtTarget(predictedPos);

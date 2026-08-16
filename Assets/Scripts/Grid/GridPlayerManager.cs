@@ -11,6 +11,10 @@ public class GridPlayerManager : MonoBehaviour
         if (instance != null && instance != this) { Destroy(gameObject); }
         instance = this;
     }
+    private void OnDestroy()
+    {
+        if (instance == this) instance = null;
+    }
 
     [Header("Input")]
     [SerializeField] private InputActionAsset inputActions;

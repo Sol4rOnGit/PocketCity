@@ -133,8 +133,8 @@ MonoBehaviour:
   missileSpawnPoints:
   - {fileID: 6147112951862643388}
   - {fileID: 3098678142220575916}
-  minIntervalBetweenStrikesSeconds: 1.5
-  maxIntervalBetweenStrikesSeconds: 3
+  minIntervalBetweenStrikesSeconds: 2
+  maxIntervalBetweenStrikesSeconds: 4
   moveSpeed: 5
   rotationSpeed: 300
   flightHeight: 8

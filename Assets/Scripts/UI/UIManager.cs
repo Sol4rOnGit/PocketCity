@@ -13,11 +13,14 @@ public class UIManager : MonoBehaviour
 
     //Input actions
     public InputActionAsset inputActions;
+    InputAction hideUI;
     InputAction toggleZoningUI;
     InputAction toggleStatsPanelUI;
     InputAction toggleCouncilFXUI;
     InputAction accept;
     InputAction deny;
+
+    [SerializeField] private Canvas canvas;
 
     [Header("Hotbar & Mode UI")]
     [SerializeField] private TMPro.TextMeshProUGUI playerModeShowText;
@@ -104,6 +107,7 @@ public class UIManager : MonoBehaviour
         toggleZoningUI = UIMap.FindAction("ToggleZoningUI");
         toggleStatsPanelUI = UIMap.FindAction("ToggleStatsPanel");
         toggleCouncilFXUI = UIMap.FindAction("ToggleCouncilFX");
+        hideUI = UIMap.FindAction("HideUI");
         accept = UIMap.FindAction("Accept");
         deny = UIMap.FindAction("Deny");
         optionOneKey = UIMap.FindAction("OptionOneKey");
@@ -203,6 +207,11 @@ public class UIManager : MonoBehaviour
         if (toggleZoningUI.WasPressedThisFrame()) { ToggleZoningLayer(); CloseSpecialFx(); }
         if (toggleStatsPanelUI.WasPressedThisFrame()) { ToggleStatsPanel(); CloseSpecialFx(); }
         if (toggleCouncilFXUI.WasPressedThisFrame()) { ToggleCouncilFXPanel(); CloseSpecialFx(); }
+
+        if (hideUI.WasPerformedThisFrame())
+        {
+            canvas.enabled = !canvas.enabled;
+        }
 
         if (QuestionContainer.activeSelf)
         {

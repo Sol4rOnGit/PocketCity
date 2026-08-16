@@ -69,6 +69,10 @@ public class GridManager : MonoBehaviour
 
         PlaceInitialGrid();
     }
+    private void OnDestroy()
+    {
+        if (instance == this) instance = null;
+    }
 
     private FinanceManager financeManager;
 

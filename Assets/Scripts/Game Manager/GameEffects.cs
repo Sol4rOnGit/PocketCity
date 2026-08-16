@@ -10,6 +10,10 @@ public class GameEffects : MonoBehaviour
         if (instance != null && instance != this) { Destroy(gameObject); return; }
         instance = this;
     }
+    private void OnDestroy()
+    {
+        if (instance == this) instance = null;
+    }
 
     [Header("Dependencies")]
     [SerializeField] private FinanceManager financeManager;

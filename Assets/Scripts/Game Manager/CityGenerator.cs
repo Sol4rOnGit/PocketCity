@@ -10,6 +10,10 @@ public class CityGenerator : MonoBehaviour
         if (instance != null && instance != this) { Destroy(gameObject); }
         instance = this;
     }
+    private void OnDestroy()
+    {
+        if (instance == this) instance = null;
+    }
 
     [Header("Houses")]
     [SerializeField] private List<GameObject> HousePrefabs;

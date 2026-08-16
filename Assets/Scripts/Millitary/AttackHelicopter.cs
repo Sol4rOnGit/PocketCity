@@ -181,9 +181,9 @@ public class AttackHelicopter : MovingAttacker
 
     private void TryStrikeTurret()
     {
-        if (millitaryManager.turretPositions.Length == 0) { StrikeRandomBuilding(); return; }
+        if (millitaryManager.turretPositions.Count == 0) { StrikeRandomBuilding(); return; }
 
-        Vector2Int randomTurretPos = millitaryManager.turretPositions[Random.Range(0, millitaryManager.turretPositions.Length)];
+        Vector2Int randomTurretPos = millitaryManager.turretPositions[Random.Range(0, millitaryManager.turretPositions.Count)];
 
         InstantiateMissileToStrike(randomTurretPos);
     }
