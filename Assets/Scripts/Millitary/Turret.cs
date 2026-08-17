@@ -13,6 +13,8 @@ public class Turret : MonoBehaviour
     [SerializeField] private GameObject bulletTrailPrefab;
     [SerializeField] private LayerMask turretStrikeableLayerMask;
 
+    [SerializeField] private AudioSource shotSoundSource;
+
     [Header("Settings")]
     [SerializeField] private float damage = 10f;
     [SerializeField] private float turnSpeed = 100f;
@@ -73,7 +75,7 @@ public class Turret : MonoBehaviour
         }
 
         int turretIndex = MilitaryManager.instance.turretPositions.IndexOf(gridPos);
-        bool UseAltTarget = turretIndex % 3 == 0;
+        bool UseAltTarget = (turretIndex + 1) % 3 == 0;
 
         int targetIndex = UseAltTarget ? targetsInRange.Count - 1 : 0;
         targetIndex = Mathf.Clamp(targetIndex, 0, targetsInRange.Count - 1);
@@ -144,6 +146,9 @@ public class Turret : MonoBehaviour
         {
             SpawnTrail(origin, origin + direction * 50f);
         }
+
+        //Audio
+        shotSoundSource.Play();
     }
 
     private void SpawnTrail(Vector3 startVec3Pos, Vector3 endVec3Pos)

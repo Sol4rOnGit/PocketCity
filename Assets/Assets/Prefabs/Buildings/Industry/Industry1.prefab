@@ -53,8 +53,10 @@ MonoBehaviour:
   waterGenerated: 2
   waterConsumed: 50
   isCrimeScene: 0
+  fireAudioSourceGameObjPrefab: {fileID: 4844741763121083891, guid: b396a47b1942f5e4c86fc5abeed27aea, type: 3}
   isOnFire: 0
   isSpreadingFire: 0
+  isFiretruckOnRoute: 0
   fireParticles: {fileID: 2938381441238916310, guid: 3081ae8bd68b5ff4fbfb4e5fd2842a42, type: 3}
   isDestroying: 0
   RetroFitCost: 15000
@@ -62,6 +64,8 @@ MonoBehaviour:
   maxEmployees: 5
   employees: 0
   taxRevenue: 687
+  badDays: 0
+  lowEmployeeDays: 0
   waterSupplyHealthiness: 1
 --- !u!1001 &4749012054895106681
 PrefabInstance:

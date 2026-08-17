@@ -7,7 +7,7 @@ public class B2Bomber : MovingAttacker
     private GridManager gridManager;
     private HealthSystem healthSystem;
 
-    [SerializeField] private GameObject nukeInstance;
+    [SerializeField] private GameObject nukePrefab;
 
     [Header("Settings")]
     private float moveSpeed = 10f;
@@ -73,7 +73,8 @@ public class B2Bomber : MovingAttacker
 
     private void DropBomb()
     {
-        Instantiate(nukeInstance, transform.position, Quaternion.identity, MilitaryManager.instance.transform);
+        GameObject nuke = Instantiate(nukePrefab, transform.position, Quaternion.identity, MilitaryManager.instance.transform);
+        nuke.GetComponent<Nuke>().SetParent(gameObject);
         StartCoroutine(Exfil());
     }
 

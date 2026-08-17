@@ -4,6 +4,7 @@ public class Missile : MovingAttacker
 {
     [Header("Dependencies")]
     public GameObject explosionPrefab;
+    [SerializeField] private AudioSource explosionAudioSource;
 
     [Header("Settings")]
     [SerializeField] private float missileSpeed = 5f;
@@ -33,6 +34,7 @@ public class Missile : MovingAttacker
     private void OnIntercept()
     {
         Instantiate(explosionPrefab, transform.position, Quaternion.identity, MilitaryManager.instance.transform);
+        DoExplosionAudio();
         Destroy(gameObject);
     }
 
@@ -77,6 +79,15 @@ public class Missile : MovingAttacker
         }
 
         Instantiate(explosionPrefab, transform.position, Quaternion.identity, MilitaryManager.instance.transform);
+        DoExplosionAudio();
         Destroy(gameObject);
+    }
+
+    private void DoExplosionAudio()
+    {
+        //Audio
+        explosionAudioSource.transform.SetParent(MilitaryManager.instance.transform);
+        explosionAudioSource.Play();
+        Destroy(explosionAudioSource.gameObject, explosionAudioSource.clip.length);
     }
 }

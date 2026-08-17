@@ -1,4 +1,5 @@
 using System.Collections;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class AttackHelicopter : MovingAttacker
@@ -9,6 +10,7 @@ public class AttackHelicopter : MovingAttacker
     [Header("Dependencies")]
     [SerializeField] private Transform helicopterModelTransform;
     [SerializeField] private HealthSystem healthSystem;
+    [SerializeField] private AudioSource launchMissileAudioSource;
 
     [SerializeField] private GameObject missilePrefab;
     [SerializeField] private GameObject[] missileSpawnPoints;
@@ -201,7 +203,13 @@ public class AttackHelicopter : MovingAttacker
     {
         GameObject missile = Instantiate(missilePrefab, missileSpawnPoints[Random.Range(0, 2)].transform.position, Quaternion.identity, MilitaryManager.instance.transform);
         Missile missileScript = missile.GetComponent<Missile>();
-        if (missileScript) missileScript.Initialise(pos);
+        if (missileScript)
+        {
+            missileScript.Initialise(pos);
+
+            //Audio
+            launchMissileAudioSource.Play();
+        }
         else { Debug.LogError("Missile Script not Found on missile!"); Destroy(missile); return; }
     }
 
@@ -228,6 +236,7 @@ public class AttackHelicopter : MovingAttacker
                 GameObject explosion = Instantiate(missilePrefab.GetComponent<Missile>().explosionPrefab, transform.position, Quaternion.identity, MilitaryManager.instance.transform);
                 Destroy(explosion, 10f);
                 Destroy(gameObject);
+                yield break;
             }
             yield return null;
         }

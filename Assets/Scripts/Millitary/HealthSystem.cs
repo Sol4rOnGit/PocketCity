@@ -21,7 +21,7 @@ public class HealthSystem : MonoBehaviour
         {
             if (GameManager.instance != null)
             {
-                Health = Mathf.Max(100, GameManager.instance.daysPassed);
+                Health = Mathf.Max(MaxHealth, GameManager.instance.daysPassed * 2);
             }
         }
     }

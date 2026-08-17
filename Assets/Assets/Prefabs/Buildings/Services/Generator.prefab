@@ -356,6 +356,7 @@ MonoBehaviour:
   waterGenerated: 0
   waterConsumed: 10
   isCrimeScene: 0
+  fireAudioSourceGameObjPrefab: {fileID: 4844741763121083891, guid: b396a47b1942f5e4c86fc5abeed27aea, type: 3}
   isOnFire: 0
   isSpreadingFire: 0
   isFiretruckOnRoute: 0

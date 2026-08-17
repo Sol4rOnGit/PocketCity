@@ -57,8 +57,11 @@ MonoBehaviour:
   powerConsumed: 2
   waterGenerated: 0
   waterConsumed: 2
+  isCrimeScene: 0
+  fireAudioSourceGameObjPrefab: {fileID: 4844741763121083891, guid: b396a47b1942f5e4c86fc5abeed27aea, type: 3}
   isOnFire: 0
   isSpreadingFire: 0
+  isFiretruckOnRoute: 0
   fireParticles: {fileID: 2938381441238916310, guid: 3081ae8bd68b5ff4fbfb4e5fd2842a42, type: 3}
   isDestroying: 0
   RetroFitCost: 15000
@@ -66,6 +69,7 @@ MonoBehaviour:
   _maxResidents: 15
   residents: 0
   happiness: 0
+  daysWithLowHappiness: 0
   isInfected: 0
   isAmbulanceOnRoute: 0
   infectionParticles: {fileID: 8365328619083316851, guid: c717996e406e0b64f9a8fdc8a99b3b16, type: 3}

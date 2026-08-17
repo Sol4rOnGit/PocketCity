@@ -6,10 +6,17 @@ public class Nuke : MovingAttacker
     GridManager gridManager;
     Rigidbody rb;
     HealthSystem healthSystem;
+    GameObject parentBomber;
 
     [Header("Explosion prefabs")]
     [SerializeField] private GameObject bigExplosionObj;
     [SerializeField] private GameObject smallExplosionObj;
+    [SerializeField] private AudioSource explosionAudioSource;
+
+    public void SetParent(GameObject parent)
+    {
+        parentBomber = parent;
+    }
 
     private void Awake()
     {
@@ -49,10 +56,12 @@ public class Nuke : MovingAttacker
         int radius = 25;
         int innerRadius = 8;
 
-        Instantiate(bigExplosionObj, transform.position, Quaternion.identity, MilitaryManager.instance.transform);
+        GameObject explosionObj = Instantiate(bigExplosionObj, transform.position, Quaternion.identity, MilitaryManager.instance.transform);
+        explosionObj.transform.localScale = Vector3.one * 3;
 
         Blast(radius, innerRadius);
 
+        DoExplosionAudio();
         Destroy(gameObject);
     }
 
@@ -65,6 +74,7 @@ public class Nuke : MovingAttacker
 
         Blast(radius, innerRadius);
 
+        DoExplosionAudio();
         Destroy(gameObject);
     }
 
@@ -105,6 +115,21 @@ public class Nuke : MovingAttacker
                 }
 
             }
+        }
+    }
+
+    private void DoExplosionAudio()
+    {
+        //Audio
+        GameObject audioObj = explosionAudioSource.gameObject;
+        audioObj.transform.SetParent(MilitaryManager.instance.transform);
+        explosionAudioSource.Play();
+        Destroy(audioObj, explosionAudioSource.clip.length);
+
+        //b2
+        if (parentBomber != null)
+        {
+            parentBomber.GetComponent<AudioSource>().Stop();
         }
     }
 }

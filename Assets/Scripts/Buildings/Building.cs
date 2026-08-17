@@ -19,6 +19,8 @@ public class Building : MonoBehaviour
     public bool isCrimeScene = false;
 
     [Header("Fire")]
+    [SerializeField] private GameObject fireAudioSourceGameObjPrefab;
+    private GameObject activeFireAudioSourceGameObj;
     public bool isOnFire = false;
     public bool isSpreadingFire = false;
     public bool isFiretruckOnRoute = false;
@@ -43,6 +45,10 @@ public class Building : MonoBehaviour
         {
             activeFireEffect = Instantiate(fireParticles, transform.position + (Vector3.up * 0.5f), Quaternion.Euler(-90, 0, 0), transform);
         }
+        if (fireAudioSourceGameObjPrefab != null)
+        {
+            activeFireAudioSourceGameObj = Instantiate(fireAudioSourceGameObjPrefab, transform.position + (Vector3.up * 0.5f), Quaternion.identity, transform);
+        }
     }
 
     public void ExtinguishFire()
@@ -51,6 +57,7 @@ public class Building : MonoBehaviour
         isOnFire = false;
 
         if (activeFireEffect != null ) { Destroy(activeFireEffect); }
+        if (activeFireAudioSourceGameObj != null) { Destroy(activeFireAudioSourceGameObj); }
     }
 
     public int RetroFit()

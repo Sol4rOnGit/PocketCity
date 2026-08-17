@@ -26,12 +26,11 @@ public class GameOver : MonoBehaviour
         "It does not matter how slowly you go as long as you do not stop \n - Confucius",
         "Out of difficulties grow miracles \n - Jean de La Bruyère",
         "The greater the obstactle, the more glory in overcoming it \n - Molière",
-        "A Pocket City is too small for your ambition. Build again \n - The Dev",
+        "A Pocket Sized City is too small for your ambition. Build again \n - The Dev",
         "Success usually comes to those who are too busy to be looking for it \n - Henry David Thoreau",
         "Go big or go home",
-        "You can't give up just yet. Stay determined... \n Undertale"
+        "You can't give up just yet. Stay determined... \n - Undertale"
     };
-
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
