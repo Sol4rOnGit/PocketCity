@@ -13,7 +13,7 @@ public class SettingsMenu : MonoBehaviour
     [SerializeField] private Light sunlight;
 
     [Header("Optional Dependencies")]
-    [SerializeField] private MainMenu mainMenu;
+    [SerializeField] private GameObject prevMenu;
 
     [Header("Display")]
     [SerializeField] private TMP_Dropdown resolutionDropdown; 
@@ -80,7 +80,7 @@ public class SettingsMenu : MonoBehaviour
         PlayerPrefs.Save();
         gameObject.SetActive(false);
 
-        if (mainMenu != null ) { mainMenu.gameObject.SetActive(true); return; }
+        if (prevMenu != null ) { prevMenu.SetActive(true); return; }
 
         EventSystem.current.SetSelectedGameObject(GameObject.Find("Resume"));
     }

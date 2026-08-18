@@ -71,7 +71,7 @@ public partial class EventManager : MonoBehaviour
         }
 
         Destroy(asteroid);
-        StartCoroutine(DoExplosionEffect(endPos));
+        DoExplosionVisualAndAudio(endPos);
         BlastDestruction(centre);
     }
 
@@ -120,13 +120,15 @@ public partial class EventManager : MonoBehaviour
         }
     }
 
-    private IEnumerator DoExplosionEffect(Vector3 centreWorldPos)
+    private void DoExplosionVisualAndAudio(Vector3 centreWorldPos)
     {
         GameObject explosionEffect = Instantiate(explosionEffectPrefab, centreWorldPos, Quaternion.identity, MilitaryManager.instance.transform);
+        Destroy(explosionEffect, 3);
 
-        yield return new WaitForSeconds(3.0f);
-
-        Destroy(explosionEffect);
+        AudioSource explosionSFXGameObj = GetComponent<AudioSource>();
+        explosionSFXGameObj.transform.SetParent(GameManager.instance.transform);
+        explosionSFXGameObj.Play();
+        Destroy(explosionSFXGameObj, explosionSFXGameObj.clip.length);
     }
 
     //Alien Invastion (UFO)

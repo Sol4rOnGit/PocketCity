@@ -16,6 +16,8 @@ public class PlaySelectionMenu : MonoBehaviour
     [SerializeField] private Toggle hardcoreToggle;
     [SerializeField] private Toggle cheatsToggle;
 
+    [SerializeField] private GameObject settingsMenu;
+
     [Header("Start")]
     [SerializeField] private TMPro.TextMeshProUGUI summaryText;
     [SerializeField] private TMPro.TextMeshProUGUI versionText;
@@ -24,6 +26,7 @@ public class PlaySelectionMenu : MonoBehaviour
     {
         versionText.text = Application.version;
         normalDifficultyButton.Select();
+        settingsMenu.SetActive(false);
 
         UpdateSummaryDisplay();
     }
@@ -92,11 +95,16 @@ public class PlaySelectionMenu : MonoBehaviour
         UpdateSummaryDisplay();
     }
 
+    public void OnSettingsMenuButtonClicked()
+    {
+        gameObject.SetActive(false);
+        settingsMenu.SetActive(true);
+    }
+
     public void OnGameStart()
     {
         SceneManager.LoadScene("GameScene");
     }
-    
 
     //Helper functions
 

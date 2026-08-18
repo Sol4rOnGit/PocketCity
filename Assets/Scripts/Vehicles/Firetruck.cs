@@ -42,7 +42,6 @@ public class Firetruck : ServiceVehicle
 
             if (waterSprayInstance != null) {
                 waterSprayInstance.GetComponentInChildren<ParticleSystem>().Stop();
-
                 yield return new WaitForSeconds(0.5f);
                 Destroy(waterSprayInstance); 
             }

@@ -10,7 +10,7 @@ public class GameSettings : MonoBehaviour
     public void Awake()
     {
         DontDestroyOnLoad(gameObject);
-        if (instance != null && instance != this) { Destroy(gameObject); }
+        if (instance != null && instance != this) { Debug.Log($"Duplicated Instance on {gameObject.name}"); Destroy(gameObject); }
         instance = this;
     }
 

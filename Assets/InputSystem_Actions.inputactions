@@ -544,7 +544,7 @@
                 {
                     "name": "Cancel",
                     "type": "Button",
-                    "id": "497c361a-33c6-426c-9253-5664d6056136",
+                    "id": "bb144063-5096-4ed6-b0c8-1fbd69c98e69",
                     "expectedControlType": "",
                     "processors": "",
                     "interactions": "",
@@ -608,24 +608,6 @@
                     "name": "HideUI",
                     "type": "Button",
                     "id": "61d21df6-aa33-4602-b9c9-cbbf83c4681c",
-                    "expectedControlType": "",
-                    "processors": "",
-                    "interactions": "",
-                    "initialStateCheck": false
-                },
-                {
-                    "name": "Accept",
-                    "type": "Button",
-                    "id": "4708d8c6-8046-45c4-bff2-6ae7a763d6eb",
-                    "expectedControlType": "",
-                    "processors": "",
-                    "interactions": "",
-                    "initialStateCheck": false
-                },
-                {
-                    "name": "Deny",
-                    "type": "Button",
-                    "id": "bb144063-5096-4ed6-b0c8-1fbd69c98e69",
                     "expectedControlType": "",
                     "processors": "",
                     "interactions": "",
@@ -953,7 +935,7 @@
                     "interactions": "",
                     "processors": "",
                     "groups": "",
-                    "action": "Deny",
+                    "action": "Cancel",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },
@@ -964,40 +946,7 @@
                     "interactions": "",
                     "processors": "",
                     "groups": "",
-                    "action": "Deny",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
-                    "id": "068957f4-f0e3-4de3-a87f-403939f64c52",
-                    "path": "<Keyboard>/y",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "Accept",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
-                    "id": "dbb466ad-54b4-4ca1-88dd-2482e26232fd",
-                    "path": "<Keyboard>/enter",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "Accept",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
-                    "id": "a5710ee4-5595-488f-92ac-864c24ffb31a",
-                    "path": "<Gamepad>/buttonSouth",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "Accept",
+                    "action": "Cancel",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },
@@ -1223,12 +1172,12 @@
                 },
                 {
                     "name": "",
-                    "id": "9c5f5f11-461a-4bbe-a8b3-18648cbc9ce9",
-                    "path": "<Keyboard>/escape",
+                    "id": "be9f30ab-572b-436e-ba90-d22765c5d9d4",
+                    "path": "<Keyboard>/y",
                     "interactions": "",
                     "processors": "",
                     "groups": "",
-                    "action": "Cancel",
+                    "action": "Submit",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },

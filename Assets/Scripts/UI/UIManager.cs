@@ -108,8 +108,8 @@ public class UIManager : MonoBehaviour
         toggleStatsPanelUI = UIMap.FindAction("ToggleStatsPanel");
         toggleCouncilFXUI = UIMap.FindAction("ToggleCouncilFX");
         hideUI = UIMap.FindAction("HideUI");
-        accept = UIMap.FindAction("Accept");
-        deny = UIMap.FindAction("Deny");
+        accept = UIMap.FindAction("Submit");
+        deny = UIMap.FindAction("Cancel");
         optionOneKey = UIMap.FindAction("OptionOneKey");
 
         toggleZoningUI.Enable(); toggleStatsPanelUI.Enable(); toggleCouncilFXUI.Enable();

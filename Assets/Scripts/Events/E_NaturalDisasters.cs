@@ -4,6 +4,11 @@ using UnityEngine;
 
 public partial class EventManager : MonoBehaviour
 {
+    [Header("Natural Disasters")]
+
+    [Header("Earthquake")]
+    [SerializeField] private AudioClip earthquakeAudioClip;
+
     [Header("Fire")]
     private readonly float secondsToBurnBuilding = 10f;
 
@@ -12,6 +17,7 @@ public partial class EventManager : MonoBehaviour
     public bool isLockdownActive = false;
 
     [Header("Flood")]
+    [SerializeField] private GameObject floodAudioSourceGameObject;
     [SerializeField] private GameObject floodPlanePrefab;
     public bool isFlooded;
 
@@ -33,16 +39,28 @@ public partial class EventManager : MonoBehaviour
 
         //Update ratios
         maxRatio = Mathf.Lerp(minRatio, maxRatio, gameManager.daysPassed / 300f);
-        float ratio = UnityEngine.Random.Range(0f, maxRatio);
+        float ratio = Random.Range(0f, maxRatio);
 
         int numBuildingsToDestroy = (int)(ratio * gridManager.BuildingPositions.Count);
 
-        for (int i = 0; i < numBuildingsToDestroy + 1; i++)
+        StartCoroutine(EarthquakeCoroutine(numBuildingsToDestroy));
+        GameAudioManager.instance.globalAudioSource.PlayOneShot(earthquakeAudioClip);
+        gameManager.disastersSurvived++;
+    }
+
+    private IEnumerator EarthquakeCoroutine(int numBuildingsToDestroy)
+    {
+        int destroyedBuildings = 0;
+        float gapBetweenDestructionSeconds = 0.2f;
+
+        while (destroyedBuildings < numBuildingsToDestroy)
         {
             if (gridManager.BuildingPositions.Count == 0) break;
 
             int randomInt = Random.Range(0, gridManager.BuildingPositions.Count);
             Vector2Int buildingPos = gridManager.BuildingPositions[randomInt];
+
+            destroyedBuildings++;
 
             var mapGrid = gridManager.GetMapGrid();
             if (mapGrid.TryGetValue(buildingPos, out GridManager.GridTile gridTile))
@@ -55,9 +73,10 @@ public partial class EventManager : MonoBehaviour
             }
 
             gridManager.forceRemoveElement(buildingPos);
-        }
 
-        gameManager.disastersSurvived++;
+            yield return new WaitForSeconds(gapBetweenDestructionSeconds);
+        }
+        yield break;
     }
 
     //Fire
@@ -293,22 +312,29 @@ public partial class EventManager : MonoBehaviour
     private IEnumerator Flood(GameObject floodObject, float floodTime)
     {
         isFlooded = true;
+        floodAudioSourceGameObject.SetActive(true);
+        AudioSource floodAudioSource = floodAudioSourceGameObject.GetComponent<AudioSource>();
+        floodAudioSource.volume = 0;
 
         while (floodObject.transform.position.y < 1)
         {
             floodObject.transform.position = floodObject.transform.position + new Vector3(0f, 0.1f * Time.deltaTime, 0f);
+            if (floodAudioSource.volume < 0.692f) floodAudioSource.volume = Mathf.Clamp(floodAudioSource.volume + (0.2f * Time.deltaTime), 0, 0.692f);
             yield return null;
         }
 
+        floodAudioSource.volume = 0.692f;
         yield return new WaitForSeconds(floodTime);
 
         while (floodObject.transform.position.y > 0.1)
         {
             floodObject.transform.position = floodObject.transform.position + new Vector3(0f, -0.2f * Time.deltaTime, 0f);
+            if (floodAudioSource.volume > 0) floodAudioSource.volume = Mathf.Clamp(floodAudioSource.volume - (0.4f * Time.deltaTime), 0, 0.692f);
             yield return null;
         }
 
         isFlooded = false;
+        floodAudioSourceGameObject.SetActive(false);
         Destroy(floodObject);
     }
 

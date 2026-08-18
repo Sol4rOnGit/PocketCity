@@ -12,6 +12,9 @@ public partial class EventManager : MonoBehaviour
         InitialisePoliticalQuestions();
     }
 
+    [Header("Crime")]
+    [SerializeField] private AudioClip policeDingAlertAudioClip;
+
     //Political Question stuff
     public class PoliticalQuestion
     {
@@ -186,7 +189,14 @@ public partial class EventManager : MonoBehaviour
         cubeRenderer.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
         cubeRenderer.material.color = color;
 
+        DoCrimeDingAlert();
+
         return timerCube;
+    }
+
+    private void DoCrimeDingAlert()
+    {
+        GameAudioManager.instance.PlayAudioOneShot(policeDingAlertAudioClip);
     }
 
     //"POLITICAL" QUESTIONS
