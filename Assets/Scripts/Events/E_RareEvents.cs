@@ -71,7 +71,7 @@ public partial class EventManager : MonoBehaviour
         }
 
         Destroy(asteroid);
-        DoExplosionVisualAndAudio(endPos);
+        DoExplosionVisualAndAudio(endPos, asteroid);
         BlastDestruction(centre);
     }
 
@@ -120,12 +120,12 @@ public partial class EventManager : MonoBehaviour
         }
     }
 
-    private void DoExplosionVisualAndAudio(Vector3 centreWorldPos)
+    private void DoExplosionVisualAndAudio(Vector3 centreWorldPos, GameObject asteroid)
     {
         GameObject explosionEffect = Instantiate(explosionEffectPrefab, centreWorldPos, Quaternion.identity, MilitaryManager.instance.transform);
         Destroy(explosionEffect, 3);
 
-        AudioSource explosionAudioSource = GetComponentInChildren<AudioSource>();
+        AudioSource explosionAudioSource = asteroid.GetComponent<AudioSource>();
         GameObject explosionSFXGameObj = explosionAudioSource.gameObject;
         explosionSFXGameObj.transform.SetParent(GameManager.instance.transform);
         explosionAudioSource.Play();

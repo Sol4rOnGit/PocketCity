@@ -48,7 +48,7 @@ public class BossFight : MonoBehaviour
 
     private void OnEnable()
     {
-        SetDaysPassedToTrigger();
+        //SetDaysPassedToTrigger();
         GameManager.instance.OnDayEnd += OnDayEnd;
     }
 
@@ -119,7 +119,6 @@ public class BossFight : MonoBehaviour
 
         yield return StartCoroutine(TypeText("I needa go find more bullets"));
 
-        EventManager.instance.TriggerFlood();
         FinanceManager.instance.Gain(currentHealth);
 
         StartCoroutine(CloseGame());
@@ -270,7 +269,7 @@ public class BossFight : MonoBehaviour
 
                 case CurrentMiniGameDifficulty.BlastHell:
                     if (rand < 0.9) yield return StartCoroutine(DoMultipleBlastAttacks());
-                    else yield return StartCoroutine(DoHardestAttack());
+                    else yield return StartCoroutine(DoHardestAttack(true));
                     break;
 
                 case CurrentMiniGameDifficulty.Brutal:
@@ -279,11 +278,14 @@ public class BossFight : MonoBehaviour
                         phase3entered = true;
                         yield return StartCoroutine(TypeText("Good luck."));
                     }
-                    if (rand < 0.2) yield return StartCoroutine(DoNestedSpiralAttack());
-                    else if (rand < 0.4) yield return StartCoroutine(DoSpiralBulletAttack());
+                    if (rand < 0.05) yield return StartCoroutine(DoNestedSpiralAttack(true));
+                    else if (rand < 0.2) yield return StartCoroutine(DoNestedSpiralAttack(false));
+                    else if (rand < 0.25) yield return StartCoroutine(DoSpiralBulletAttack(true));
+                    else if (rand < 0.4) yield return StartCoroutine(DoSpiralBulletAttack(false));
                     else if (rand < 0.5) yield return StartCoroutine(DoExpandingBulletsAttack(true));
                     else if (rand < 0.6) yield return StartCoroutine(DoExpandingBulletsAttack(false));
-                    else if (rand < 0.8) yield return StartCoroutine(DoMultipleBlastAttacks());
+                    else if (rand < 0.65) yield return StartCoroutine(DoMultipleBlastAttacks(true));
+                    else if (rand < 0.8) yield return StartCoroutine(DoMultipleBlastAttacks(false));
                     else yield return StartCoroutine(DoHardestAttack());
                     break;
             }
@@ -307,7 +309,7 @@ public class BossFight : MonoBehaviour
         return CurrentMiniGameDifficulty.None;
     }
 
-    private IEnumerator DoRandomEasyBulletAttack()
+    private IEnumerator DoRandomEasyBulletAttack(bool finalWait = true)
     {
         int numBullets = UnityEngine.Random.Range(3, 6);
         float bulletSpeed = Mathf.Lerp(250, 350, timeElapsed / 48f);
@@ -319,10 +321,10 @@ public class BossFight : MonoBehaviour
             yield return null;
         }
 
-        yield return new WaitForSecondsRealtime(2f);
+        if (finalWait) yield return new WaitForSecondsRealtime(2f);
     }
 
-    private IEnumerator DoRandomBulletAttack()
+    private IEnumerator DoRandomBulletAttack(bool finalWait = true)
     {
         float bulletSpeed = Mathf.Lerp(250, 500, timeElapsed/117f);
         int waves = 5;
@@ -340,49 +342,69 @@ public class BossFight : MonoBehaviour
             yield return new WaitForSecondsRealtime(1.5f);
         }
 
-        yield return new WaitForSecondsRealtime(3f);
+        if (finalWait) yield return new WaitForSecondsRealtime(2f);
     }
 
-    private IEnumerator DoSpiralBulletAttack()
+    private IEnumerator DoSpiralBulletAttack(bool finalWait = true)
     {
         float bound = 268f;
         float stepSize = 40f;
         float bulletSpeed = Mathf.Lerp(200, 350, timeElapsed / 117f);
         float timeBetweenBullets = 0.02f;
 
-        List<Vector2> perimeterPoints = new List<Vector2>();
+        List<List<Vector2>> sides = new List<List<Vector2>>();
 
+        List<Vector2> topSide = new List<Vector2>();
         for (float x = -bound; x <= bound; x += stepSize)
         {
-            perimeterPoints.Add(new Vector2(x, bound));
+            topSide.Add(new Vector2(x, bound));
         }
+        sides.Add(topSide);
 
+        List<Vector2> rightSide = new List<Vector2>();
         for (float y = -bound; y <= bound; y += stepSize)
         {
-            perimeterPoints.Add(new Vector2(bound, y));
+            rightSide.Add(new Vector2(bound, y));
         }
+        sides.Add(rightSide);
 
+        List<Vector2> bottomSide = new List<Vector2>();
         for (float x = bound; x >= -bound; x -= stepSize)
         {
-            perimeterPoints.Add(new Vector2(x, -bound));
+            bottomSide.Add(new Vector2(x, -bound));
         }
+        sides.Add(bottomSide);
 
+        List<Vector2> leftSide = new List<Vector2>();
         for (float y = bound; y >= -bound; y -= stepSize)
         {
-            perimeterPoints.Add(new Vector2(-bound, y));
+            leftSide.Add(new Vector2(-bound, y));
         }
+        sides.Add(leftSide);
 
-        foreach(Vector2 spawnPos in perimeterPoints)
+        for(int i = 0; i < sides.Count; i++)
         {
-            Vector2 fireDir = (Vector2.zero - spawnPos).normalized;
-            SpawnBullet(spawnPos, fireDir, bulletSpeed, true);
-            yield return new WaitForSecondsRealtime(timeBetweenBullets);
+            int randIndx = Random.Range(i, sides.Count);
+            List<Vector2> temp = sides[i];
+            sides[i] = sides[randIndx];
+            sides[randIndx] = temp;
         }
 
-        yield return new WaitForSecondsRealtime(3f);
+        foreach(List<Vector2> side in sides)
+        {
+            foreach (Vector2 spawnPos in side)
+            {
+                Vector2 fireDir = (Vector2.zero - spawnPos).normalized;
+                SpawnBullet(spawnPos, fireDir, bulletSpeed, true);
+                yield return new WaitForSecondsRealtime(timeBetweenBullets);
+            }
+        }
+
+        yield return new WaitForSecondsRealtime(1.5f);
+        if (finalWait) yield return new WaitForSecondsRealtime(1.5f);
     }
     
-    private IEnumerator DoNestedSpiralAttack()
+    private IEnumerator DoNestedSpiralAttack(bool finalWait = true)
     {
         float bulletSpeed = 250f;
         int totalBursts = 4;
@@ -412,7 +434,7 @@ public class BossFight : MonoBehaviour
             yield return new WaitForSecondsRealtime(0.8f);
         }
 
-        yield return new WaitForSecondsRealtime(0.6f);
+        if (finalWait) yield return new WaitForSecondsRealtime(0.6f);
     }
 
     private IEnumerator DoExpandingBulletsAttack(bool ring = false)
@@ -422,9 +444,11 @@ public class BossFight : MonoBehaviour
 
         float angleStep = 360f / bulletsToShoot;
 
+        float startAngle = 30f * Random.Range(0, 12f);
+
         for (int i = 0; i < bulletsToShoot; i++)
         {
-            float angle = i * angleStep * Mathf.Deg2Rad;
+            float angle = startAngle + (i * angleStep * Mathf.Deg2Rad);
 
             Vector2 fireDir = new(Mathf.Cos(angle), Mathf.Sin(angle));
 
@@ -538,7 +562,7 @@ public class BossFight : MonoBehaviour
 
     }
 
-    private IEnumerator DoHardestAttack(bool finalWait = true)
+    private IEnumerator DoHardestAttack(bool finalWait = false)
     {
         float bulletSpeed = 500f;
         int totalBursts = 4;
@@ -572,9 +596,8 @@ public class BossFight : MonoBehaviour
             yield return new WaitForSecondsRealtime(0.7f);
         }
 
-        yield return StartCoroutine(DoMultipleBlastAttacks());
-
-        if (finalWait) yield return new WaitForSecondsRealtime(1.2f);
+        yield return new WaitForSecondsRealtime(0.6f);
+        if (finalWait) yield return new WaitForSecondsRealtime(0.6f);
     }
 
     private void SpawnBulletTargetedToPlayer(Vector2 spawnPos, float bulletSpeed, 

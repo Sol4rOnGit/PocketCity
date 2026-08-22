@@ -13160,6 +13160,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 1742767698961153167, guid: 0aa29b7bcf1442c4c83cf302bc6a36b9, type: 3}
+      propertyPath: OutputAudioMixerGroup
+      value: 
+      objectReference: {fileID: 24300002, guid: f2bdaf2d2a9a6064f8470fbe8e620105, type: 2}
     - target: {fileID: 5674197881002118200, guid: 0aa29b7bcf1442c4c83cf302bc6a36b9, type: 3}
       propertyPath: m_Name
       value: City
@@ -13205,8 +13209,7 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
-    m_RemovedGameObjects:
-    - {fileID: 5948043858277711798, guid: 0aa29b7bcf1442c4c83cf302bc6a36b9, type: 3}
+    m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 0aa29b7bcf1442c4c83cf302bc6a36b9, type: 3}

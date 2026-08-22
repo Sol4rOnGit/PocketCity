@@ -208,7 +208,7 @@ public class AttackHelicopter : MovingAttacker
             missileScript.Initialise(pos);
 
             //Audio
-            launchMissileAudioSource.Play();
+            if (launchMissileAudioSource.enabled) launchMissileAudioSource.Play();
         }
         else { Debug.LogError("Missile Script not Found on missile!"); Destroy(missile); return; }
     }

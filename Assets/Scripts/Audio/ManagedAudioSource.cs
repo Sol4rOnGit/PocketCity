@@ -9,7 +9,6 @@ public class ManagedAudioSource : MonoBehaviour
     [SerializeField] private AudioSource audioSource;
     private bool isAllowedToPlay;
 
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
         if (audioSource == null) audioSource = GetComponent<AudioSource>();
