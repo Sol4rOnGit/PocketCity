@@ -18,7 +18,8 @@ public class GameAudioManager : MonoBehaviour
     }
 
     [Header("Global Audio")]
-    public AudioSource globalAudioSource;  
+    public AudioSource natureSoundsAudioSource;
+    public AudioSource globalAudioSource;
 
     [Header("UI Audio")]
     public AudioClip hoverSound;

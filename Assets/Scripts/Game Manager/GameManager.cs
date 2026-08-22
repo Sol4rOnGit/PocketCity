@@ -57,6 +57,9 @@ public class GameManager : MonoBehaviour
     public Action<bool> OnTreeVisibilityChanged;
     public Action<float> OnMoveSpeedChanged;
 
+    public Action<bool> updateMovementPermissions;
+    public Action<bool> OnSetUIVisbility;
+
     public Action OnGameOver;
 
     public readonly Vector2Int[] directions = { Vector2Int.up, Vector2Int.down, Vector2Int.left, Vector2Int.right };
@@ -73,6 +76,7 @@ public class GameManager : MonoBehaviour
     public bool hardcore;
     public bool cheats;
     public bool isGameOver;
+
 
     private void Start()
     {

@@ -20,6 +20,8 @@ public class MovementScript : MonoBehaviour
     private float currentMoveSpeed;
     private float currentZoomMultiplier;
 
+    private bool canMove = true;
+
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
@@ -41,9 +43,13 @@ public class MovementScript : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        if (canMove)
+        {
+            HandlePlanarMovement();
+            HandleVerticalMovement();
+        }
+
         HandleCursorState();
-        HandlePlanarMovement();
-        HandleVerticalMovement();
         HandleFasterMovement();
     }
 
@@ -155,6 +161,7 @@ public class MovementScript : MonoBehaviour
     private void OnEnable()
     {
         GameManager.instance.OnMoveSpeedChanged += MovementSpeedChanged;
+        GameManager.instance.updateMovementPermissions += SetMovementPerms;
     }
 
     private void OnDisable()
@@ -164,8 +171,16 @@ public class MovementScript : MonoBehaviour
         sprintAction.Disable();
 
         GameManager.instance.OnMoveSpeedChanged -= MovementSpeedChanged;
+        GameManager.instance.updateMovementPermissions -= SetMovementPerms;
 
         Cursor.lockState = CursorLockMode.None;
         Cursor.visible = true;
+    }
+
+    private void SetMovementPerms(bool value)
+    {
+        canMove = value;
+        Debug.Log(value);
+        Debug.Log(canMove);
     }
 }

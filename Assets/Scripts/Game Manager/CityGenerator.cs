@@ -31,6 +31,15 @@ public class CityGenerator : MonoBehaviour
     [SerializeField] private float startWaitTimeSeconds = 30.0f;
     [SerializeField] private float finalWaitTimeSeconds = 5.0f;
     [SerializeField] private float realTimeUntilFinalTimeSeconds = 900.0f; //15 minutes
+    private bool stopped = false;
+    public void StopGeneration()
+    {
+        stopped = true;
+    }
+    public void StartGeneration()
+    {
+        stopped = false;
+    }
 
     [Header("Boost")]
     public bool isBoosted;
@@ -72,6 +81,7 @@ public class CityGenerator : MonoBehaviour
     private void Update()
     {
         if (GameManager.instance.isGameOver) return;
+        if (stopped) return;
 
         //Wait for everything to load
         if (GameManager.instance == null || FinanceManager.instance == null) return;

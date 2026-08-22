@@ -125,10 +125,11 @@ public partial class EventManager : MonoBehaviour
         GameObject explosionEffect = Instantiate(explosionEffectPrefab, centreWorldPos, Quaternion.identity, MilitaryManager.instance.transform);
         Destroy(explosionEffect, 3);
 
-        AudioSource explosionSFXGameObj = GetComponent<AudioSource>();
+        AudioSource explosionAudioSource = GetComponentInChildren<AudioSource>();
+        GameObject explosionSFXGameObj = explosionAudioSource.gameObject;
         explosionSFXGameObj.transform.SetParent(GameManager.instance.transform);
-        explosionSFXGameObj.Play();
-        Destroy(explosionSFXGameObj, explosionSFXGameObj.clip.length);
+        explosionAudioSource.Play();
+        Destroy(explosionSFXGameObj, explosionAudioSource.clip.length);
     }
 
     //Alien Invastion (UFO)

@@ -91,6 +91,10 @@ public abstract class ServiceVehicle : MonoBehaviour
         }
     }
 
+    private void OnDestroy()
+    {
+        ReturnToInventory();
+    }
     protected abstract void StartJob();
     protected abstract void ReturnToInventory();
 }

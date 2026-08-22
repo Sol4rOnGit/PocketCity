@@ -25,6 +25,16 @@ public partial class EventManager : MonoBehaviour
     private int currentPhase = -1;
     private readonly float chanceForDoubleEvent = 0.75f;
 
+    private bool stopped = false;
+    public void StartEvents()
+    {
+        stopped = false;
+    }
+    public void StopEvents()
+    {
+        stopped = true;
+    }
+
     private float rareEventMultiplier = 1f;
     private int crimeWeightingIncrease = 0;
 
@@ -116,6 +126,7 @@ public partial class EventManager : MonoBehaviour
 
         if (daysLeft <= 0)
         {
+            if (stopped) return;
             StartCoroutine(rollEvents());
             daysLeft = UnityEngine.Random.Range(minIntervalDays, maxIntervalDays);
         }
@@ -278,7 +289,7 @@ public partial class EventManager : MonoBehaviour
                 SetWeight(EventType.DIS_Earthquake, 18);
                 SetWeight(EventType.DIS_Fire, 22);
                 SetWeight(EventType.DIS_Virus, 20);
-                SetWeight(EventType.DIS_Flood, 20);
+                SetWeight(EventType.DIS_Flood, 2);
 
                 SetWeight(EventType.CRIME_Arson, 10);
                 SetWeight(EventType.CRIME_Robbery, 10);

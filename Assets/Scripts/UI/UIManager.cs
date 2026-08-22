@@ -139,6 +139,7 @@ public class UIManager : MonoBehaviour
             gameManager.OnDayProgress += UpdateDayProgressBar;
             gameManager.OnXPChanged += UpdateXP;
             gameManager.OnNewXPLevel += UpdateXPLevel;
+            gameManager.OnSetUIVisbility += SetUIVisibility;
 
         } else { Debug.LogError("No game manager!"); }
 
@@ -158,8 +159,6 @@ public class UIManager : MonoBehaviour
         else Debug.LogError("No finance manager!");
 
         if (eventManager != null) eventManager.onQueueChanged += CheckForPendingQuestions; else Debug.LogError("No event manager!");
-
-
     }
 
     private void OnDisable()
@@ -173,6 +172,7 @@ public class UIManager : MonoBehaviour
             gameManager.OnDayProgress -= UpdateDayProgressBar;
             gameManager.OnXPChanged -= UpdateXP;
             gameManager.OnNewXPLevel -= UpdateXPLevel;
+            gameManager.OnSetUIVisbility -= SetUIVisibility; 
 
         }
         else { Debug.LogError("No game manager!"); }
@@ -520,6 +520,13 @@ public class UIManager : MonoBehaviour
     private void DayEndCouncilFXPanel() => councilFXManager.PanelOnDayEnd();
 
     //Helper functions
+    
+    private void SetUIVisibility(bool visible)
+    {
+        if (visible) gameObject.GetComponent<Canvas>().enabled = true;
+        else gameObject.GetComponent<Canvas>().enabled = false;
+    }
+
     private string ReturnTextFromMoney(long amount)
     {
         if (amount >= 1_000_000_000_000)

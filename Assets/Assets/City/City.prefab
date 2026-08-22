@@ -204,6 +204,7 @@ MonoBehaviour:
   gracePeriodDays: 3
   minIntervalDays: 3
   maxIntervalDays: 4
+  policeDingAlertAudioClip: {fileID: 0}
   earthquakeAudioClip: {fileID: 8300000, guid: 3ea681fec3c8b5b44804f941d1e1da45, type: 3}
   isLockdownActive: 0
   floodAudioSourceGameObject: {fileID: 5948043858277711798}
@@ -465,6 +466,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ed47d7905e22f894daee148af897d053, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GameAudioManager
+  natureSoundsAudioSource: {fileID: 1742767698961153167}
   globalAudioSource: {fileID: 6871206390290799264}
   hoverSound: {fileID: 8300000, guid: 4f0882866ad16b04cb8bdad19f0a0d29, type: 3}
   clickSound: {fileID: 8300000, guid: b942ad11428a6bd4e913b990ba904815, type: 3}
