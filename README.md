@@ -96,6 +96,7 @@ _Format: Control Keyboard / Xbox Controller_
         <li>Audio isn't really up to tip top standard, but I will work on this in future ships :)</li>
         <li>Game freezes? Only happened once so I'm not sure.</li>
         <li>Boss fight slight desync. Since it's randomised this is a given sadly but not anything major to the game design.</li>
+        <li>No sound on asteroid strike. I have some clue why it's happening, and I'm actively working on it.</li>
   </ul>
-  <p>Do bear in mind I have exams and stuff soon so I can't dedicate TOO much time unfortunately</p>
+  <p>Do bear in mind I have exams and stuff soon so I can't dedicate TOO much time unfortunately. And it's hard for one person to test everything in a game of this size.</p>
 </details>
