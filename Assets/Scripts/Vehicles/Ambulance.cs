@@ -50,6 +50,7 @@ public class Ambulance : ServiceVehicle
         if (grid.TryGetValue(homeStationPos, out var tile) && tile.buildingScript is Hospital hospital)
         {
             hospital.AmbulanceReturned();
+            returned = true;
         }
     }
 }

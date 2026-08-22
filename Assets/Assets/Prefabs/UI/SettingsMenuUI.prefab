@@ -5735,13 +5735,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SettingsMenu
   sunlight: {fileID: 0}
-  mainMenu: {fileID: 0}
+  prevMenu: {fileID: 0}
   resolutionDropdown: {fileID: 5248976757034333305}
   fullscreenToggle: {fileID: 1479039949618266942}
   vSyncToggle: {fileID: 0}
   antiAliasingDropdown: {fileID: 8176126088971155908}
   shadowsDropdown: {fileID: 6466927639807320511}
   showTreesToggle: {fileID: 1644514305119532180}
+  audioMixer: {fileID: 0}
   masterVolumeSlider: {fileID: 2317337009302352975}
   musicVolumeSlider: {fileID: 1121900837440809316}
   moveSpeedSlider: {fileID: 412005952694806615}

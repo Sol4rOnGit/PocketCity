@@ -16,8 +16,8 @@ public abstract class ServiceVehicle : MonoBehaviour
     [Header("Movement Settings")]
     [SerializeField] protected float speed = 5f;
     [SerializeField] protected float rotSpeed = 15f;
-
     public abstract bool IsPerformingJob { get; }
+    protected bool returned = false;
     public virtual void Init(List<Vector2Int> route, Building target, float scale, Vector2Int homeStation)
     {
         travelRoute = route;
@@ -93,7 +93,7 @@ public abstract class ServiceVehicle : MonoBehaviour
 
     private void OnDestroy()
     {
-        ReturnToInventory();
+        if (!returned) ReturnToInventory();
     }
     protected abstract void StartJob();
     protected abstract void ReturnToInventory();

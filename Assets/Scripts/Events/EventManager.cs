@@ -238,7 +238,7 @@ public partial class EventManager : MonoBehaviour
                 SetWeight(EventType.DIS_Flood, 0);
 
                 SetWeight(EventType.CRIME_Arson, 20);
-                SetWeight(EventType.CRIME_Robbery, 10);
+                SetWeight(EventType.CRIME_Robbery, 0);
 
                 SetWeight(EventType.RARE_AlienInvasion, 0);
                 SetWeight(EventType.RARE_AsteroidStrike, 0);

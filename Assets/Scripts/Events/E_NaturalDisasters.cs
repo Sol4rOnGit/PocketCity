@@ -17,7 +17,6 @@ public partial class EventManager : MonoBehaviour
     public bool isLockdownActive = false;
 
     [Header("Flood")]
-    [SerializeField] private GameObject floodAudioSourceGameObject;
     [SerializeField] private GameObject floodPlanePrefab;
     public bool isFlooded;
 
@@ -39,9 +38,9 @@ public partial class EventManager : MonoBehaviour
 
         //Update ratios
         maxRatio = Mathf.Lerp(minRatio, maxRatio, gameManager.daysPassed / 300f);
-        float ratio = Random.Range(0f, maxRatio);
+        float ratio = Random.Range(maxRatio/4, maxRatio);
 
-        int numBuildingsToDestroy = (int)(ratio * gridManager.BuildingPositions.Count);
+        int numBuildingsToDestroy = Mathf.CeilToInt(ratio * gridManager.BuildingPositions.Count);
 
         StartCoroutine(EarthquakeCoroutine(numBuildingsToDestroy));
         GameAudioManager.instance.globalAudioSource.PlayOneShot(earthquakeAudioClip);
@@ -174,6 +173,12 @@ public partial class EventManager : MonoBehaviour
 
         if (validTargets.Count > 0)
         {
+            if (Random.value > 0.3f)
+            {
+                sourceTile.buildingScript.isSpreadingFire = false;
+                yield break;
+            }
+
             int randomIndex = Random.Range(0, validTargets.Count);
             GridManager.GridTile tile = validTargets[randomIndex];
 
@@ -312,8 +317,8 @@ public partial class EventManager : MonoBehaviour
     private IEnumerator Flood(GameObject floodObject, float floodTime)
     {
         isFlooded = true;
-        floodAudioSourceGameObject.SetActive(true);
-        AudioSource floodAudioSource = floodAudioSourceGameObject.GetComponent<AudioSource>();
+        AudioSource floodAudioSource = floodObject.GetComponentInChildren<AudioSource>();
+        floodAudioSource.Play();
         floodAudioSource.volume = 0;
 
         while (floodObject.transform.position.y < 1)
@@ -334,7 +339,6 @@ public partial class EventManager : MonoBehaviour
         }
 
         isFlooded = false;
-        floodAudioSourceGameObject.SetActive(false);
         Destroy(floodObject);
     }
 

@@ -238,20 +238,20 @@ public class BuildingTool : IBuildTool
             case SpecialBuildingTypes.CoalStation:
                 return 80_000;
             case SpecialBuildingTypes.NuclearStation:
-                return 500_000;
+                return 670_000;
 
             //Emergency
             case SpecialBuildingTypes.Fire:
-                return 40_000;
+                return 42_000;
             case SpecialBuildingTypes.Police:
-                return 40_000;
+                return 30_000;
             case SpecialBuildingTypes.Hospital:
                 return 50_000;
 
 
             //Military
             case SpecialBuildingTypes.Turret:
-                return 100_000;
+                return 50_000;
             default:
                 return 0;
         }

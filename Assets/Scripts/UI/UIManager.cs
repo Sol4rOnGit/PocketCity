@@ -280,7 +280,7 @@ public class UIManager : MonoBehaviour
         {
             PopulationUIText.text = $"Population: {GameManager.instance.currentPopulation}";
             UnemployedUIText.text = $"Unemployed: {GameManager.instance.currentUnemployed}";
-            VacanciesUIText.text = $"Vacancies: {GameManager.instance.currentVacanies}";
+            VacanciesUIText.text = $"Vacancies: {GameManager.instance.currentVacancies}";
             DisastersSurvivedUIText.text = $"Disasters Survived: {GameManager.instance.disastersSurvived}";
 
             FinancialReport report = financeManager.lastFinancialReport;

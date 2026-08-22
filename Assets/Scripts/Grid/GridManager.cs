@@ -211,7 +211,7 @@ public class GridManager : MonoBehaviour
         GameObject buildingInstance = Instantiate(prefab, worldPos, Quaternion.identity, transform);
 
         Building script = buildingInstance.GetComponent<Building>();
-
+        
         ClearTreeAtPos(pos);
 
         if (tile != null)
@@ -242,6 +242,7 @@ public class GridManager : MonoBehaviour
 
 
         if (!BuildingPositions.Contains(pos)) BuildingPositions.Add(pos);
+        GameManager.instance.OnBuildingSpawned(script);
 
         if (ChunkManager.instance != null)
         {

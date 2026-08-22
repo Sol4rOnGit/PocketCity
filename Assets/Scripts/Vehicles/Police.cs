@@ -44,6 +44,7 @@ public class Police : ServiceVehicle
         if (grid.TryGetValue(homeStationPos, out var gridTile) && gridTile.buildingScript is PoliceStation policeStation)
         {
             policeStation.PoliceReturned();
+            returned = true;
         }
 
     }

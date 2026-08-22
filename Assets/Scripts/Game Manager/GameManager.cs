@@ -35,7 +35,7 @@ public class GameManager : MonoBehaviour
     public int daysPassed = 0;
     public int currentPopulation = 0;
     public int currentUnemployed = 0;
-    public int currentVacanies = 0;
+    public int currentVacancies = 0;
     public int disastersSurvived = 0;
 
     private int experience = 0; //should start a 0
@@ -172,12 +172,12 @@ public class GameManager : MonoBehaviour
 
     public void AdjustVacanices(int amount)
     {
-        if (currentVacanies + amount < 0) { 
+        if (currentVacancies + amount < 0) { 
             Debug.LogWarning("Invalid current vacancies adjustment."); 
             return; 
         }
 
-        currentVacanies += amount;
+        currentVacancies += amount;
     }
 
     public void LosePopulation(int populationLeaving)
@@ -210,13 +210,13 @@ public class GameManager : MonoBehaviour
 
         int unfilledVacancies = jobsLost - employeesLost;
 
-        if (currentVacanies >= unfilledVacancies)
+        if (currentVacancies >= unfilledVacancies)   
         {
             AdjustVacanices(-unfilledVacancies);
         }
         else
         {
-            currentVacanies = 0;
+            currentVacancies = 0;
         }
 
         if (currentUnemployed < 0) currentUnemployed = 0;

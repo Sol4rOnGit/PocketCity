@@ -50,6 +50,8 @@ GameObject:
   - component: {fileID: 5015219573958665177}
   - component: {fileID: 260370142750534005}
   - component: {fileID: 90299297205088743}
+  - component: {fileID: -535200336581618123}
+  - component: {fileID: 1201214974249309645}
   m_Layer: 7
   m_Name: Helicopter
   m_TagString: Untagged
@@ -136,8 +138,8 @@ MonoBehaviour:
   missileSpawnPoints:
   - {fileID: 6147112951862643388}
   - {fileID: 3098678142220575916}
-  minIntervalBetweenStrikesSeconds: 2
-  maxIntervalBetweenStrikesSeconds: 4
+  minIntervalBetweenStrikesSeconds: 3
+  maxIntervalBetweenStrikesSeconds: 7
   moveSpeed: 5
   rotationSpeed: 300
   flightHeight: 8
@@ -389,6 +391,36 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+--- !u!114 &-535200336581618123
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3055030445660537132}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ec2be54cdf7757e4386c05202307c29e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ManagedAudioSource
+  category: 3
+  priority: 1
+  audioSource: {fileID: 260370142750534005}
+--- !u!114 &1201214974249309645
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3055030445660537132}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ec2be54cdf7757e4386c05202307c29e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ManagedAudioSource
+  category: 3
+  priority: 1
+  audioSource: {fileID: 90299297205088743}
 --- !u!1 &3098678142220575916
 GameObject:
   m_ObjectHideFlags: 0

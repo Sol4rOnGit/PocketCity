@@ -13,6 +13,7 @@ GameObject:
   - component: {fileID: 8154381142850231559}
   - component: {fileID: 1406528823522769476}
   - component: {fileID: 7237394966700095440}
+  - component: {fileID: -113875504451601786}
   m_Layer: 7
   m_Name: B2Bomber
   m_TagString: Untagged
@@ -173,6 +174,20 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+--- !u!114 &-113875504451601786
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5881250969232297351}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ec2be54cdf7757e4386c05202307c29e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ManagedAudioSource
+  category: 1
+  audioSource: {fileID: 7237394966700095440}
 --- !u!1001 &1410800155844933589
 PrefabInstance:
   m_ObjectHideFlags: 0

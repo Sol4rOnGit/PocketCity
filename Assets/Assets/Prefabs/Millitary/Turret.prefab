@@ -104,6 +104,7 @@ GameObject:
   - component: {fileID: 3545449573627726978}
   - component: {fileID: 8668774080575230130}
   - component: {fileID: 7816740959105925408}
+  - component: {fileID: -4701214399169013908}
   m_Layer: 0
   m_Name: Turret
   m_TagString: Untagged
@@ -176,8 +177,8 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 128
   shotSoundSource: {fileID: 7816740959105925408}
-  damage: 20
-  turnSpeed: 100
+  damage: 35
+  turnSpeed: 300
   fireRate: 15
 --- !u!135 &8668774080575230130
 SphereCollider:
@@ -333,6 +334,21 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+--- !u!114 &-4701214399169013908
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2722044073779568288}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ec2be54cdf7757e4386c05202307c29e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ManagedAudioSource
+  category: 3
+  priority: 0
+  audioSource: {fileID: 7816740959105925408}
 --- !u!1 &4852234900177968978
 GameObject:
   m_ObjectHideFlags: 0

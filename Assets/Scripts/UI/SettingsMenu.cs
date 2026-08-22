@@ -6,6 +6,7 @@ using UnityEngine.EventSystems;
 using UnityEngine.UI;
 using UnityEngine.Rendering;
 using UnityEngine.Rendering.Universal;
+using UnityEngine.Audio;
 
 public class SettingsMenu : MonoBehaviour
 {
@@ -26,6 +27,7 @@ public class SettingsMenu : MonoBehaviour
     [SerializeField] private Toggle showTreesToggle;
 
     [Header("Audio")]
+    [SerializeField] private AudioMixer audioMixer;
     [SerializeField] private Slider masterVolumeSlider;
     [SerializeField] private Slider musicVolumeSlider;
 
@@ -253,12 +255,17 @@ public class SettingsMenu : MonoBehaviour
     {
         masterVolumeSlider.SetValueWithoutNotify(PlayerPrefs.GetFloat("MasterVolume", 1f));
         musicVolumeSlider.SetValueWithoutNotify(PlayerPrefs.GetFloat("MusicVolume", 1f));
+
+        SetMasterVolume();
+        SetMusicVolume();
     }
 
     public void SetMasterVolume()
     {
         float volume = masterVolumeSlider.value;
 
+        float db = volume > 0 ? Mathf.Log10(volume) * 20f : -80f;
+        audioMixer.SetFloat("MasterVolume", db);
         PlayerPrefs.SetFloat("MasterVolume", volume);
     }
 
@@ -266,6 +273,8 @@ public class SettingsMenu : MonoBehaviour
     {
         float volume = musicVolumeSlider.value;
 
+        float db = volume > 0 ? Mathf.Log10(volume) * 20f : -80f;
+        audioMixer.SetFloat("MusicVolume", db);
         PlayerPrefs.SetFloat("MusicVolume", volume);
     }
 

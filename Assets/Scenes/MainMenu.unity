@@ -6845,6 +6845,7 @@ GameObject:
   - component: {fileID: 1249033824}
   - component: {fileID: 1249033823}
   - component: {fileID: 1249033825}
+  - component: {fileID: 1249033826}
   m_Layer: 0
   m_Name: 3DVisuals
   m_TagString: Untagged
@@ -6980,11 +6981,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ed47d7905e22f894daee148af897d053, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GameAudioManager
+  maxFireAudios: 10
+  maxSirenAudios: 10
+  maxExplosionAudios: 15
+  maxOtherAudios: 10
   natureSoundsAudioSource: {fileID: 0}
   globalAudioSource: {fileID: 1249033823}
   hoverSound: {fileID: 8300000, guid: 2dc9268ad6627a74f966f83d37ee6026, type: 3}
   clickSound: {fileID: 8300000, guid: be5958a1190126b49a32a9325154ab80, type: 3}
-  inputActions: {fileID: -944628639613478452, guid: 052faaac586de48259a63d0c4782560b, type: 3}
 --- !u!82 &1249033825
 AudioSource:
   m_ObjectHideFlags: 0
@@ -7082,6 +7086,18 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+--- !u!114 &1249033826
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1249033821}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f1d50cd5fe01b034b8b43853b53f0ee5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::LoadAudioOnStartup
 --- !u!1001 &1256024839
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -13972,10 +13988,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0cd44c1031e13a943bb63640046fad76, type: 3}
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.CanvasScaler
-  m_UiScaleMode: 0
+  m_UiScaleMode: 1
   m_ReferencePixelsPerUnit: 100
   m_ScaleFactor: 1
-  m_ReferenceResolution: {x: 800, y: 600}
+  m_ReferenceResolution: {x: 1920, y: 1080}
   m_ScreenMatchMode: 0
   m_MatchWidthOrHeight: 0
   m_PhysicalUnit: 3
@@ -14273,25 +14289,6 @@ MeshRenderer:
   m_SortingOrder: 0
   m_MaskInteraction: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!114 &351968718876852177
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 756839037688989721}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 75b71fee986929842a32a53d2e022d95, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Firetruck
-  currentPathIndex: 0
-  isReturningHome: 0
-  speed: 5
-  rotSpeed: 20
-  isExtinguishing: 0
-  timeToPutOutFire: 3
-  waterSprayPrefab: {fileID: 5262313334801206639, guid: 17bc1847121f44f40afc840993935909, type: 3}
 --- !u!4 &429385274843462564
 Transform:
   m_ObjectHideFlags: 0
@@ -14645,7 +14642,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1804714932427762203}
-  - component: {fileID: 351968718876852177}
   m_Layer: 0
   m_Name: Firetruck
   m_TagString: Untagged
@@ -14703,24 +14699,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &935762198008705907
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4763909408862638796}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1f8b79559d986c8449748f9865da93ca, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Ambulance
-  currentPathIndex: 0
-  isReturningHome: 0
-  speed: 6
-  rotSpeed: 15
-  isHealing: 0
-  timeToHeal: 3
 --- !u!33 &964854938248271675
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -15059,24 +15037,6 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5325987870312912194}
   m_Mesh: {fileID: 8691780276856062721, guid: eeabb5c02f7b6764e95b73cad0907efb, type: 3}
---- !u!114 &1621493825465707201
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4226115299558166482}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 66e146c185a62c64e88dc28fcb8f160d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Police
-  currentPathIndex: 0
-  isReturningHome: 0
-  speed: 5
-  rotSpeed: 15
-  isSolvingCrime: 0
-  timeToSolveCrimeSeconds: 2
 --- !u!4 &1693999391827623755
 Transform:
   m_ObjectHideFlags: 0
@@ -15317,6 +15277,10 @@ PrefabInstance:
       propertyPath: sunlight
       value: 
       objectReference: {fileID: 905890059}
+    - target: {fileID: 3054274998503358980, guid: 1d8ecc311906cb74b9972f5b4c1c12da, type: 3}
+      propertyPath: audioMixer
+      value: 
+      objectReference: {fileID: 24100000, guid: f2bdaf2d2a9a6064f8470fbe8e620105, type: 2}
     - target: {fileID: 3667603239428149100, guid: 1d8ecc311906cb74b9972f5b4c1c12da, type: 3}
       propertyPath: m_Pivot.x
       value: 0
@@ -15984,7 +15948,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 8104871380590199014}
-  - component: {fileID: 1621493825465707201}
   m_Layer: 0
   m_Name: Police
   m_TagString: Untagged
@@ -16102,7 +16065,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 6098180293045607186}
-  - component: {fileID: 935762198008705907}
   m_Layer: 0
   m_Name: Ambulance
   m_TagString: Untagged

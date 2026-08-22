@@ -48,7 +48,7 @@ public class BossFight : MonoBehaviour
 
     private void OnEnable()
     {
-        //SetDaysPassedToTrigger();
+        SetDaysPassedToTrigger();
         GameManager.instance.OnDayEnd += OnDayEnd;
     }
 
@@ -87,6 +87,7 @@ public class BossFight : MonoBehaviour
         currentHealth = startHealthMoney;
         timeElapsed = 0;
 
+        GameAudioManager.instance.StopAllAudio();
         GetComponent<AudioSource>().Play();
 
         yield return StartCoroutine(TypeText("Is this too easy for you?"));
@@ -124,12 +125,14 @@ public class BossFight : MonoBehaviour
         StartCoroutine(CloseGame());
 
         yield return new WaitForSecondsRealtime(VictoryTuneGameObj.GetComponent<AudioSource>().clip.length);
+        GameAudioManager.instance.StartAudio();
         EventManager.instance.StartEvents();
     }
 
     private IEnumerator OnLose()
     {
         DefeatTuneGameObj.GetComponent<AudioSource>().Play();
+        GameAudioManager.instance.StartAudio();
 
         StartCoroutine(TypeText("Pathetic"));
 
@@ -614,8 +617,8 @@ public class BossFight : MonoBehaviour
     {
         daysPassedToTrigger = (GameManager.instance.gameDifficulty) switch
         {
-            GameSettings.Difficulty.Easy => 700,
-            GameSettings.Difficulty.Normal => 600,
+            GameSettings.Difficulty.Easy => 600,
+            GameSettings.Difficulty.Normal => 575,
             GameSettings.Difficulty.Hard => 500,
             GameSettings.Difficulty.Nightmare => 400,
             _ => 1500

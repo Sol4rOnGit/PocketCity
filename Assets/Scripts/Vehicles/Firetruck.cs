@@ -64,6 +64,7 @@ public class Firetruck : ServiceVehicle
         if (grid.TryGetValue(homeStationPos, out var gridTile) && gridTile.buildingScript is FireStation fireStation)
         {
             fireStation.TruckReturned();
+            returned = true;
         }
     }
 }
