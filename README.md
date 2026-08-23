@@ -12,6 +12,12 @@
 <p>See Technicality for (most of) the game features</p>
 <p>Scroll for controls</p>
 
+<p align="center">
+  <a href="http://dsc.gg/capitalchaos">
+    <img src="https://img.shields.io/badge/Discord-Join%20the%20Server-5865F2?style=for-the-badge&logo=discord&logoColor=white" alt="Join the Discord">
+  </a>
+</p>
+
 ---
 ## Play & Watch!
 
