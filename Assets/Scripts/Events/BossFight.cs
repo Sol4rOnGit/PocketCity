@@ -48,7 +48,7 @@ public class BossFight : MonoBehaviour
 
     private void OnEnable()
     {
-        //SetDaysPassedToTrigger();
+        SetDaysPassedToTrigger();
         GameManager.instance.OnDayEnd += OnDayEnd;
     }
 

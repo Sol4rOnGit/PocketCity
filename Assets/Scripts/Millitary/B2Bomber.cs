@@ -62,6 +62,7 @@ public class B2Bomber : MovingAttacker
             if (currentDist < 1.5f || currentDist > prevDist)
             {
                 DropBomb();
+                GetComponent<ManagedAudioSource>().SetAudioAllowed(false);
                 bombDropped = true;
             }
 
@@ -81,6 +82,8 @@ public class B2Bomber : MovingAttacker
     private IEnumerator Exfil()
     {
         moveSpeed *= 2;
+
+        Destroy(gameObject, 100f);
 
         while (true)
         {

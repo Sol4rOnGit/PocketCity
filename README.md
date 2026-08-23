@@ -19,6 +19,7 @@
 </p>
 
 ---
+
 ## Play & Watch!
 
 - **Game Link:** [Not currently Live. Will be on itch.io though!](https://sol4ronitchio.itch.io/)
@@ -30,14 +31,17 @@
 ## Notes For Stardance Reviewers (really hope it's a 36/36)
 
 ### Originality
+
 - Have you ever seen a city builder on Stardance?
 - Have you seen an undertale style bossfight in a city builder?
 - Do you see a city builder with this level of chaos? I think not!
 - Also the boss fight sound track is beautiful isn't it.
-- Military, UFO, Asteroid, UI, Service buildings, Utility buildings, all 
+- Military, UFO, Asteroid, UI, Service buildings, Utility buildings, all
 
 ### Technicality
-A <strong>LOT</strong> of technicality, even for this first ship. 
+
+A <strong>LOT</strong> of technicality, even for this first ship.
+
 - Grid tile based system as the game base, with procedural roads that auto figure out connections.
 - Automatic city generation that adhere to your city zoning. Multiple game managers for a financial system that tracks employment, vacancies and auto fills with population.
 - Centralised game manager that tracks days, and all the other actions and ideally where everything goes through.
@@ -50,17 +54,21 @@ A <strong>LOT</strong> of technicality, even for this first ship.
 - GPU Optimisations to 6-7x the performance using GPU Rendering instead of GameObjects, and chunk-based tree rendering.
 
 ### Usability
+
 - You can play it right now!
 - There is game difficulty settings depending on how far you seem to be able to get.
 - There is a start menu, and the game has the settings menu everywhere so you can turn graphics up and down to fit your device.
 - Game optimisation is added here as well for a wider audience. Try it out.
 
 ### Storytelling
-- I've got one of the highest view, like and comment counts in all of (Stardance)[https://stardancestats.xyz/people?metric=comments_received&size=25], so I do strongly believe I have some of the best storytelling on this platform, mixed with my humour. I've even got a mini community that I'm super duper thankful for.
+
+- I've got one of the highest view, like and comment counts in all of [Stardance](https://stardancestats.xyz/people?metric=comments_received&size=25), so I do strongly believe I have some of the best storytelling on this platform, mixed with my humour. I've even got a mini community that I'm super duper thankful for.
 - And on top of all that is all the youtube videos that you can (and should) bingewatch [here!!!](https://www.youtube.com/@actual_techscope)
 
 ## Controls
+
 _Format: Control Keyboard / Xbox Controller_
+
 <h4>In-Game Controls</h4>
 
 - **Movement:** WSAD or Arrow Keys / Left Joystick
@@ -74,7 +82,6 @@ _Format: Control Keyboard / Xbox Controller_
 - **Retrofit Building:** F1 / A
 - **Cycle Tool Category:** R / Right Shoulder
 - **Cycle Building Type:** B / Left Shoulder
-
 
 <h4>In-Game UI Controls</h4>
 

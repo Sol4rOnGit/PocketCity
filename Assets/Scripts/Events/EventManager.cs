@@ -155,7 +155,7 @@ public partial class EventManager : MonoBehaviour
         int safety = 0;
         while (selectedEvent == null && safety < 5)
         {
-            int randInt = UnityEngine.Random.Range(1, totalWeight);
+            int randInt = UnityEngine.Random.Range(1, totalWeight + 1);
             int cursor = 0;
 
             foreach (var _event in weightedEvents)
@@ -302,7 +302,11 @@ public partial class EventManager : MonoBehaviour
                 break;
             case 4:
                 if (GameManager.instance.gameDifficulty == GameSettings.Difficulty.Easy
-                    || GameManager.instance.gameDifficulty == GameSettings.Difficulty.Normal) return;
+                    || GameManager.instance.gameDifficulty == GameSettings.Difficulty.Normal)
+                {
+                    LoadPhase(3);
+                    return;
+                }
 
                 SetWeight(EventType.Nothing, 0);
                 SetWeight(EventType.PoliticalQuestion, 5);
