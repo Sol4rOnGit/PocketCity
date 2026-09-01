@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 6098180292667122607}
   - component: {fileID: 935762197655538638}
   - component: {fileID: 8543508813340940334}
+  - component: {fileID: 9206575830983580777}
   m_Layer: 0
   m_Name: Ambulance
   m_TagString: Untagged
@@ -149,6 +150,21 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+--- !u!114 &9206575830983580777
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4763909408681192049}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ec2be54cdf7757e4386c05202307c29e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ManagedAudioSource
+  category: 1
+  priority: 1
+  audioSource: {fileID: 8543508813340940334}
 --- !u!1001 &7432010789847026022
 PrefabInstance:
   m_ObjectHideFlags: 0

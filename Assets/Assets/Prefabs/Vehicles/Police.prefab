@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 8104871379901783871}
   - component: {fileID: 1621493826455008536}
   - component: {fileID: 7285493723431795666}
+  - component: {fileID: 7222723553603317053}
   m_Layer: 0
   m_Name: Police
   m_TagString: Untagged
@@ -149,6 +150,21 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+--- !u!114 &7222723553603317053
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4226115298065616907}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ec2be54cdf7757e4386c05202307c29e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ManagedAudioSource
+  category: 1
+  priority: 1
+  audioSource: {fileID: 7285493723431795666}
 --- !u!1001 &8176783264548280023
 PrefabInstance:
   m_ObjectHideFlags: 0

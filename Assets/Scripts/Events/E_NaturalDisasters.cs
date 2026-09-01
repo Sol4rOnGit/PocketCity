@@ -64,6 +64,8 @@ public partial class EventManager : MonoBehaviour
             var mapGrid = gridManager.GetMapGrid();
             if (mapGrid.TryGetValue(buildingPos, out GridManager.GridTile gridTile))
             {
+                if (gridTile.buildingScript == null) continue;
+
                 if (gridTile.buildingScript.isRetrofitted)
                 {
                     Debug.Log("Retrofitted! Saved from earthquake");

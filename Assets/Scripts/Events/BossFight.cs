@@ -79,7 +79,7 @@ public class BossFight : MonoBehaviour
             timeElapsed += Time.unscaledDeltaTime;
             yield return null;
         }
-    }
+    } 
 
     private IEnumerator BossFightStart()
     {
@@ -139,9 +139,36 @@ public class BossFight : MonoBehaviour
 
         StartCoroutine(TypeText("You're no match for me."));
 
+        yield return new WaitForSecondsRealtime(1f);
+
         EventManager.instance.TriggerAsteroidStrike();
         EventManager.instance.TriggerMilitaryInvasion();
         EventManager.instance.TriggerMilitaryInvasion();
+        EventManager.instance.SummonB2Bomber();
+
+        yield return new WaitForSecondsRealtime(20f);
+
+        EventManager.instance.TriggerAsteroidStrike();
+        EventManager.instance.TriggerMilitaryInvasion();
+        EventManager.instance.TriggerMilitaryInvasion();
+        EventManager.instance.SummonB2Bomber();
+        EventManager.instance.SummonB2Bomber();
+        EventManager.instance.SummonB2Bomber();
+
+        yield return new WaitForSecondsRealtime(40f);
+
+        EventManager.instance.TriggerAsteroidStrike();
+        EventManager.instance.TriggerMilitaryInvasion();
+        EventManager.instance.TriggerMilitaryInvasion();
+        EventManager.instance.SummonB2Bomber();
+        EventManager.instance.SummonB2Bomber();
+        EventManager.instance.SummonB2Bomber();
+        EventManager.instance.TriggerAsteroidStrike();
+        EventManager.instance.TriggerMilitaryInvasion();
+        EventManager.instance.TriggerMilitaryInvasion();
+        EventManager.instance.SummonB2Bomber();
+        EventManager.instance.SummonB2Bomber();
+        EventManager.instance.SummonB2Bomber();
 
         StartCoroutine(CloseGame());
         EventManager.instance.StartEvents();
@@ -644,7 +671,7 @@ public class BossFight : MonoBehaviour
             GameSettings.Difficulty.Normal => 575,
             GameSettings.Difficulty.Hard => 500,
             GameSettings.Difficulty.Nightmare => 400,
-            _ => 1500
+            _ => 600
         };
 
     }

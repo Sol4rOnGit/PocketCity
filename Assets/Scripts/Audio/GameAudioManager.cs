@@ -84,7 +84,11 @@ public class GameAudioManager : MonoBehaviour
         if (timer < 0.3f) return;
         timer = 0f;
 
-        Vector3 camPos = Camera.main.transform.position;
+        AllAudioSources.RemoveAll(item => item == null);
+
+        Camera mainCam = Camera.main;
+        if (mainCam == null) { Debug.LogError("[Game Audio Manager] Can't find camera!"); return;}
+        Vector3 camPos = mainCam.transform.position;
 
         //big sort fx (prio, then dist.)
         AllAudioSources.Sort((a, b) =>

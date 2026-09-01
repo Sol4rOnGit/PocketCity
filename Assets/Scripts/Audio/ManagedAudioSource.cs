@@ -20,6 +20,11 @@ public class ManagedAudioSource : MonoBehaviour
         }
     }
 
+    private void OnDisable()
+    {
+        SetAudioAllowed(false);
+    }
+
     private void OnDestroy()
     {
         if (GameAudioManager.instance != null)
@@ -32,11 +37,11 @@ public class ManagedAudioSource : MonoBehaviour
     {
         isAllowedToPlay = allowed;
 
-        if (audioSource == null) return;
+        if (audioSource == null || !gameObject.activeInHierarchy) return;
 
         if (allowed && !audioSource.enabled)
         {
-            audioSource.enabled = true;
+            if(!audioSource.enabled) audioSource.enabled = true;
             if (!audioSource.isPlaying) audioSource.Play();
         }
         else if (!allowed && audioSource.enabled)

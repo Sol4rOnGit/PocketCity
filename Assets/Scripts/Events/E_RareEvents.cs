@@ -70,9 +70,9 @@ public partial class EventManager : MonoBehaviour
             yield return null;
         }
 
-        Destroy(asteroid);
-        DoExplosionVisualAndAudio(endPos, asteroid);
         BlastDestruction(centre);
+        DoExplosionVisualAndAudio(endPos, asteroid);
+        Destroy(asteroid);
     }
 
     private void BlastDestruction(Vector2Int centre)

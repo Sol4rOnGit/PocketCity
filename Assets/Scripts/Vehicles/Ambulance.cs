@@ -44,7 +44,7 @@ public class Ambulance : ServiceVehicle
 
     protected override void ReturnToInventory()
     {
-        if (GridManager.instance == null) { throw new System.Exception("Error. No Grid Manager"); }
+        if (GridManager.instance == null) { Debug.LogError("No grid manager found!"); return; }
 
         var grid = GridManager.instance.GetMapGrid();
         if (grid.TryGetValue(homeStationPos, out var tile) && tile.buildingScript is Hospital hospital)

@@ -38,7 +38,7 @@ public class Police : ServiceVehicle
 
     protected override void ReturnToInventory()
     {
-        if (GridManager.instance == null) { Debug.LogError("No grid manager found!"); }
+        if (GridManager.instance == null) { Debug.LogError("No grid manager found!"); return; }
 
         var grid = GridManager.instance.GetMapGrid();
         if (grid.TryGetValue(homeStationPos, out var gridTile) && gridTile.buildingScript is PoliceStation policeStation)
