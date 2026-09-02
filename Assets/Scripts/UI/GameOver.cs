@@ -47,7 +47,6 @@ public class GameOver : MonoBehaviour
     private void OnDisable()
     {
         if (GameManager.instance != null) GameManager.instance.OnGameOver -= OnGameOver;
-        else { Debug.LogError("No Game Manager found!"); }
     }
 
     private void OnGameOver()

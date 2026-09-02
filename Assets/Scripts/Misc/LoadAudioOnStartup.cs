@@ -23,7 +23,7 @@ public class LoadAudioOnStartup : MonoBehaviour
         audioMixer.SetFloat("MasterVolume", masterDb);
         audioMixer.SetFloat("MusicVolume", musicDb);
 
-        Debug.Log("Success!");
+        Debug.Log("Succesfully initialised audio!");
     }
 
 }

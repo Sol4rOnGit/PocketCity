@@ -54,7 +54,8 @@ public class BossFight : MonoBehaviour
 
     private void OnDisable()
     {
-        GameManager.instance.OnDayEnd -= OnDayEnd;
+        if (GameManager.instance != null)
+            GameManager.instance.OnDayEnd -= OnDayEnd;
     }
 
     private void OnDayEnd()

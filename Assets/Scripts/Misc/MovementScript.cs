@@ -170,8 +170,11 @@ public class MovementScript : MonoBehaviour
         zoomAction.Disable();
         sprintAction.Disable();
 
-        GameManager.instance.OnMoveSpeedChanged -= MovementSpeedChanged;
-        GameManager.instance.updateMovementPermissions -= SetMovementPerms;
+        if (GameManager.instance != null)
+        {
+            GameManager.instance.OnMoveSpeedChanged -= MovementSpeedChanged;
+            GameManager.instance.updateMovementPermissions -= SetMovementPerms;
+        }
 
         Cursor.lockState = CursorLockMode.None;
         Cursor.visible = true;

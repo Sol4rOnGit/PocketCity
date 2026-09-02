@@ -175,7 +175,7 @@ public class UIManager : MonoBehaviour
             gameManager.OnSetUIVisbility -= SetUIVisibility; 
 
         }
-        else { Debug.LogError("No game manager!"); }
+        else { Debug.Log("No game manager! (UI Manager)"); }
 
         if (gridPlayerManager != null)
         {
@@ -316,7 +316,8 @@ public class UIManager : MonoBehaviour
     {
         if (daysPassedUIText == null) { Debug.LogWarning("Day Passed UI text Not Assigned to UI mananger."); return; }
 
-        if (GameManager.instance == null) { Debug.LogError("No Game Manager! UI Manager."); }
+        if (GameManager.instance == null) { Debug.LogError("No Game Manager!"); }
+
         int daysPassed = GameManager.instance.daysPassed; 
 
         daysPassedUIText.text = $"Day {daysPassed.ToString()}";
@@ -549,7 +550,7 @@ public class UIManager : MonoBehaviour
             return $"£{amount:N0}";
         }
     }
-    private IEnumerator HideNotificationAfterSeconds(int seconds = 3)
+    private IEnumerator HideNotificationAfterSeconds(int seconds = 7)
     {
         yield return new WaitForSeconds(seconds);
 

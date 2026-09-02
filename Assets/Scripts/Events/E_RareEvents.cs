@@ -125,7 +125,7 @@ public partial class EventManager : MonoBehaviour
         GameObject explosionEffect = Instantiate(explosionEffectPrefab, centreWorldPos, Quaternion.identity, MilitaryManager.instance.transform);
         Destroy(explosionEffect, 3);
 
-        AudioSource explosionAudioSource = asteroid.GetComponent<AudioSource>();
+        AudioSource explosionAudioSource = asteroid.GetComponentInChildren<AudioSource>();
         GameObject explosionSFXGameObj = explosionAudioSource.gameObject;
         explosionSFXGameObj.transform.SetParent(GameManager.instance.transform);
         explosionAudioSource.Play();

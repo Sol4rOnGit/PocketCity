@@ -45,7 +45,7 @@ public class GameManager : MonoBehaviour
     public Action OnDayEnd;
     public Action OnDayEndUI;
 
-    public Action<string, bool> UserNotification;
+    public Action<string, bool> UserNotification; //text, isUrgent (red text)
 
     public Action<float> OnDayProgress;
 

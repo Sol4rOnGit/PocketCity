@@ -257,7 +257,7 @@ public class GridManager : MonoBehaviour
         {
             if (tile.isRoad || tile.buildingType != null)
             {
-                Debug.Log("Cannot zone a tile with pre-existing infrastucture.");
+                GameManager.instance.UserNotification?.Invoke("Cannot zone a tile with pre-existing infrastucture.", false);
                 return; 
             }
 
@@ -296,7 +296,7 @@ public class GridManager : MonoBehaviour
     {
         if (!mapGrid.ContainsKey(pos))
         {
-            Debug.Log("Nothing to destroy.");
+            //Debug.Log("Nothing to destroy.");
             return;
         }
 
