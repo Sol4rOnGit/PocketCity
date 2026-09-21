@@ -28,7 +28,7 @@
 
 <img src="https://github.com/Sol4rOnGit/PocketCity/blob/main/img/Screenshot%202026-08-08%20231745.png" alt="2nd Capital Chaos Banner" width="100%">
 
-## Notes For Stardance Reviewers (really hope it's a 36/36)
+## Notes For Stardance Reviewers
 
 ### Originality
 
@@ -104,12 +104,12 @@ _Format: Control Keyboard / Xbox Controller_
   <summary><h3>Known issues</h3></summary>
   <ul>
         <li>Okay Controller Support (best played on keyboard/mouse)</li>
-        <li>I know there isn't a tutorial or anything so yeah</li>
+        <li>Extreme game instability & crashing (no clue what i've done, WIP)</li>
+        <li>I know there isn't a tutorial or anything so yeah (WIP)</li>
         <li>Fullscreen support isn't really there for resolutions that isn't native</li>
         <li>Audio isn't really up to tip top standard, but I will work on this in future ships :)</li>
-        <li>Game freezes? Only happened once so I'm not sure.</li>
         <li>Boss fight slight desync. Since it's randomised this is a given sadly but not anything major to the game design.</li>
         <li>No sound on asteroid strike. I have some clue why it's happening, and I'm actively working on it.</li>
   </ul>
-  <p>Do bear in mind I have exams and stuff soon so I can't dedicate TOO much time unfortunately. And it's hard for one person to test everything in a game of this size.</p>
+  <p>Do bear in mind I have exams and stuff soon so I can't dedicate TOO much time unfortunately. And it's hard for one person to test everything in a game of this size. Thanks for your support! :)</p>
 </details>
