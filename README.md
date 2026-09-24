@@ -28,7 +28,9 @@
 
 <img src="https://github.com/Sol4rOnGit/PocketCity/blob/main/img/Screenshot%202026-08-08%20231745.png" alt="2nd Capital Chaos Banner" width="100%">
 
-## Notes For Stardance Reviewers
+## Notes For Hack Club Stardance Reviewers
+
+Thank you SO much to hack club & stardance for the immense support AND insane view numbers!! (and the framework 12 that is shipping.. and taking forever but worth the wait!)
 
 ### Originality
 
